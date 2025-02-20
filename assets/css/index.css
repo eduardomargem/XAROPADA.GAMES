@@ -27,6 +27,7 @@ html, body {
     width: 100%;
     height: 100%;
     z-index: -1;
+    
 }
 
 .video {
@@ -36,19 +37,28 @@ html, body {
     filter: brightness(50%);
 }
 
-.logo img{
-    width: 150px;
+.logo {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+.logo img {
+    width: 80px;
+    height: 80px;
 }
 
 .login-container{
     background-color: rgba(44, 42, 100, 0.8);
-    position: fixed;
+    flex: 1;
     width: 500px;
     height: 600px;
     border-radius: 5px;
     padding: 20px;
-    justify-items: center;
-    
+    display: flex;
+          
 }
 h2{
     margin-bottom: 20px;
@@ -73,9 +83,77 @@ h2
 }
 
 .btn{
+    margin-top: 30px;
     width: 398px;
     height: 82px;
     border: 1px solid var(--cor-borda);
     border-radius: 5px;
     font-size: 24px;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Press Start 2P', cursive;
+    background: url('arcade-bg.jpg') no-repeat center center/cover;
+    color: white;
+}
+.container {
+    display: flex;
+    height: 100vh;
+    align-items: center;
+}
+.logo {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+.logo img {
+    width: 80px;
+    height: 80px;
+}
+.login-box {
+    flex: 1;
+    background-color: rgba(44, 42, 100, 0.8);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 500px;
+    height: 600px;
+    border-radius: 5px;
+    padding: 20px;
+    margin-right: 100px;
+}
+.login-box h2 {
+    color: #00ff00;
+}
+input, button {
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0;
+    border: none;
+    border-radius: 5px;
+}
+
+input {
+    background-color: #f0f0f0;
+}
+button {
+    background-color: #00ff00;
+    cursor: pointer;
+    font-weight: bold;
+}
+button.google, button.apple {
+    background-color: white;
+    color: black;
+}
+a {
+    color: #00ff00;
+}
+.terms {
+    font-size: 10px;
+    text-align: center;
 }

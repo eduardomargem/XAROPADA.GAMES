@@ -13,28 +13,28 @@
                 <source src="/assets/img/arcade.mp4">
             </video>
         </div>
+        
     </section>
-    <div>
-        <img class="logo" src="/assets/img/spaceinvader.png" alt="">
-    </div>
-    
-    <div class="login-container">
-        <h2>Seja bem-vindo ao BackOffice!</h2>
-        <form action="login-action.php" method="POST">
-            <div class="input-group">
-                <label for="username">Usuário</label>
-                <input type="text" id="username" name="username" placeholder="Digite seu usuário" required>
+    <div class="container">
+        <div class="logo">
+            <img src="/assets/img/spaceinvader.png" alt="Invader Pixel">
+            <h1>XAROPADA <br> GAMES</h1>
+        </div>
+        <div class="login-box">
+            <h2>Seja Bem-Vindo!</h2>
+            <form id="loginForm">
+                <input type="text" placeholder="E-mail ou CPF" required>
+                <input type="password" placeholder="Senha" required>
+                <a href="#">Esqueceu a senha?</a>
+                <button type="submit">ENTRAR</button>
+            </form>
+            <p>Ainda não tem um cadastro? <a href="#">Registre-se</a></p>
+            <p class="terms">Ao continuar, você concorda com nosso <a href="#">Contrato de Usuário</a> e reconhece que compreende nossa <a href="#">Política de Privacidade</a>.</p>
+            <div class="social-login">
+                <button class="google">Continuar com Google</button>
+                <button class="apple">Continuar com Apple</button>
             </div>
-            <div class="input-group">
-                <label for="password">Senha</label>
-                <input type="password" id="password" name="password" placeholder="Digite sua senha" required>
-            </div>
-            <button type="submit" class="btn">Entrar</button>
-            <div class="links">
-                <a href="#">Esqueci minha senha</a>
-                <a href="#">Criar uma conta</a>
-            </div>
-        </form>
+        </div>
     </div>
     
     
