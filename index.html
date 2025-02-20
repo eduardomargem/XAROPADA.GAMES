@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="/assets/css/index.css">
     <title>Index</title>
 </head>
 <body>
@@ -14,8 +14,29 @@
             </video>
         </div>
     </section>
+    <div>
+        <img class="logo" src="/assets/img/spaceinvader.png" alt="">
+    </div>
     
-  
+    <div class="login-container">
+        <h2>Seja bem-vindo ao BackOffice!</h2>
+        <form action="login-action.php" method="POST">
+            <div class="input-group">
+                <label for="username">Usuário</label>
+                <input type="text" id="username" name="username" placeholder="Digite seu usuário" required>
+            </div>
+            <div class="input-group">
+                <label for="password">Senha</label>
+                <input type="password" id="password" name="password" placeholder="Digite sua senha" required>
+            </div>
+            <button type="submit" class="btn">Entrar</button>
+            <div class="links">
+                <a href="#">Esqueci minha senha</a>
+                <a href="#">Criar uma conta</a>
+            </div>
+        </form>
+    </div>
+    
     
 </body>
 </html>
