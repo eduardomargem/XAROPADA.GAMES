@@ -2,7 +2,12 @@
     padding: 0;
     margin: 0;
 }
-
+.press-start-2p-regular {
+    font-family: "Press Start 2P", serif;
+    font-weight: 400;
+    font-style: normal;
+  }
+  
 html, body {
     height: 100%; 
     width: 100%;
@@ -36,66 +41,20 @@ html, body {
     object-fit: cover;
     filter: brightness(50%);
 }
-
-.logo {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
+.logo h2{
+    font-family: "Press Start 2P", serif;
+    font-size: 50px;
+    color: white;
+    margin-bottom: -1px;
 }
-.logo img {
-    width: 80px;
-    height: 80px;
-}
-
-.login-container{
-    background-color: rgba(44, 42, 100, 0.8);
-    flex: 1;
-    width: 500px;
-    height: 600px;
-    border-radius: 5px;
-    padding: 20px;
-    display: flex;
-          
-}
-h2{
-    margin-bottom: 20px;
+h1{
+    font-family: "Press Start 2P", serif;
+    font-size: 100px;
     color: white;
 }
-h2
-.input-group label { 
-    font-size: 20px;
-    margin-bottom: 1px;
-    color: var(--cor-texto);
-}
-
-.input-group input {
-    display: block; 
-    width: 398px;
-    padding: 10px;
-    font-size: 14px;
-    border: 1px solid var(--cor-borda);
-    border-radius: 5px;
-    box-sizing: border-box;
-    color: var(--cor-texto);
-}
-
-.btn{
-    margin-top: 30px;
-    width: 398px;
-    height: 82px;
-    border: 1px solid var(--cor-borda);
-    border-radius: 5px;
-    font-size: 24px;
-}
-
-body {
-    margin: 0;
-    padding: 0;
-    font-family: 'Press Start 2P', cursive;
-    background: url('arcade-bg.jpg') no-repeat center center/cover;
+h2{
+    font-family: "Press Start 2P", serif;
+    margin-bottom: 20px;
     color: white;
 }
 .container {
@@ -112,28 +71,35 @@ body {
     text-align: center;
 }
 .logo img {
-    width: 80px;
-    height: 80px;
+    width: 150px;
+    height: 150px;
 }
 .login-box {
     flex: 1;
     background-color: rgba(44, 42, 100, 0.8);
     display: flex;
     flex-direction: column;
+    
     align-items: center;
-    width: 500px;
-    height: 600px;
+    max-width: 530px;
+    height: fit-content;
     border-radius: 5px;
-    padding: 20px;
-    margin-right: 100px;
+    padding: 40px;
+    margin-right: 400px;
+    
 }
 .login-box h2 {
+    text-align: center;
     color: #00ff00;
+}
+
+form{
+    padding: 10px;
 }
 input, button {
     width: 100%;
-    padding: 10px;
-    margin: 5px 0;
+    padding: 25px;
+    margin: 10px 0;
     border: none;
     border-radius: 5px;
 }
