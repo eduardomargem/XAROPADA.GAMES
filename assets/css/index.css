@@ -31,8 +31,10 @@ html, body {
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: -1;
-    
+    z-index: 1;
+    display: flex;
+    height: 100vh;
+    align-items: center;
 }
 
 .video {
@@ -41,11 +43,38 @@ html, body {
     object-fit: cover;
     filter: brightness(50%);
 }
-.logo h2{
+
+.logo h2, .logo h1 {
     font-family: "Press Start 2P", serif;
-    font-size: 50px;
     color: white;
-    margin-bottom: -1px;
+    text-align: center;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7); 
+}
+
+
+.logo h2 {
+    font-size: 50px;
+    margin-bottom: -1px; 
+    text-shadow: 3px 3px 10px rgba(255, 255, 255, 1), -2px -2px 5px rgba(0, 0, 0, 0.7); /* Sombra branca com sombra escura no fundo */
+}
+
+
+.logo h1 {
+    font-size: 100px;
+    text-shadow: 4px 4px 15px rgba(255, 255, 255, 1), -3px -3px 5px rgba(0, 0, 0, 0.7); /* Sombra branca mais intensa */
+}
+@keyframes arcade-vibration {
+    0% { transform: translateY(0); }
+    10% { transform: translateY(-5px); } /* Move para cima */
+    20% { transform: translateY(5px); }  /* Move para baixo */
+    30% { transform: translateY(-5px); } /* Move para cima */
+    40% { transform: translateY(5px); }  /* Move para baixo */
+    50% { transform: translateY(0); }    /* Volta ao centro */
+    100% { transform: translateY(0); }   /* Finaliza no centro */
+}
+
+.logo {
+    animation: arcade-vibration 3s ease-in-out infinite; 
 }
 h1{
     font-family: "Press Start 2P", serif;
@@ -57,11 +86,8 @@ h2{
     margin-bottom: 20px;
     color: white;
 }
-.container {
-    display: flex;
-    height: 100vh;
-    align-items: center;
-}
+    
+
 .logo {
     flex: 1;
     display: flex;
@@ -73,53 +99,107 @@ h2{
 .logo img {
     width: 150px;
     height: 150px;
+    animation: arcade-vibration-horizontal 3s ease-in-out infinite; 
+}
+@keyframes arcade-vibration-horizontal {
+    0% { transform: translateX(0); }        /* Começa no centro */
+    25% { transform: translateX(-65px); }   /* Move um pouco para a esquerda */
+    50% { transform: translateX(65px); }    /* Move um pouco para a direita */
+    75% { transform: translateX(-65px); }   /* Move novamente para a esquerda */
+    100% { transform: translateX(0); }      /* Volta ao centro */
 }
 .login-box {
     flex: 1;
     background-color: rgba(44, 42, 100, 0.8);
-    display: flex;
+    display: block;
     flex-direction: column;
-    
-    align-items: center;
     max-width: 530px;
+    width: 100%;
     height: fit-content;
     border-radius: 5px;
     padding: 40px;
     margin-right: 100px;
-    
+    box-sizing: border-box;
+    z-index: 10;
+    position: relative;
 }
 .login-box h2 {
     text-align: center;
-    color: #00ff00;
+    color: #00FF85;
+    padding: 20px;
 }
 
-form{
-    padding: 10px;
-}
 input, button {
     width: 100%;
-    padding: 25px;
+    padding: 20px;
     margin: 10px 0;
     border: none;
     border-radius: 5px;
+    box-sizing: border-box;
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
 input {
     background-color: #f0f0f0;
 }
+input:focus {
+    outline: none;
+    box-shadow: 0 0 10px rgba(0, 255, 133, 0.7); /* Foco com sombra verde */
+}
+input:active {
+    transform: scale(0.98); 
+    box-shadow: 0 0 15px rgba(0, 255, 133, 0.9); 
+}
 button {
-    background-color: #00ff00;
+    background-color: #00FF85;
+    font-family: "Press Start 2P", serif;
+    color: white;
     cursor: pointer;
     font-weight: bold;
+    font-size: 24px;
+    padding: 35px;
+    transition: transform 0.1s ease, box-shadow 0.3s ease, background-color 0.3s ease;
 }
-button.google, button.apple {
-    background-color: white;
-    color: black;
+
+button:active {
+    transform: scale(0.98); 
+    box-shadow: 0 0 15px rgba(0, 255, 133, 0.9); 
 }
+
+button:hover {
+    background-color: #00cc66; 
+}
+
 a {
-    color: #00ff00;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    color: #f0f0f0;
+    text-decoration: none;
+    transition: color 0.3s ease, text-decoration 0.3s ease; 
+}
+
+a:hover {
+    color: #00cc66; 
+    text-decoration: underline;
+}
+a:focus {
+    outline: none; /* Remove o contorno padrão ao focar */
+    color: #00FF85; /* Cor do link ao focar */
+    text-decoration: underline; /* Sublinha o texto ao focar */
+}
+a:active {
+    color: #00cc66;  /* Cor do link ao clicar */
+    text-decoration: underline;
+}
+p{
+   
+    font-family:Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    color: #00FF85;
 }
 .terms {
-    font-size: 10px;
-    text-align: center;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    text-align: left;
+    margin-top: 15px;
 }
