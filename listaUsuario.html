@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <title>Lista de Usuários - Backoffice</title>
+  <link rel="stylesheet" href="/assets/css/listaUsuario.css">
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Lista de Usuários</h1>
+      
+    </header>
+
+    <!-- Formulário de Cadastro de Usuário (Modal) -->
+    <div id="registerModal" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="closeRegisterModal()">&times;</span>
+        <h2>Cadastrar Usuário</h2>
+        <form id="registerForm">
+          <label for="userName">Nome</label>
+          <input type="text" id="userName" required>
+
+          <label for="userCpf">CPF</label>
+          <input type="text" id="userCpf" required>
+
+          <label for="userEmail">Email</label>
+          <input type="email" id="userEmail" required>
+
+          <label for="userPassword">Senha</label>
+          <input type="password" id="userPassword" required>
+
+          <label for="userConfirmPassword">Confirmar Senha</label>
+          <input type="password" id="userConfirmPassword" required>
+
+          <label for="userGroup">Grupo</label>
+          <select id="userGroup" required>
+            <option value="admin">Administrador</option>
+            <option value="estoquista">Estoquista</option>
+          </select>
+
+          <button type="submit">Cadastrar</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modal de Edição de Usuário -->
+    <div id="editUserModal" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="closeEditModal()">&times;</span>
+        <h2>Editar Usuário</h2>
+        <form id="editUserForm">
+          <label for="editUserName">Nome</label>
+          <input type="text" id="editUserName" required>
+
+          <label for="editUserCpf">CPF</label>
+          <input type="text" id="editUserCpf" required>
+
+          <label for="editUserEmail">Email</label>
+          <input type="email" id="editUserEmail" disabled required>
+
+          <label for="editUserPassword">Nova Senha</label>
+          <input type="password" id="editUserPassword">
+
+          <label for="editUserConfirmPassword">Confirmar Nova Senha</label>
+          <input type="password" id="editUserConfirmPassword">
+
+          <label for="editUserGroup">Grupo</label>
+          <select id="editUserGroup" required>
+            <option value="admin">Administrador</option>
+            <option value="estoquista">Estoquista</option>
+          </select>
+
+          <button type="submit">Salvar Alterações</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Filtros e Tabela -->
+    <section>
+      <div class="filters">
+        <input type="text" id="search" placeholder="Pesquisar por nome...">
+        <button onclick="applyFilters()">Pesquisar</button>
+        <button onclick="openRegisterModal()">+</button>
+      </div>
+
+      <table id="usersTable">
+        <thead>
+          <tr>
+            <th onclick="sortTable('name')">Nome <i class="fa fa-sort"></i></th>
+            <th>Email</th>
+            <th onclick="sortTable('status')">Status <i class="fa fa-sort"></i></th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Lista de usuários será gerada dinamicamente -->
+        </tbody>
+      </table>
+
+      <!-- Paginação -->
+      <div class="pagination">
+        <button id="prevPage" onclick="changePage('prev')" disabled>Anterior</button>
+        <span id="pageInfo"></span>
+        <button id="nextPage" onclick="changePage('next')">Próximo</button>
+      </div>
+    </section>
+  </div>
+  <a href="home.html" class="back">Voltar</a>
+  <!-- Modal de Confirmação para Inativar/Ativar Usuário -->
+  <div id="confirmationModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal()">&times;</span>
+      <h2>Confirmação</h2>
+      <p id="modalMessage"></p>
+      <button id="confirmBtn" onclick="confirmAction()">Confirmar</button>
+      <button onclick="closeModal()">Cancelar</button>
+    </div>
+  </div>
+
+  <script src="/assets/js/listaUsuario.js"></script>
+</body>
+</html>
