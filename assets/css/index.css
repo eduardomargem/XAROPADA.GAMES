@@ -55,22 +55,22 @@ html, body {
 .logo h2 {
     font-size: 50px;
     margin-bottom: -1px; 
-    text-shadow: 3px 3px 10px rgba(255, 255, 255, 1), -2px -2px 5px rgba(0, 0, 0, 0.7); /* Sombra branca com sombra escura no fundo */
+    text-shadow: 3px 3px 10px rgba(255, 255, 255, 1), -2px -2px 5px rgba(0, 0, 0, 0.7); 
 }
 
 
 .logo h1 {
     font-size: 100px;
-    text-shadow: 4px 4px 15px rgba(255, 255, 255, 1), -3px -3px 5px rgba(0, 0, 0, 0.7); /* Sombra branca mais intensa */
+    text-shadow: 4px 4px 15px rgba(255, 255, 255, 1), -3px -3px 5px rgba(0, 0, 0, 0.7);
 }
 @keyframes arcade-vibration {
     0% { transform: translateY(0); }
-    10% { transform: translateY(-5px); } /* Move para cima */
-    20% { transform: translateY(5px); }  /* Move para baixo */
-    30% { transform: translateY(-5px); } /* Move para cima */
-    40% { transform: translateY(5px); }  /* Move para baixo */
-    50% { transform: translateY(0); }    /* Volta ao centro */
-    100% { transform: translateY(0); }   /* Finaliza no centro */
+    10% { transform: translateY(-5px); }
+    20% { transform: translateY(5px); } 
+    30% { transform: translateY(-5px); }
+    40% { transform: translateY(5px); } 
+    50% { transform: translateY(0); }    
+    100% { transform: translateY(0); }  
 }
 
 .logo {
@@ -102,11 +102,11 @@ h2{
     animation: arcade-vibration-horizontal 3s ease-in-out infinite; 
 }
 @keyframes arcade-vibration-horizontal {
-    0% { transform: translateX(0); }        /* Começa no centro */
-    25% { transform: translateX(-65px); }   /* Move um pouco para a esquerda */
-    50% { transform: translateX(65px); }    /* Move um pouco para a direita */
-    75% { transform: translateX(-65px); }   /* Move novamente para a esquerda */
-    100% { transform: translateX(0); }      /* Volta ao centro */
+    0% { transform: translateX(0); }       
+    25% { transform: translateX(-65px); }  
+    50% { transform: translateX(65px); }   
+    75% { transform: translateX(-65px); }   
+    100% { transform: translateX(0); }     
 }
 .login-box {
     flex: 1;
@@ -183,12 +183,12 @@ a:hover {
     text-decoration: underline;
 }
 a:focus {
-    outline: none; /* Remove o contorno padrão ao focar */
-    color: #00FF85; /* Cor do link ao focar */
-    text-decoration: underline; /* Sublinha o texto ao focar */
+    outline: none; 
+    color: #00FF85; 
+    text-decoration: underline;
 }
 a:active {
-    color: #00cc66;  /* Cor do link ao clicar */
+    color: #00cc66; 
     text-decoration: underline;
 }
 p{

@@ -1,0 +1,143 @@
+* {
+    padding: 0;
+    margin: 0;
+}
+.press-start-2p-regular {
+    font-family: "Press Start 2P", serif;
+    font-weight: 400;
+    font-style: normal;
+  }
+  
+html, body {
+    height: 100%; 
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}    
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #1d1b1b;
+    margin: 0;
+    padding: 0;
+    display: block;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.dashboard-container {
+    background-color: rgba(44, 42, 100, 0.8);
+    padding: 30px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 80%;
+    max-width: 600px;
+    margin: 0px auto;
+    margin-top: 30px;
+    
+}
+.logo h2, .logo h1 {
+    font-family: "Press Start 2P", serif;
+    color: white;
+    text-align: center;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7); 
+}
+
+
+.logo h2 {
+    font-size: 50px;
+    margin-bottom: -1px; 
+    text-shadow: 3px 3px 10px rgba(255, 255, 255, 1), -2px -2px 5px rgba(0, 0, 0, 0.7); 
+}
+
+
+.logo h1 {
+    font-size: 100px;
+    text-shadow: 4px 4px 15px rgba(255, 255, 255, 1), -3px -3px 5px rgba(0, 0, 0, 0.7);
+}
+@keyframes arcade-vibration {
+    0% { transform: translateY(0); }
+    10% { transform: translateY(-5px); }
+    20% { transform: translateY(5px); } 
+    30% { transform: translateY(-5px); }
+    40% { transform: translateY(5px); } 
+    50% { transform: translateY(0); }    
+    100% { transform: translateY(0); }  
+}
+
+.logo {
+    animation: arcade-vibration 3s ease-in-out infinite; 
+}
+h1{
+    font-family: "Press Start 2P", serif;
+    font-size: 100px;
+    color: white;
+}
+h2{
+    font-family: "Press Start 2P", serif;
+    margin-bottom: 20px;
+    color: white;
+    text-align: center;
+}
+    
+
+.logo {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+.logo img {
+    width: 150px;
+    height: 150px;
+    animation: arcade-vibration-horizontal 3s ease-in-out infinite; 
+}
+@keyframes arcade-vibration-horizontal {
+    0% { transform: translateX(0); }       
+    25% { transform: translateX(-65px); }  
+    50% { transform: translateX(65px); }   
+    75% { transform: translateX(-65px); }   
+    100% { transform: translateX(0); }     
+}
+.dashboard-links {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.dashboard-links a {
+    padding: 10px;
+    margin: 10px;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    text-align: center;
+    border-radius: 5px;
+    width: 200px;
+    margin: 10px auto;
+    
+}
+
+.dashboard-links a:hover {
+    background-color: #0056b3;
+}
+
+.dashboard-logout {
+    text-align: center;
+}
+
+.dashboard-logout button {
+    padding: 10px 20px;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.dashboard-logout button:hover {
+    background-color: #c82333;
+}
