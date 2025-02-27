@@ -1,3 +1,4 @@
+/*  CONEXÃO PARA O BACKEND
 document.addEventListener("DOMContentLoaded", function () {
     const apiBaseUrl = "http://localhost:8080/api/usuarios"; // URL base da API
 
@@ -70,9 +71,10 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // Event listener para o cadastro
+   
     const formCadastro = document.getElementById("formCadastro");
     if (formCadastro) {
         formCadastro.addEventListener("submit", cadastrarUsuario);
     }
 });
+*/
