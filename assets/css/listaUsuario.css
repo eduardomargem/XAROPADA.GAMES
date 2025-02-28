@@ -34,7 +34,7 @@ body {
   padding: 30px;
   color: white;
 }
-section{
+section {
   flex: 1;
   background-color: rgba(44, 42, 100, 0.8);
   flex-direction: column;
@@ -43,8 +43,9 @@ section{
   border-radius: 5px;
   padding: 40px;
   box-sizing: border-box;
-  
   position: relative;
+  overflow-y: auto;
+  max-height: 80vh;
 }
 
 header {
