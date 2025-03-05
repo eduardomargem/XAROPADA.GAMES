@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <title>Lista de Produtos - Administrador</title>
+  <link rel="stylesheet" href="/assets/css/listaProdutoAdm.css">
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Lista de Produtos - Administrador</h1>
+      
+    </header>
+
+    <!-- Formulário de Cadastro de Produto (Modal) -->
+    <div id="registerModal" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="closeRegisterModal()">&times;</span>
+        <h2>Cadastrar Produtos</h2>
+        <form id="registerForm">
+          <label for="userName">Nome</label>
+          <input type="text" id="userName" required>
+
+          <label for="userCpf">Avaliação</label>
+          <input type="text" id="userCpf" required>
+
+          <label for="userEmail">Descrição detalhada</label>
+          <input type="email" id="userEmail" required>
+
+          <label for="userPassword">Preço</label>
+          <input type="password" id="userPassword" required>
+
+          <label for="userConfirmPassword">Quantidade em estoque</label>
+          <input type="password" id="userConfirmPassword" required>
+
+          <button type="submit">Cadastrar</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modal de Edição de Produto -->
+    <div id="registerModal" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="closeRegisterModal()">&times;</span>
+        <h2>Cadastrar Produtos</h2>
+        <form id="registerForm">
+          <label for="userName">Nome</label>
+          <input type="text" id="userName" required>
+
+          <label for="userCpf">Avaliação</label>
+          <input type="text" id="userCpf" required>
+
+          <label for="userEmail">Descrição detalhada</label>
+          <input type="email" id="userEmail" required>
+
+          <label for="userPassword">Preço</label>
+          <input type="password" id="userPassword" required>
+
+          <label for="userConfirmPassword">Quantidade em estoque</label>
+          <input type="password" id="userConfirmPassword" required>
+
+          <button type="submit">Salvar Alterações</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Filtros e Tabela -->
+    <section>
+      <div class="filters">
+        <input type="text" id="search" placeholder="Pesquisar por nome...">
+        <button onclick="applyFilters()">Pesquisar</button>
+        <button onclick="openRegisterModal()">+ Novo</button>
+      </div>
+
+      <table id="usersTable">
+        <thead>
+          <tr>
+            <th onclick="sortTable('name')">Código <i class="fa fa-sort"></i></th>
+            <th>Nome</th>
+            <th onclick="sortTable('status')">Quantidade <i class="fa fa-sort"></i></th>
+            <th>Valor</th>
+            <th>Status</th>
+            <th>Opções</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Lista de usuários será gerada dinamicamente -->
+        </tbody>
+      </table>
+
+      <!-- Paginação -->
+      <div class="pagination">
+        <button id="prevPage" onclick="changePage('prev')" disabled>Anterior</button>
+        <span id="pageInfo"></span>
+        <button id="nextPage" onclick="changePage('next')">Próximo</button>
+      </div>
+    </section>
+    <button href="dashboard.html">Voltar</button>
+  </div>
+
+  <!-- Modal de Confirmação para Inativar/Ativar Produto -->
+  <div id="confirmationModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal()">&times;</span>
+      <h2>Confirmação</h2>
+      <p id="modalMessage"></p>
+      <button id="confirmBtn" onclick="confirmAction()">Confirmar</button>
+      <button onclick="closeModal()">Cancelar</button>
+    </div>
+  </div>
+
+  <script src="/assets/js/listaProdutoAdm.js"></script>
+</body>
+</html>
