@@ -147,12 +147,12 @@
   }
   
   th {
-    background-color: #4e3737;
+    background-color: #00FF85;
     cursor: pointer;
   }
   
   td button {
-    background-color: #4CAF50;
+    background-color: #00FF85;
     color: white;
     border: none;
     padding: 6px 12px;
@@ -177,7 +177,7 @@
   }
   
   tr:hover {
-    background-color: #f0f0f0;
+    background-color: #7c18ff;
   }
   
   /* Estilo para a paginação */

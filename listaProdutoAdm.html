@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <title>Lista de Produtos - Administrador</title>
   <link rel="stylesheet" href="/assets/css/listaProdutoAdm.css">
   <link href="https://cdn.jsdelivr.net/npm/font-awesome/css/font-awesome.min.css" rel="stylesheet">
@@ -14,29 +14,28 @@
   <div class="container">
     <header>
       <h1>Lista de Produtos - Administrador</h1>
-      
     </header>
 
     <!-- Formulário de Cadastro de Produto (Modal) -->
-    <div id="registerModal" class="modal">
+    <div id="registerProductModal" class="modal">
       <div class="modal-content">
-        <span class="close" onclick="closeRegisterModal()">&times;</span>
-        <h2>Cadastrar Produtos</h2>
-        <form id="registerForm">
-          <label for="userName">Nome</label>
-          <input type="text" id="userName" required>
+        <span class="close" onclick="closeRegisterProductModal()">&times;</span>
+        <h2>Cadastrar Produto</h2>
+        <form id="registerProductForm">
+          <label for="productName">Nome</label>
+          <input type="text" id="productName" required>
 
-          <label for="userCpf">Avaliação</label>
-          <input type="text" id="userCpf" required>
+          <label for="productRating">Avaliação</label>
+          <input type="text" id="productRating" required>
 
-          <label for="userEmail">Descrição detalhada</label>
-          <input type="email" id="userEmail" required>
+          <label for="productDescription">Descrição detalhada</label>
+          <input type="text" id="productDescription" required>
 
-          <label for="userPassword">Preço</label>
-          <input type="password" id="userPassword" required>
+          <label for="productPrice">Preço</label>
+          <input type="number" id="productPrice" required>
 
-          <label for="userConfirmPassword">Quantidade em estoque</label>
-          <input type="password" id="userConfirmPassword" required>
+          <label for="productQuantity">Quantidade em estoque</label>
+          <input type="number" id="productQuantity" required>
 
           <button type="submit">Cadastrar</button>
         </form>
@@ -44,27 +43,30 @@
     </div>
 
     <!-- Modal de Edição de Produto -->
-    <div id="registerModal" class="modal">
+    <div id="editProductModal" class="modal">
       <div class="modal-content">
-        <span class="close" onclick="closeRegisterModal()">&times;</span>
-        <h2>Cadastrar Produtos</h2>
-        <form id="registerForm">
-          <label for="userName">Nome</label>
-          <input type="text" id="userName" required>
+        <span class="close" onclick="closeEditProductModal()">&times;</span>
+        <h2>Editar Produto</h2>
+        <form id="editProductForm">
+          <label for="editProductName">Nome</label>
+          <input type="text" id="editProductName" required>
 
-          <label for="userCpf">Avaliação</label>
-          <input type="text" id="userCpf" required>
+          <label for="editProductCodigo">Código</label>
+          <input type="text" id="editProductCodigo" disabled required>
 
-          <label for="userEmail">Descrição detalhada</label>
-          <input type="email" id="userEmail" required>
+          <label for="editProductQuantity">Quantidade</label>
+          <input type="number" id="editProductQuantity" required>
 
-          <label for="userPassword">Preço</label>
-          <input type="password" id="userPassword" required>
+          <label for="editProductPrice">Preço</label>
+          <input type="number" id="editProductPrice" required>
 
-          <label for="userConfirmPassword">Quantidade em estoque</label>
-          <input type="password" id="userConfirmPassword" required>
+          <label for="editProductStatus">Status</label>
+          <select id="editProductStatus" required>
+            <option value="Ativo">Ativo</option>
+            <option value="Inativo">Inativo</option>
+          </select>
 
-          <button type="submit">Salvar Alterações</button>
+          <button type="button" onclick="editProduct()">Salvar Alterações</button>
         </form>
       </div>
     </div>
@@ -72,45 +74,45 @@
     <!-- Filtros e Tabela -->
     <section>
       <div class="filters">
-        <input type="text" id="search" placeholder="Pesquisar por nome...">
-        <button onclick="applyFilters()">Pesquisar</button>
-        <button onclick="openRegisterModal()">+ Novo</button>
+        <input type="text" id="productSearch" placeholder="Pesquisar por nome...">
+        <button onclick="applyProductFilters()">Pesquisar</button>
+        <button onclick="openRegisterProductModal()">+ Novo Produto</button>
       </div>
 
-      <table id="usersTable">
+      <table id="productsTable">
         <thead>
           <tr>
-            <th onclick="sortTable('name')">Código <i class="fa fa-sort"></i></th>
+            <th>Código</th>
             <th>Nome</th>
-            <th onclick="sortTable('status')">Quantidade <i class="fa fa-sort"></i></th>
+            <th>Quantidade</th>
             <th>Valor</th>
             <th>Status</th>
             <th>Opções</th>
           </tr>
         </thead>
         <tbody>
-          <!-- Lista de usuários será gerada dinamicamente -->
+          <!-- Lista de produtos será gerada dinamicamente -->
         </tbody>
       </table>
 
       <!-- Paginação -->
       <div class="pagination">
-        <button id="prevPage" onclick="changePage('prev')" disabled>Anterior</button>
-        <span id="pageInfo"></span>
-        <button id="nextPage" onclick="changePage('next')">Próximo</button>
+        <button id="prevProductPage" onclick="changeProductPage('prev')" disabled>Anterior</button>
+        <span id="productPageInfo"></span>
+        <button id="nextProductPage" onclick="changeProductPage('next')">Próximo</button>
       </div>
     </section>
-    <button href="dashboard.html">Voltar</button>
+    <button onclick="window.location.href='dashboard.html'">Voltar</button>
   </div>
 
   <!-- Modal de Confirmação para Inativar/Ativar Produto -->
-  <div id="confirmationModal" class="modal">
+  <div id="productConfirmationModal" class="modal">
     <div class="modal-content">
-      <span class="close" onclick="closeModal()">&times;</span>
+      <span class="close" onclick="closeProductModal()">&times;</span>
       <h2>Confirmação</h2>
-      <p id="modalMessage"></p>
-      <button id="confirmBtn" onclick="confirmAction()">Confirmar</button>
-      <button onclick="closeModal()">Cancelar</button>
+      <p id="productModalMessage"></p>
+      <button id="confirmProductBtn" onclick="confirmProductAction()">Confirmar</button>
+      <button onclick="closeProductModal()">Cancelar</button>
     </div>
   </div>
 
