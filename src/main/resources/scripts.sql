@@ -3,15 +3,15 @@ CREATE DATABASE xaropadagames;
 use xaropadagames;
 
 CREATE TABLE Grupos (
-    id              int not null AUTO_INCREMENT,
+    id              int not null AUTO_INCREMENT PRIMARY KEY,
     ds_grupo        varchar(50) not null
 );
 
 INSERT INTO Grupos (ds_grupo)
-VALUES ('Admin', 'Estoquista');
+VALUES ('Admin'), ('Estoquista');
 
 CREATE TABLE Usuarios (
-    id              int not null AUTO_INCREMENT,
+    id              int not null AUTO_INCREMENT PRIMARY KEY,
     ds_nome         varchar(200) not null,
     nr_cpf          varchar(11) not null unique,
     ds_email        varchar(100) not null unique,
@@ -20,3 +20,4 @@ CREATE TABLE Usuarios (
     bo_status       int not null,
     FOREIGN KEY (id_grupo) REFERENCES Grupos(id)
 );
+
