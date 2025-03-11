@@ -150,3 +150,69 @@ function toggleUserStatus(email) {
 
 // Inicializar com a renderização dos usuários
 renderUsers();
+
+// Exemplo de URL da API (substitua pela URL real)
+const apiUrl = 'http://localhost:8080/usuarios';
+ 
+// Função para buscar os usuários da API
+async function fetchUsers() {
+  try {
+    const response = await fetch(apiUrl);
+    if (!response.ok) {
+      throw new Error('Erro ao buscar usuários');
+    }
+    const users = await response.json(); // Supondo que a API retorne os dados em formato JSON
+    return users;
+  } catch (error) {
+    console.error('Erro:', error);
+    return [];
+  }
+}
+ 
+// Função para renderizar a lista de usuários na tabela
+async function renderUsers() {
+  const usuario = await fetchUsers(); // Busca os usuários da API
+  const filteredUsers = filterUsers(usuario); // Filtra os usuários
+  const paginatedUsers = paginate(filteredUsers); // Pagina os usuários
+ 
+  const tableBody = document.getElementById('usersTable').getElementsByTagName('tbody')[0];
+  tableBody.innerHTML = ''; // Limpa a tabela antes de adicionar novos dados
+ 
+  // Preencher a tabela com os dados dos usuários
+  paginatedUsers.forEach(user => {
+    const row = tableBody.insertRow();
+    row.innerHTML = `
+<td>${usuario.nome}</td>
+<td>${user.email}</td>
+<td>${user.status}</td>
+<td>
+<button onclick="openEditModal('${user.email}')">Editar</button>
+<button onclick="openConfirmationModal('${user.email}')">${user.status === 'Ativo' ? 'Desativar' : 'Ativar'}</button>
+</td>
+    `;
+  });
+ 
+  updatePagination(filteredUsers.length);
+}
+ 
+// Filtrar usuários (modificado para receber os usuários como parâmetro)
+function filterUsers(users) {
+  return users.filter(user => user.nome.toLowerCase().includes(searchQuery.toLowerCase()));
+}
+ 
+// Paginação (sem alteração)
+function paginate(filteredUsers) {
+  const startIndex = (currentPage - 1) * usersPerPage;
+  return filteredUsers.slice(startIndex, startIndex + usersPerPage);
+}
+ 
+// Atualizar paginação (sem alteração)
+function updatePagination(filteredUsersCount) {
+  const totalPages = Math.ceil(filteredUsersCount / usersPerPage);
+  document.getElementById('prevPage').disabled = currentPage === 1;
+  document.getElementById('nextPage').disabled = currentPage === totalPages;
+  document.getElementById('pageInfo').textContent = `Página ${currentPage} de ${totalPages}`;
+}
+ 
+// Função inicial para buscar e renderizar os usuários da API
+renderUsers();
