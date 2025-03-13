@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link th:href="@{/styles/cssandjs/index.css}" rel="stylesheet" />
+    <title>Index</title>
+</head>
+<body>
+    <section class="section">
+        <div class="container">
+            <video autoplay loop muted class="video" width="100%" height="100%">
+                <source th:src="@{videos/arcade.mp4}">
+            </video>
+        </div>
+        
+    </section>
+    <div class="container">
+        <div class="logo">
+            <img th:src="@{images/spaceinvader2.png}" alt="Invader Pixel">
+            <h2>XAROPADA</h2>
+            <h1>GAMES</h1>
+        </div>
+        <div class="login-box">
+            <h2>Seja Bem-Vindo ao <br>BackOffice!</h2>
+            <form id="loginForm">
+                <p>E-mail</p>
+                <input type="text" placeholder="E-mail" required>
+                <p>Senha</p>
+                <input type="password" placeholder="Senha" required>
+                <button type="submit">ENTRAR</button>
+            </form>
+        </div>
+    </div>
+    <script src="/assets/JS/index.js"></script>    
+</body>
+</html>

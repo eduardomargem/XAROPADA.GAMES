@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <title>Lista de Produtos - Administrador</title>
+  <link th:href="@{/styles/cssandjs/listaProdutoAdm.css}" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+</head>
+<!-- parei aqui '-' -->
+
+<body>
+  <div class="container">
+    <header>
+      <h1>Lista de Produtos - Administrador</h1>
+    </header>
+
+    <!-- Formulário de Cadastro de Produto (Modal) -->
+    <div id="registerProductModal" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="closeRegisterProductModal()">&times;</span>
+        <h2>Cadastrar Produto</h2>
+        <form id="registerProductForm">
+          <label for="productName">Nome</label>
+          <input type="text" id="productName" required>
+
+          <label for="productRating">Avaliação</label>
+          <input type="text" id="productRating" required>
+
+          <label for="productDescription">Descrição detalhada</label>
+          <input type="text" id="productDescription" required>
+
+          <label for="productPrice">Preço</label>
+          <input type="number" id="productPrice" required>
+
+          <label for="productQuantity">Quantidade em estoque</label>
+          <input type="number" id="productQuantity" required>
+
+          <button type="submit">Cadastrar</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modal de Edição de Produto -->
+    <div id="editProductModal" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="closeEditProductModal()">&times;</span>
+        <h2>Editar Produto</h2>
+        <form id="editProductForm">
+          <label for="editProductName">Nome</label>
+          <input type="text" id="editProductName" required>
+
+          <label for="editProductCodigo">Código</label>
+          <input type="text" id="editProductCodigo" disabled required>
+
+          <label for="editProductQuantity">Quantidade</label>
+          <input type="number" id="editProductQuantity" required>
+
+          <label for="editProductPrice">Preço</label>
+          <input type="number" id="editProductPrice" required>
+
+          <label for="editProductStatus">Status</label>
+          <select id="editProductStatus" required>
+            <option value="Ativo">Ativo</option>
+            <option value="Inativo">Inativo</option>
+          </select>
+
+          <button type="button" onclick="editProduct()">Salvar Alterações</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Filtros e Tabela -->
+    <section>
+      <div class="filters">
+        <input type="text" id="productSearch" placeholder="Pesquisar por nome...">
+        <button onclick="applyProductFilters()">Pesquisar</button>
+        <button onclick="openRegisterProductModal()">+ Novo Produto</button>
+      </div>
+
+      <table id="productsTable">
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Nome</th>
+            <th>Quantidade</th>
+            <th>Valor</th>
+            <th>Status</th>
+            <th>Opções</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Lista de produtos será gerada dinamicamente -->
+        </tbody>
+      </table>
+
+      <!-- Paginação -->
+      <div class="pagination">
+        <button id="prevProductPage" onclick="changeProductPage('prev')" disabled>Anterior</button>
+        <span id="productPageInfo"></span>
+        <button id="nextProductPage" onclick="changeProductPage('next')">Próximo</button>
+      </div>
+    </section>
+    <button onclick="window.location.href='dashboard.html'">Voltar</button>
+  </div>
+
+  <!-- Modal de Confirmação para Inativar/Ativar Produto -->
+  <div id="productConfirmationModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeProductModal()">&times;</span>
+      <h2>Confirmação</h2>
+      <p id="productModalMessage"></p>
+      <button id="confirmProductBtn" onclick="confirmProductAction()">Confirmar</button>
+      <button onclick="closeProductModal()">Cancelar</button>
+    </div>
+  </div>
+
+  <script src="/assets/js/listaProdutoAdm.js"></script>
+</body>
+</html>
