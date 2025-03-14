@@ -29,10 +29,13 @@ create table Produtos (
     id              int not null AUTO_INCREMENT PRIMARY KEY,
     ds_nome         varchar(200) not null,
     qtd_produto     int not null,
-    vl_produto      DECIMAL(10, 2),
+    vl_produto      DECIMAL(10, 2) not null,
     ds_descricao    varchar(2000) not null,
-    nr_avaliacao    float not null
+    nr_avaliacao    DECIMAL(10, 2) not null
 )
+
+insert into produtos (ds_nome, qtd_produto, vl_produto, ds_descricao, nr_avaliacao)
+values ('Xbox 360', 5, 1250.00, 'Videogame da nova geração', 5.00)
 
 CREATE TABLE imagens_produto (
     id              int AUTO_INCREMENT PRIMARY KEY,

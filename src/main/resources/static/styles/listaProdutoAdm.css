@@ -197,6 +197,7 @@ tr:hover {
   cursor: not-allowed;
 }
 
+/* Modais */
 .modal {
   display: none;
   position: fixed;
