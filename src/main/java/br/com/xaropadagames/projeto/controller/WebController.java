@@ -8,12 +8,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class WebController {
     @GetMapping("/")
     public String showHomePage() {
-        return "index";
+        return "dashboard";
     }
 
-    @GetMapping("/dashboard")
-    public String dashboard() {
-        return "dashboard";
+    @GetMapping("/index")
+    public String index() {
+        return "index";
     }
 
     @GetMapping("/listaUsuario")
@@ -23,6 +23,6 @@ public class WebController {
 
     @GetMapping("/listaProdutoAdm")
     public String listaProduto() {
-        return "listaProduto";
+        return "listaProdutoAdm";
     }
 }

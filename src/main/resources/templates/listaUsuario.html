@@ -4,17 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <title>Lista de Usuários - Backoffice</title>
-  <link th:href="@{/styles/cssandjs/listaUsuario.css}" rel="stylesheet" />
+  <link th:href="@{/styles/listaUsuario.css}" rel="stylesheet" />
   <link href="https://cdn.jsdelivr.net/npm/font-awesome/css/font-awesome.min.css" rel="stylesheet">
 </head>
 <body>
   <div class="container">
     <header>
       <h1>Lista de Usuários</h1>
-      
     </header>
 
     <!-- Formulário de Cadastro de Usuário (Modal) -->
@@ -40,7 +39,7 @@
 
           <label for="userGroup">Grupo</label>
           <select id="userGroup" required>
-            <option value="admin">Administrador</option>
+            <option value="admin">Admin</option>
             <option value="estoquista">Estoquista</option>
           </select>
 
@@ -55,6 +54,7 @@
         <span class="close" onclick="closeEditModal()">&times;</span>
         <h2>Editar Usuário</h2>
         <form id="editUserForm">
+          <input type="hidden" id="editUserId"> <!-- Campo oculto para armazenar o ID do usuário -->
           <label for="editUserName">Nome</label>
           <input type="text" id="editUserName" required>
 
@@ -72,8 +72,8 @@
 
           <label for="editUserGroup">Grupo</label>
           <select id="editUserGroup" required>
-            <option value="admin">Administrador</option>
-            <option value="estoquista">Estoquista</option>
+            <option value="1">Administrador</option>
+            <option value="2">Estoquista</option>
           </select>
 
           <button type="submit">Salvar Alterações</button>
@@ -111,7 +111,9 @@
       </div>
     </section>
   </div>
-  <a href="/src/main/resources/templates/dashboard.html" class="back">Voltar</a>
+
+  <a th:href="@{/dashboard}" class="back">Voltar</a>
+
   <!-- Modal de Confirmação para Inativar/Ativar Usuário -->
   <div id="confirmationModal" class="modal">
     <div class="modal-content">
@@ -123,6 +125,6 @@
     </div>
   </div>
 
-  <script src="/assets/js/listaUsuario.js"></script>
+  <script th:src="@{/js/listaUsuario.js}"></script>
 </body>
 </html>

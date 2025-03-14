@@ -1,3 +1,4 @@
+-- Active: 1741540459817@@127.0.0.1@3306@xaropadagames
 CREATE DATABASE xaropadagames;
 
 use xaropadagames;
@@ -21,3 +22,23 @@ CREATE TABLE Usuarios (
     FOREIGN KEY (id_grupo) REFERENCES Grupos(id)
 );
 
+insert into usuarios (ds_nome, nr_cpf, ds_email, ds_senha, id_grupo, bo_status)
+values ('Eduardo Margem', '14725836912', 'eduardo123@gmail.com', 'xaropada@123', 1, 1)
+
+create table Produtos (
+    id              int not null AUTO_INCREMENT PRIMARY KEY,
+    ds_nome         varchar(200) not null,
+    qtd_produto     int not null,
+    vl_produto      DECIMAL(10, 2),
+    ds_descricao    varchar(2000) not null,
+    nr_avaliacao    float not null
+)
+
+CREATE TABLE imagens_produto (
+    id              int AUTO_INCREMENT PRIMARY KEY,
+    id_produto      int NOT NULL,
+    imagem          BLOB,
+    caminho         VARCHAR(255),
+    tipo_imagem     VARCHAR(50),
+    FOREIGN KEY (id_produto) REFERENCES produtos(id) ON DELETE CASCADE
+);

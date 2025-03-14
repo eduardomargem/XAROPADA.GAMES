@@ -6,8 +6,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-    <link th:href="@{/styles/cssandjs/index.css}" rel="stylesheet" />
-    <title>Index</title>
+    <link th:href="@{/styles/index.css}" rel="stylesheet" />
+    <title>Fazer Login</title>
 </head>
 <body>
     <section class="section">
@@ -16,7 +16,6 @@
                 <source th:src="@{videos/arcade.mp4}">
             </video>
         </div>
-        
     </section>
     <div class="container">
         <div class="logo">
@@ -28,13 +27,13 @@
             <h2>Seja Bem-Vindo ao <br>BackOffice!</h2>
             <form id="loginForm">
                 <p>E-mail</p>
-                <input type="text" placeholder="E-mail" required>
+                <input type="text" id="username" placeholder="E-mail" required>
                 <p>Senha</p>
-                <input type="password" placeholder="Senha" required>
+                <input type="password" id="password" placeholder="Senha" required>
                 <button type="submit">ENTRAR</button>
             </form>
         </div>
     </div>
-    <script src="/assets/JS/index.js"></script>    
+    <script th:src="@{/js/index.js}"></script>
 </body>
 </html>

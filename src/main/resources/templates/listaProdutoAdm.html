@@ -7,39 +7,51 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <title>Lista de Produtos - Administrador</title>
-  <link th:href="@{/styles/cssandjs/listaProdutoAdm.css}" rel="stylesheet" />
+  <link rel="stylesheet" th:href="@{/styles/listaUsuario.css}">
   <link href="https://cdn.jsdelivr.net/npm/font-awesome/css/font-awesome.min.css" rel="stylesheet">
 </head>
-<!-- parei aqui '-' :) -->
-
 <body>
   <div class="container">
     <header>
       <h1>Lista de Produtos - Administrador</h1>
     </header>
 
-    <!-- Formulário de Cadastro de Produto (Modal) -->
+    <!-- Modal de Cadastro de Produto -->
     <div id="registerProductModal" class="modal">
       <div class="modal-content">
         <span class="close" onclick="closeRegisterProductModal()">&times;</span>
         <h2>Cadastrar Produto</h2>
         <form id="registerProductForm">
-          <label for="productName">Nome</label>
-          <input type="text" id="productName" required>
+          <div style="display: flex; gap: 40px; align-items: flex-start;">
+            <!-- Campos de Entrada (Lado Esquerdo) -->
+            <div style="flex: 2;">
+              <label for="productName">Nome do Produto</label>
+              <input type="text" id="productName" required>
 
-          <label for="productRating">Avaliação</label>
-          <input type="text" id="productRating" required>
+              <label for="productPrice">Preço</label>
+              <input type="number" id="productPrice" required>
 
-          <label for="productDescription">Descrição detalhada</label>
-          <input type="text" id="productDescription" required>
+              <label for="productQuantity">Quantidade em Estoque</label>
+              <input type="number" id="productQuantity" required>
 
-          <label for="productPrice">Preço</label>
-          <input type="number" id="productPrice" required>
+              <label for="productDescription">Descrição Detalhada</label>
+              <input type="text" id="productDescription" required>
 
-          <label for="productQuantity">Quantidade em estoque</label>
-          <input type="number" id="productQuantity" required>
+              <label for="productRating">Avaliação</label>
+              <input type="text" id="productRating" required>
+
+              <button type="button" onclick="addImage()">Adicionar Imagens do Produto</button>
+            </div>
+
+            <!-- Pré-visualização da Imagem (Lado Direito) -->
+            <div id="imagePreviewContainer" style="flex: 1; display: none;">
+              <p>Pré-visualização da Imagem:</p>
+              <img id="imagePreview" src="#" alt="Pré-visualização da Imagem">
+            </div>
+          </div>
 
           <button type="submit">Cadastrar</button>
+          <button type="button" onclick="closeRegisterProductModal()">Cancelar</button>
         </form>
       </div>
     </div>
@@ -49,27 +61,64 @@
       <div class="modal-content">
         <span class="close" onclick="closeEditProductModal()">&times;</span>
         <h2>Editar Produto</h2>
-        <form id="editProductForm">
-          <label for="editProductName">Nome</label>
-          <input type="text" id="editProductName" required>
+        <div style="display: flex; gap: 60px; align-items: flex-start;">
+          <!-- Campos de Edição (Lado Esquerdo) -->
+          <div id="editProductFields" style="flex: 2;">
+            <form id="editProductForm">
+              <label for="editProductName">Nome</label>
+              <input type="text" id="editProductName" required>
 
-          <label for="editProductCodigo">Código</label>
-          <input type="text" id="editProductCodigo" disabled required>
+              <label for="editProductCodigo">Código</label>
+              <input type="text" id="editProductCodigo" disabled required>
 
-          <label for="editProductQuantity">Quantidade</label>
-          <input type="number" id="editProductQuantity" required>
+              <label for="editProductQuantity">Quantidade</label>
+              <input type="number" id="editProductQuantity" required>
 
-          <label for="editProductPrice">Preço</label>
-          <input type="number" id="editProductPrice" required>
+              <label for="editProductPrice">Preço</label>
+              <input type="number" id="editProductPrice" required>
 
-          <label for="editProductStatus">Status</label>
-          <select id="editProductStatus" required>
-            <option value="Ativo">Ativo</option>
-            <option value="Inativo">Inativo</option>
-          </select>
+              <label for="editProductDescription">Descrição</label>
+              <textarea id="editProductDescription" required></textarea>
 
+              <button type="button" onclick="addImageEdit()">Adicionar Imagem</button>
+            </form>
+          </div>
+
+          <!-- Pré-visualização da Imagem (Lado Direito) -->
+          <div id="editProductImagePreviewContainer" style="flex: 1; display: none;">
+            <p>Pré-visualização da Imagem</p>
+            <img id="editProductImagePreview" src="#" alt="Pré-visualização da Imagem">
+          </div>
+        </div>
+
+        <!-- Botões de Ação -->
+        <div style="margin-top: 20px;">
           <button type="button" onclick="editProduct()">Salvar Alterações</button>
-        </form>
+          <button type="button" onclick="closeEditProductModal()">Cancelar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de Visualização de Produto -->
+    <div id="viewProductModal" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="closeViewProductModal()">&times;</span>
+        <h2>Visualizar Produto</h2>
+        <div style="display: flex; gap: 40px;">
+          <!-- Imagem do Produto (Lado Esquerdo) -->
+          <div>
+            <img id="viewProductImage" src="#" alt="Imagem do Produto">
+          </div>
+          <!-- Informações do Produto (Lado Direito) -->
+          <div>
+            <p><strong>Nome:</strong> <span id="viewProductName"></span></p>
+            <p><strong>Código:</strong> <span id="viewProductCodigo"></span></p>
+            <p><strong>Quantidade:</strong> <span id="viewProductQuantity"></span></p>
+            <p><strong>Preço:</strong> <span id="viewProductPrice"></span></p>
+            <p><strong>Descrição:</strong> <span id="viewProductDescription"></span></p>
+            <button onclick="buyProduct()">Comprar</button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -118,6 +167,6 @@
     </div>
   </div>
 
-  <script src="/assets/js/listaProdutoAdm.js"></script>
+  <script th:src="@{/js/listaProdutoAdm.js}"></script>
 </body>
 </html>
