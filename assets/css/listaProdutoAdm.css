@@ -29,7 +29,7 @@ body {
 }
 
 .container {
-  width: 90%;
+  width: 100%;
   max-width: 1200px;
   margin: 0 auto;
   padding: 30px;
@@ -306,3 +306,36 @@ button:active {
   background: #00FF85;
   border-radius: 4px;
 }
+
+#editProductModal .modal-content {
+  font-size: 18px;
+  line-height: 1.6;
+}
+
+#editProductModal .modal-content p {
+  margin-bottom: 10px;
+}
+
+#editProductModal .modal-content img {
+  max-width: 90%;
+  height: auto;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+#imagePreviewContainer {
+  flex: 1;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0);
+  border-radius: 10px;
+  padding: 20px;
+
+}
+
+#imagePreviewContainer img {
+  max-width: 110%;
+  height: auto;
+  border-radius: 10px;
+}
+
