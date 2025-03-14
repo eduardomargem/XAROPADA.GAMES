@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", function () {
     const usuariosCadastrados = [
-        { usuario: "admin", email: "xaropada@gmail.com", senha: "Admin@123" },
-        { usuario: "user", email: "Xaropadinha@gmail.com", senha: "User@456" }
+        { usuario: "admin", email: "xaropada@gmail.com", senha: "Admin@123", tipo: "ADM" }, // ADM
+        { usuario: "user", email: "xaropadinha@gmail.com", senha: "@100Senha", tipo: "Estoquista" } // Estoquista
     ];
 
     function validarEmail(email) {
@@ -38,7 +38,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const emailOuUsuario = document.querySelector("input[type='text']");
             const senha = document.querySelector("input[type='password']");
             const valor = emailOuUsuario.value.trim().toLowerCase(); // Converte usuário/email para minúsculas
-            const senhaValor = senha.value.trim(); 
+            const senhaValor = senha.value.trim();
 
             console.log("Usuário digitado:", valor);
             console.log("Senha digitada:", senhaValor);
@@ -82,7 +82,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
             if (usuarioEncontrado) {
                 console.log("Login bem-sucedido! Redirecionando...");
-                window.location.href = "dashboard.html";
+
+                // Salva o tipo de usuário no localStorage
+                localStorage.setItem("tipoUsuario", usuarioEncontrado.tipo);
+
+                // Redireciona com base no tipo de usuário
+                if (usuarioEncontrado.tipo === "ADM") {
+                    window.location.href = "dashboard.html"; // Página do ADM
+                } else if (usuarioEncontrado.tipo === "Estoquista") {
+                    window.location.href = "dashboard.html"; // Página do Estoquista
+                }
             } else {
                 console.log("Usuário ou senha incorretos!");
                 exibirErro(emailOuUsuario, "Usuário ou senha incorretos!");

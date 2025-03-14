@@ -46,7 +46,6 @@
             <!-- Pré-visualização da Imagem (Lado Direito) -->
             <div id="imagePreviewContainer" style="flex: 1; display: none;">
               <p>Pré-visualização da Imagem:</p>
-              <img id="imagePreview" src="#" alt="Pré-visualização da Imagem">
             </div>
           </div>
 
@@ -87,7 +86,6 @@
           <!-- Pré-visualização da Imagem (Lado Direito) -->
           <div id="editProductImagePreviewContainer" style="flex: 1; display: none;">
             <p>Pré-visualização da Imagem</p>
-            <img id="editProductImagePreview" src="#" alt="Pré-visualização da Imagem">
           </div>
         </div>
 
@@ -105,9 +103,13 @@
         <span class="close" onclick="closeViewProductModal()">&times;</span>
         <h2>Visualizar Produto</h2>
         <div style="display: flex; gap: 40px;">
-          <!-- Imagem do Produto (Lado Esquerdo) -->
+          <!-- Carrossel de Imagens (Lado Esquerdo) -->
           <div>
-            <img id="viewProductImage" src="#" alt="Imagem do Produto">
+            <div id="carousel" class="carousel">
+              <button class="carousel-button prev" onclick="prevImage()">&#10094;</button>
+              <div id="carouselImages" class="carousel-images"></div>
+              <button class="carousel-button next" onclick="nextImage()">&#10095;</button>
+            </div>
           </div>
           <!-- Informações do Produto (Lado Direito) -->
           <div>
@@ -116,6 +118,7 @@
             <p><strong>Quantidade:</strong> <span id="viewProductQuantity"></span></p>
             <p><strong>Preço:</strong> <span id="viewProductPrice"></span></p>
             <p><strong>Descrição:</strong> <span id="viewProductDescription"></span></p>
+            <p><strong>Avaliação:</strong> <span id="viewProductRating"></span></p>
             <button onclick="buyProduct()">Comprar</button>
           </div>
         </div>
