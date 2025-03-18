@@ -41,7 +41,6 @@ function renderProducts() {
       <td>${product.status}</td>
       <td>
         <button onclick="saveQuantity('${product.codigo}')">Salvar</button>
-        <button onclick="openEditProductModal('${product.codigo}')">Editar</button>
       </td>
     `;
   });

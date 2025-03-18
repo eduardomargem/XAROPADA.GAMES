@@ -125,11 +125,9 @@ function registerProduct(event) {
   const imagePreviewContainer = document.getElementById('imagePreviewContainer');
   const images = imagePreviewContainer.querySelectorAll('img');
 
-  // Adicionar no máximo 5 imagens
-  images.forEach((img, index) => {
-    if (index < 5) {
-      novoProduto.imagens.push(img.src);
-    }
+  // Adicionar todas as imagens sem limite
+  images.forEach((img) => {
+    novoProduto.imagens.push(img.src);
   });
 
   produtos.push(novoProduto);
@@ -149,12 +147,6 @@ function addImage() {
     const files = event.target.files;
     if (files.length > 0) {
       const imagePreviewContainer = document.getElementById('imagePreviewContainer');
-
-      // Limitar a 5 imagens
-      if (imagePreviewContainer.children.length >= 5) {
-        alert('Você só pode adicionar no máximo 5 imagens.');
-        return;
-      }
 
       const file = files[0];
       const reader = new FileReader();
@@ -182,12 +174,6 @@ function addImageEdit() {
     const files = event.target.files;
     if (files.length > 0) {
       const imagePreviewContainer = document.getElementById('editProductImagePreviewContainer');
-
-      // Limitar a 5 imagens
-      if (imagePreviewContainer.children.length >= 5) {
-        alert('Você só pode adicionar no máximo 5 imagens.');
-        return;
-      }
 
       const file = files[0];
       const reader = new FileReader();
@@ -239,35 +225,33 @@ function openEditProductModal(codigo) {
   imagePreviewContainer.innerHTML = ''; // Limpar imagens anteriores
 
   if (product.imagens && product.imagens.length > 0) {
-    product.imagens.forEach((imagem, index) => {
-      if (index < 5) { // Limitar a 5 imagens
-        const imgContainer = document.createElement('div');
-        imgContainer.style.position = 'relative';
-        imgContainer.style.display = 'inline-block';
+    product.imagens.forEach((imagem) => {
+      const imgContainer = document.createElement('div');
+      imgContainer.style.position = 'relative';
+      imgContainer.style.display = 'inline-block';
 
-        const img = document.createElement('img');
-        img.src = imagem;
-        img.alt = `Imagem ${index + 1} do produto ${product.nome}`;
-        img.style.maxWidth = '100%';
-        img.style.height = 'auto';
+      const img = document.createElement('img');
+      img.src = imagem;
+      img.alt = `Imagem do produto ${product.nome}`;
+      img.style.maxWidth = '100%';
+      img.style.height = 'auto';
 
-        const deleteButton = document.createElement('button');
-        deleteButton.textContent = 'X';
-        deleteButton.style.position = 'absolute';
-        deleteButton.style.top = '0';
-        deleteButton.style.right = '0';
-        deleteButton.style.background = 'red';
-        deleteButton.style.color = 'white';
-        deleteButton.style.border = 'none';
-        deleteButton.style.cursor = 'pointer';
-        deleteButton.onclick = function() {
-          imgContainer.remove(); // Remove a imagem ao clicar no botão
-        };
+      const deleteButton = document.createElement('button');
+      deleteButton.textContent = 'X';
+      deleteButton.style.position = 'absolute';
+      deleteButton.style.top = '0';
+      deleteButton.style.right = '0';
+      deleteButton.style.background = 'red';
+      deleteButton.style.color = 'white';
+      deleteButton.style.border = 'none';
+      deleteButton.style.cursor = 'pointer';
+      deleteButton.onclick = function() {
+        imgContainer.remove(); // Remove a imagem ao clicar no botão
+      };
 
-        imgContainer.appendChild(img);
-        imgContainer.appendChild(deleteButton);
-        imagePreviewContainer.appendChild(imgContainer);
-      }
+      imgContainer.appendChild(img);
+      imgContainer.appendChild(deleteButton);
+      imagePreviewContainer.appendChild(imgContainer);
     });
     imagePreviewContainer.style.display = 'block';
   } else {
@@ -299,7 +283,7 @@ function editProduct() {
   const imagePreviewContainer = document.getElementById('editProductImagePreviewContainer');
   const images = imagePreviewContainer.querySelectorAll('img');
 
-  // Adicionar no máximo 5 imagens
+  // Adicionar todas as imagens sem limite
   images.forEach((img) => {
     updatedProduct.imagens.push(img.src);
   });
@@ -322,9 +306,8 @@ function openViewProductModal(codigo) {
   const carouselImages = document.getElementById('carouselImages');
   carouselImages.innerHTML = '';
 
-  // Exibir no máximo 5 imagens
-  const imagesToShow = product.imagens.slice(0, 5);
-  imagesToShow.forEach((imagem, index) => {
+  // Exibir todas as imagens sem limite
+  product.imagens.forEach((imagem, index) => {
     const img = document.createElement('img');
     img.src = imagem;
     img.alt = `Imagem ${index + 1} do produto ${product.nome}`;
