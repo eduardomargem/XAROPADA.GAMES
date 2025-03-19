@@ -25,7 +25,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function redirecionar() {
-        window.location.href = "/dashboard";
+        window.location.href = "/";s
     }
 
     const formLogin = document.getElementById("loginForm");
@@ -64,9 +64,9 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
             fetch('http://localhost:8080/usuarios/login', {
-                method: 'POST', 
+                method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json', 
+                    'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
                     username: valor,
@@ -75,18 +75,27 @@ document.addEventListener("DOMContentLoaded", function () {
             })
             .then(response => {
                 if (response.ok) {
-                    return response.json();
+                    // Tenta analisar a resposta como texto primeiro
+                    return response.text().then(text => {
+                        try {
+                            return JSON.parse(text); // Tenta converter a resposta em JSON
+                        } catch (e) {
+                            // Se falhar, apenas retorna a resposta como string
+                            return { message: text }; // Tratar como uma mensagem simples
+                        }
+                    });
                 } else {
-                    return response.json().then(data => { throw new Error(data.message); });
+                    return response.text().then(data => { throw new Error(data); });
                 }
             })
             .then(data => {
                 console.log('Login bem-sucedido:', data.message);
-                redirecionar();
+                redirecionar();  // Redireciona para o dashboard
             })
             .catch(error => {
                 console.error('Erro no login:', error);
             });
+
         });
     }
 });

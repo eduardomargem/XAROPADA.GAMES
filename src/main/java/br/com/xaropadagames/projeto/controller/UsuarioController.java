@@ -7,12 +7,12 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import br.com.xaropadagames.projeto.dao.IUsuario;
-import br.com.xaropadagames.projeto.dao.IProduto;
 import br.com.xaropadagames.projeto.model.LoginRequest;
 import br.com.xaropadagames.projeto.model.Usuario;
-import br.com.xaropadagames.projeto.model.Produto;
 import br.com.xaropadagames.projeto.service.UserService;
 import jakarta.validation.Valid;
+
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,22 +28,11 @@ public class UsuarioController {
     private UserService userService;
 
     @Autowired
-    private IUsuario usuarioDao;
-    
-    @Autowired
-    private IProduto produtoDao;
+    private IUsuario dao;
     
     @GetMapping
-    public ResponseEntity<?> listaUsuarios(@RequestParam Integer idGrupo) {  
-        if (idGrupo != 1) { // Apenas administradores podem acessar
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Acesso negado.");
-        }
-        return ResponseEntity.ok(usuarioDao.findAll());
-    }
-
-    @GetMapping("/produtos")
-    public ResponseEntity<Iterable<Produto>> listaProdutos() {
-        return ResponseEntity.ok(produtoDao.findAll());
+    public List<Usuario> listaUsuarios() {  
+        return (List<Usuario>) dao.findAll();
     }
 
     @PostMapping
@@ -54,12 +43,38 @@ public class UsuarioController {
         }
         
         try {
-            Usuario usuarioCadastrado = usuarioDao.save(usuario);
+            Usuario usuarioCadastrado = dao.save(usuario);
             logger.info("Usuário criado com sucesso: {}", usuarioCadastrado);
             return ResponseEntity.status(HttpStatus.CREATED).body(usuarioCadastrado);
         } catch (Exception e) {
             logger.error("Erro ao cadastrar o usuário: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao cadastrar o usuário.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"message\": \"Erro ao cadastrar o usuário.\"}");
+        }
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> alterarUsuario(@PathVariable Integer id, @Valid @RequestBody Usuario usuario, BindingResult result) {
+        if (result.hasErrors()) {
+            logger.error("Erro de validação ao alterar usuário: {}", result.getAllErrors());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result.getAllErrors());
+        }
+
+        // Verificar se o usuário existe antes de tentar atualizar
+        Usuario usuarioExistente = dao.findById(id).orElse(null);
+        if (usuarioExistente == null) {
+            logger.warn("Usuário não encontrado para atualização: {}", id);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"message\": \"Usuário não encontrado.\"}");
+        }
+
+        // Atualiza os dados do usuário
+        usuario.setId(id); // Garante que o ID do usuário seja mantido
+        try {
+            Usuario usuarioAtualizado = dao.save(usuario);
+            logger.info("Usuário atualizado com sucesso: {}", usuarioAtualizado);
+            return ResponseEntity.ok(usuarioAtualizado);
+        } catch (Exception e) {
+            logger.error("Erro ao atualizar o usuário: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"message\": \"Erro ao atualizar o usuário.\"}");
         }
     }
 
@@ -68,9 +83,28 @@ public class UsuarioController {
         boolean isAuthenticated = userService.authenticateUser(loginRequest.getUsername(), loginRequest.getPassword());
 
         if (isAuthenticated) {
-            return ResponseEntity.ok().body("Login bem-sucedido!");
+            return ResponseEntity.ok().body("{\"message\": \"Login bem-sucedido!\"}");
         } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("E-mail ou senha incorretos!");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("{\"message\": \"E-mail ou senha incorretos!\"}");
         }
     }
+
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<?> alterarStatus(@PathVariable Integer id) {
+    try {
+        Usuario usuarioExistente = dao.findById(id).orElse(null);
+        if (usuarioExistente == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"message\": \"Usuário não encontrado.\"}");
+        }
+
+        // Alterna o status (1 = Ativo, 0 = Inativo)
+        usuarioExistente.setBo_status(usuarioExistente.getBo_status() == 1 ? 0 : 1);
+
+        Usuario usuarioAtualizado = dao.save(usuarioExistente);
+        return ResponseEntity.ok(usuarioAtualizado);
+    } catch (Exception e) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"message\": \"Erro ao atualizar o status do usuário.\"}");
+    }
+}
+
 }
