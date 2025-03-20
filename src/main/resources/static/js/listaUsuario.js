@@ -1,5 +1,5 @@
 let currentPage = 1;
-const usersPerPage = 10;
+const usersPerPage = 4;
 let searchQuery = '';
 let users = [];
 
