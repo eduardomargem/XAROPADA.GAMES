@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <!-- Verifique se o caminho para o CSS está correto -->
+    <link th:href="@{/styles/dashboard.css}" rel="stylesheet" />
+    <title>DashBoard</title>
+</head>
+<body>
+    <div class="logo">
+        <!-- Verifique se o caminho da imagem está correto -->
+        <img th:src="@{/images/spaceinvader2.png}" alt="Invader Pixel">
+        <h2>XAROPADA</h2>
+        <h1>GAMES</h1>
+    </div>
+    <div class="dashboard-container">
+        <h2>Painel de Controle</h2>
+        <div class="dashboard-links">
+            <!-- Certifique-se de que as URLs das páginas estão corretas -->
+            <a th:href="@{/listaUsuario}">Lista de Usuários</a>
+            <a th:href="@{/listaProdutoAdm}">Lista de Produtos</a>
+        </div>
+        <div class="dashboard-link">
+            <!-- Botão para voltar à página inicial -->
+            <a th:href="@{/index}">Sair</a>
+        </div>
+    </div>
+</body>
+</html>
