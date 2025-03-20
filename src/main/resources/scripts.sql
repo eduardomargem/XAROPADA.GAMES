@@ -1,4 +1,5 @@
--- Active: 1741726533463@@127.0.0.1@3306@phpmyadmin
+-- Active: 1742425570445@@127.0.0.1@3306
+
 
 CREATE DATABASE xaropadagames;
 
@@ -26,9 +27,6 @@ CREATE TABLE Usuarios (
 insert into usuarios (ds_nome, nr_cpf, ds_email, ds_senha, id_grupo, bo_status)
 values ('Eduardo Margem', '14725836912', 'eduardo123@gmail.com', 'xaropada@123', 1, 1)
 
-insert into usuarios (ds_nome, nr_cpf, ds_email, ds_senha, id_grupo, bo_status)
-values ('Daniel Pereira', '12343655825', 'daniel456@gmail.com', 'xaropada@789', 1, 1)
-
 create table Produtos (
     id              int not null AUTO_INCREMENT PRIMARY KEY,
     ds_nome         varchar(200) not null,
@@ -49,5 +47,3 @@ CREATE TABLE imagens_produto (
     tipo_imagem     VARCHAR(50),
     FOREIGN KEY (id_produto) REFERENCES produtos(id) ON DELETE CASCADE
 );
-
-SELECT * from usuarios;

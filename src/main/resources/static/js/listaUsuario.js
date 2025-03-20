@@ -116,15 +116,23 @@ function openEditModal(ds_email) {
 async function editUser(event) {
     event.preventDefault();
 
+    // Exibir loader ou desativar botão de salvar alterações
+    const saveButton = document.querySelector('#editUserForm button[type="submit"]');
+    saveButton.disabled = true;
+    saveButton.textContent = 'Salvando...';
+
     const id = document.getElementById('editUserId').value;  // Pega o ID do usuário
     const email = document.getElementById('editUserEmail').value;
     const updatedUser = {
         ds_nome: document.getElementById('editUserName').value,
-        ds_email: email,
         nr_cpf: document.getElementById('editUserCpf').value,
-        id_grupo: document.getElementById('editUserGroup').value,
+        ds_email: email,
         ds_senha: document.getElementById('editUserPassword').value,
+        id_grupo: document.getElementById('editUserGroup').value,
+        bo_status: 1
     };
+
+    console.log('Dados para envio:', updatedUser); // Debug
 
     try {
         const response = await fetch(`${apiUrl}/${id}`, {  // Usa o ID do campo oculto
@@ -143,6 +151,10 @@ async function editUser(event) {
     } catch (error) {
         console.error('Erro:', error);
         alert('Erro ao atualizar o usuário.');
+    } finally {
+        // Ocultar loader ou habilitar botão de salvar novamente
+        saveButton.disabled = false;
+        saveButton.textContent = 'Salvar Alterações';
     }
 }
 
