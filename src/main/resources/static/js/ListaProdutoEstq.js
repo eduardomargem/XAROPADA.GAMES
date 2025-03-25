@@ -1,27 +1,22 @@
-// Array de produtos inicialmente vazio
+// Variáveis de controle de produtos e paginação
 let produtos = [];
-
-// Variáveis de controle de paginação
 let currentProductPage = 1;
 const productsPerPage = 10;
 let productSearchQuery = '';
 
-// Função para carregar produtos do localStorage
-function loadProductsFromLocalStorage() {
-  const storedProducts = localStorage.getItem('produtos');
-  if (storedProducts) {
-    produtos = JSON.parse(storedProducts);
-  }
-}
+// Verifica o tipo de usuário
+const userType = localStorage.getItem('userType'); // 'admin' ou 'cliente'
 
-// Função para salvar produtos no localStorage
-function saveProductsToLocalStorage() {
-  localStorage.setItem('produtos', JSON.stringify(produtos));
+// Função para buscar os produtos do banco de dados e renderizar
+function listarProdutos() {
+  fetch('http://localhost:8080/produtos')
+    .then(response => response.json())
+    .then(data => {
+      produtos = data;
+      renderProducts(); // Chama a função que renderiza os produtos na tabela
+    })
+    .catch(error => console.error('Erro ao listar produtos:', error));
 }
-
-// Carregar produtos ao iniciar a página
-loadProductsFromLocalStorage();
-renderProducts();
 
 // Função para renderizar a lista de produtos na tabela
 function renderProducts() {
@@ -34,13 +29,15 @@ function renderProducts() {
   paginatedProducts.forEach(product => {
     const row = tableBody.insertRow();
     row.innerHTML = `
-      <td>${product.codigo}</td>
+      <td>${product.id}</td>
       <td>${product.nome}</td>
-      <td><input type="number" id="quantity-${product.codigo}" value="${product.quantidade}" style="width: 60px;"></td>
+      <td>${product.quantidade}</td>
       <td>${product.valor}</td>
-      <td>${product.status}</td>
+      <td>${product.status || (product.quantidade > 0 ? 'Ativo' : 'Inativo')}</td>
       <td>
-        <button onclick="saveQuantity('${product.codigo}')">Salvar</button>
+        ${userType === 'admin' ? `<button onclick="saveQuantity('${product.id}')">Salvar</button>
+        <button onclick="openEditProductModal(${product.id})">Alterar</button>
+        <button onclick="openProductConfirmationModal(${product.id})">${product.quantidade > 0 ? 'Desativar' : 'Reativar'}</button>` : ''}
       </td>
     `;
   });
@@ -48,38 +45,39 @@ function renderProducts() {
   updateProductPagination(filteredProducts.length);
 }
 
-// Função para salvar a quantidade
-function saveQuantity(codigo) {
-  const productIndex = produtos.findIndex(p => p.codigo === codigo);
-  const newQuantity = parseInt(document.getElementById(`quantity-${codigo}`).value);
+// Função para salvar a quantidade no banco de dados (somente admin)
+function saveQuantity(id) {
+  if (userType !== 'admin') return;
+  const newQuantity = parseInt(document.getElementById(`quantity-${id}`).value);
   if (!isNaN(newQuantity)) {
-    produtos[productIndex].quantidade = newQuantity;
-    saveProductsToLocalStorage(); // Salvar no localStorage
-    renderProducts(); // Atualiza a tabela após salvar
+    fetch(`http://localhost:8080/produtos/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ quantidade: newQuantity })
+    })
+    .then(() => listarProdutos()) // Atualiza a lista de produtos
+    .catch(error => console.error('Erro ao atualizar quantidade:', error));
   } else {
     alert("Quantidade inválida.");
   }
 }
 
-// Função para filtrar produtos
+// Funções de pesquisa e paginação
 function filterProducts() {
   return produtos.filter(product => product.nome.toLowerCase().includes(productSearchQuery.toLowerCase()));
 }
 
-// Função para aplicar filtros de pesquisa
 function applyProductFilters() {
   productSearchQuery = document.getElementById('productSearch').value;
   currentProductPage = 1;
   renderProducts();
 }
 
-// Função para paginar produtos
 function paginateProducts(filteredProducts) {
   const startIndex = (currentProductPage - 1) * productsPerPage;
   return filteredProducts.slice(startIndex, startIndex + productsPerPage);
 }
 
-// Função para atualizar a paginação
 function updateProductPagination(filteredProductsCount) {
   const totalPages = Math.ceil(filteredProductsCount / productsPerPage);
   document.getElementById('prevProductPage').disabled = currentProductPage === 1;
@@ -87,53 +85,12 @@ function updateProductPagination(filteredProductsCount) {
   document.getElementById('productPageInfo').textContent = `Página ${currentProductPage} de ${totalPages}`;
 }
 
-// Função para mudar a página
 function changeProductPage(direction) {
+  const totalPages = Math.ceil(produtos.length / productsPerPage);
   if (direction === 'prev' && currentProductPage > 1) currentProductPage--;
-  if (direction === 'next' && currentProductPage < Math.ceil(produtos.length / productsPerPage)) currentProductPage++;
+  if (direction === 'next' && currentProductPage < totalPages) currentProductPage++;
   renderProducts();
 }
 
-// Modal de Edição
-function openEditProductModal(codigo) {
-  const product = produtos.find(p => p.codigo === codigo);
-  document.getElementById('editProductName').value = product.nome;
-  document.getElementById('editProductCodigo').value = product.codigo;
-  document.getElementById('editProductQuantity').value = product.quantidade;
-  document.getElementById('editProductPrice').value = product.valor;
-  document.getElementById('editProductStatus').value = product.status;
-  document.getElementById('editProductModal').style.display = 'block';
-}
-
-function closeEditProductModal() {
-  document.getElementById('editProductModal').style.display = 'none';
-}
-
-// Função para editar produto
-function editProduct() {
-  const codigo = document.getElementById('editProductCodigo').value;
-  const productIndex = produtos.findIndex(p => p.codigo === codigo);
-  const updatedProduct = {
-    codigo: codigo,
-    nome: document.getElementById('editProductName').value,
-    quantidade: parseInt(document.getElementById('editProductQuantity').value),
-    valor: parseFloat(document.getElementById('editProductPrice').value),
-    status: document.getElementById('editProductStatus').value
-  };
-
-  produtos[productIndex] = updatedProduct;
-  saveProductsToLocalStorage(); // Salvar no localStorage
-  closeEditProductModal();
-  renderProducts();
-}
-
-// Ouvir alterações no localStorage
-window.addEventListener('storage', (event) => {
-  if (event.key === 'produtos') {
-    loadProductsFromLocalStorage(); // Recarrega os produtos
-    renderProducts(); // Atualiza a tabela
-  }
-});
-
-// Inicialização
-renderProducts();
+// Inicializa carregando os produtos do banco de dados
+listarProdutos();

@@ -25,4 +25,9 @@ public class WebController {
     public String listaProduto() {
         return "listaProdutoAdm";
     }
+
+    @GetMapping("/ListaProdutoEstq")
+    public String ListaProdutoEstq() {
+        return "ListaProdutoEstq";
+    }
 }
