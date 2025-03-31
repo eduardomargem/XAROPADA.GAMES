@@ -1,152 +1,233 @@
-// Exemplo de usuários iniciais
+// Array de usuários - será populado com os usuários cadastrados
 let users = [
-  { nome: "xaropada", email: "Xaropada@gmail.com", status: "Ativo", grupo: "admin", cpf: "12345678900", senha: "Admin@123" },
-  { nome: "Maria Oliveira", email: "maria.oliveira@email.com", status: "Ativo", grupo: "estoquista", cpf: "98765432100", senha: "senha123" },
-  { nome: "Carlos Souza", email: "carlos.souza@email.com", status: "Inativo", grupo: "admin", cpf: "19283746500", senha: "senha123" },
-  { nome: "Fernanda Lima", email: "fernanda.lima@email.com", status: "Ativo", grupo: "estoquista", cpf: "56473829100", senha: "senha123" },
-  { nome: "Ricardo Costa", email: "ricardo.costa@email.com", status: "Inativo", grupo: "admin", cpf: "10293847500", senha: "senha123" },
-  { nome: "João Silva", email: "joao.silva@email.com", status: "Ativo", grupo: "admin", cpf: "12345678900", senha: "senha123" },
-  { nome: "Maria Oliveira", email: "maria.oliveira@email.com", status: "Ativo", grupo: "estoquista", cpf: "98765432100", senha: "senha123" },
-  { nome: "Carlos Souza", email: "carlos.souza@email.com", status: "Inativo", grupo: "admin", cpf: "19283746500", senha: "senha123" },
-  { nome: "Fernanda Lima", email: "fernanda.lima@email.com", status: "Ativo", grupo: "estoquista", cpf: "56473829100", senha: "senha123" },
-  { nome: "Ricardo Costa", email: "ricardo.costa@email.com", status: "Inativo", grupo: "admin", cpf: "10293847500", senha: "senha123" },
-  { nome: "João Silva", email: "joao.silva@email.com", status: "Ativo", grupo: "admin", cpf: "12345678900", senha: "senha123" },
-  { nome: "Maria Oliveira", email: "maria.oliveira@email.com", status: "Ativo", grupo: "estoquista", cpf: "98765432100", senha: "senha123" },
-  { nome: "Carlos Souza", email: "carlos.souza@email.com", status: "Inativo", grupo: "admin", cpf: "19283746500", senha: "senha123" },
-  { nome: "Fernanda Lima", email: "fernanda.lima@email.com", status: "Ativo", grupo: "estoquista", cpf: "56473829100", senha: "senha123" },
-  { nome: "Ricardo Costa", email: "ricardo.costa@email.com", status: "Inativo", grupo: "admin", cpf: "10293847500", senha: "senha123" },
-  { nome: "João Silva", email: "joao.silva@email.com", status: "Ativo", grupo: "admin", cpf: "12345678900", senha: "senha123" },
-  { nome: "Maria Oliveira", email: "maria.oliveira@email.com", status: "Ativo", grupo: "estoquista", cpf: "98765432100", senha: "senha123" },
-  { nome: "Carlos Souza", email: "carlos.souza@email.com", status: "Inativo", grupo: "admin", cpf: "19283746500", senha: "senha123" },
-  { nome: "Fernanda Lima", email: "fernanda.lima@email.com", status: "Ativo", grupo: "estoquista", cpf: "56473829100", senha: "senha123" },
-  { nome: "Ricardo Costa", email: "ricardo.costa@email.com", status: "Inativo", grupo: "admin", cpf: "10293847500", senha: "senha123" },
-  // Mais usuários aqui...
+  { 
+      id: 1, 
+      nome: "admin", 
+      email: "xaropada@gmail.com", 
+      cpf: "123.456.789-00", 
+      senha: "Admin@123", 
+      grupo: "admin", 
+      status: "Ativo" 
+  },
+  { 
+      id: 2, 
+      nome: "user", 
+      email: "xaropadinha@gmail.com", 
+      cpf: "987.654.321-00", 
+      senha: "@100Senha", 
+      grupo: "estoquista", 
+      status: "Ativo" 
+  }
 ];
 
-// Variáveis de controle de paginação
+// Verificar se há usuário logado
+const loggedUser = JSON.parse(localStorage.getItem('usuarioLogado'));
+
+// Se não estiver logado, redirecionar para login
+if (!loggedUser) {
+  window.location.href = 'index.html';
+}
+
+// Variáveis de controle
 let currentPage = 1;
 const usersPerPage = 10;
 let searchQuery = '';
+let currentAction = '';
+let selectedUserId = null;
 
-// Função para renderizar a lista de usuários na tabela
-function renderUsers() {
-  const filteredUsers = filterUsers();
-  const paginatedUsers = paginate(filteredUsers);
-
-  const tableBody = document.getElementById('usersTable').getElementsByTagName('tbody')[0];
-  tableBody.innerHTML = ''; // Limpar a tabela antes de adicionar novos dados
-
-  // Preencher a tabela com os dados dos usuários
-  paginatedUsers.forEach(user => {
-    const row = tableBody.insertRow();
-    row.innerHTML = `
-      <td>${user.nome}</td>
-      <td>${user.email}</td>
-      <td>${user.status}</td>
-      <td>
-        <button onclick="openEditModal('${user.email}')">Editar</button>
-        <button onclick="openConfirmationModal('${user.email}')">${user.status === 'Ativo' ? 'Desativar' : 'Ativar'}</button>
-      </td>
-    `;
-  });
-
-  updatePagination(filteredUsers.length);
-}
-
-// Filtrar usuários apenas por nome
-function filterUsers() {
-  return users.filter(user => user.nome.toLowerCase().includes(searchQuery.toLowerCase()));
-}
-
-// Aplicar filtro baseado no nome
+// Função para aplicar filtros de pesquisa
 function applyFilters() {
-  searchQuery = document.getElementById('search').value;
-  currentPage = 1; // Resetar para a primeira página após aplicar filtro
+  searchQuery = document.getElementById('search').value.trim().toLowerCase();
+  currentPage = 1; // Resetar para a primeira página ao filtrar
   renderUsers();
 }
 
-// Paginação
-function paginate(filteredUsers) {
-  const startIndex = (currentPage - 1) * usersPerPage;
-  return filteredUsers.slice(startIndex, startIndex + usersPerPage);
-}
-
-// Atualizar navegação da paginação
-function updatePagination(filteredUsersCount) {
-  const totalPages = Math.ceil(filteredUsersCount / usersPerPage);
-  document.getElementById('prevPage').disabled = currentPage === 1;
-  document.getElementById('nextPage').disabled = currentPage === totalPages;
-  document.getElementById('pageInfo').textContent = `Página ${currentPage} de ${totalPages}`;
-}
-
-// Alterar página
-function changePage(direction) {
-  if (direction === 'prev' && currentPage > 1) currentPage--;
-  if (direction === 'next' && currentPage < Math.ceil(users.length / usersPerPage)) currentPage++;
-  renderUsers();
-}
-
-// Funções de Modal de Cadastro
+// Função para abrir modal de cadastro
 function openRegisterModal() {
+  document.getElementById('registerForm').reset();
   document.getElementById('registerModal').style.display = 'block';
+  currentAction = 'register';
+}
+
+// Função para cadastrar novo usuário
+function registerUser(event) {
+  event.preventDefault();
+  
+  const nome = document.getElementById('userName').value.trim();
+  const cpf = document.getElementById('userCpf').value.trim();
+  const email = document.getElementById('userEmail').value.trim();
+  const senha = document.getElementById('userPassword').value;
+  const confirmarSenha = document.getElementById('userConfirmPassword').value;
+  const grupo = document.getElementById('userGroup').value;
+
+  // Validações
+  if (!nome) return alert('Nome é obrigatório');
+  if (!validarCPF(cpf)) return alert('CPF inválido');
+  if (!validarEmail(email)) return alert('Email inválido');
+  if (users.some(u => u.email === email)) return alert('Email já cadastrado');
+  if (senha.length < 6) return alert('Senha deve ter pelo menos 6 caracteres');
+  if (senha !== confirmarSenha) return alert('Senhas não coincidem');
+
+  // Criar novo usuário
+  const novoUsuario = {
+      id: Date.now(),
+      nome,
+      cpf,
+      email,
+      senha,
+      grupo,
+      status: 'Ativo'
+  };
+
+  users.push(novoUsuario);
+  closeRegisterModal();
+  renderUsers();
+  alert('Usuário cadastrado com sucesso!');
+}
+
+// Função para abrir modal de edição
+function openEditModal(userId) {
+  const user = users.find(u => u.id === userId);
+  if (!user) return;
+
+  document.getElementById('editUserName').value = user.nome;
+  document.getElementById('editUserCpf').value = user.cpf;
+  document.getElementById('editUserEmail').value = user.email;
+  document.getElementById('editUserGroup').value = user.grupo;
+  document.getElementById('editUserModal').style.display = 'block';
+  selectedUserId = userId;
+  currentAction = 'edit';
+}
+
+// Função para editar usuário
+function editUser(event) {
+  event.preventDefault();
+  
+  const userIndex = users.findIndex(u => u.id === selectedUserId);
+  if (userIndex === -1) return;
+
+  const nome = document.getElementById('editUserName').value.trim();
+  const cpf = document.getElementById('editUserCpf').value.trim();
+  const grupo = document.getElementById('editUserGroup').value;
+  const senha = document.getElementById('editUserPassword').value;
+  const confirmarSenha = document.getElementById('editUserConfirmPassword').value;
+
+  // Validações
+  if (!nome) return alert('Nome é obrigatório');
+  if (!validarCPF(cpf)) return alert('CPF inválido');
+  if (senha && senha.length < 6) return alert('Senha deve ter pelo menos 6 caracteres');
+  if (senha && senha !== confirmarSenha) return alert('Senhas não coincidem');
+
+  // Atualizar usuário
+  users[userIndex] = {
+      ...users[userIndex],
+      nome,
+      cpf,
+      grupo,
+      senha: senha || users[userIndex].senha
+  };
+
+  closeEditModal();
+  renderUsers();
+  alert('Usuário atualizado com sucesso!');
+}
+
+// Função para renderizar a tabela com filtros
+function renderUsers() {
+  const tableBody = document.getElementById('usersTable').querySelector('tbody');
+  tableBody.innerHTML = '';
+
+  // Aplicar filtro de pesquisa se houver
+  const filteredUsers = searchQuery 
+    ? users.filter(user => user.nome.toLowerCase().includes(searchQuery))
+    : users;
+
+  // Aplicar paginação
+  const startIndex = (currentPage - 1) * usersPerPage;
+  const paginatedUsers = filteredUsers.slice(startIndex, startIndex + usersPerPage);
+
+  // Atualizar informações de paginação
+  document.getElementById('pageInfo').textContent = `Página ${currentPage} de ${Math.ceil(filteredUsers.length / usersPerPage)}`;
+  document.getElementById('prevPage').disabled = currentPage === 1;
+  document.getElementById('nextPage').disabled = currentPage === Math.ceil(filteredUsers.length / usersPerPage);
+
+  // Preencher tabela
+  paginatedUsers.forEach(user => {
+      const row = tableBody.insertRow();
+      row.innerHTML = `
+          <td>${user.nome}</td>
+          <td>${user.email}</td>
+          <td>${user.cpf}</td>
+          <td>${user.status}</td>
+          <td>
+              <button onclick="openEditModal(${user.id})">Editar</button>
+              <button onclick="toggleUserStatus(${user.id})">
+                  ${user.status === 'Ativo' ? 'Desativar' : 'Ativar'}
+              </button>
+          </td>
+      `;
+  });
+}
+
+// Função para mudar de página
+function changePage(direction) {
+  const totalPages = Math.ceil(users.length / usersPerPage);
+  
+  if (direction === 'prev' && currentPage > 1) {
+      currentPage--;
+  } else if (direction === 'next' && currentPage < totalPages) {
+      currentPage++;
+  }
+  
+  renderUsers();
+}
+
+// Função para alternar status do usuário
+function toggleUserStatus(userId) {
+  const user = users.find(u => u.id === userId);
+  if (user) {
+      user.status = user.status === 'Ativo' ? 'Inativo' : 'Ativo';
+      renderUsers();
+  }
+}
+
+// Funções auxiliares
+function validarCPF(cpf) {
+  cpf = cpf.replace(/[^\d]+/g, '');
+  if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false;
+  // Restante da validação de CPF...
+  return true;
+}
+
+function validarEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
 function closeRegisterModal() {
   document.getElementById('registerModal').style.display = 'none';
 }
 
-// Funções de Modal de Edição
-function openEditModal(email) {
-  const user = users.find(u => u.email === email);
-  document.getElementById('editUserName').value = user.nome;
-  document.getElementById('editUserEmail').value = user.email;
-  document.getElementById('editUserCpf').value = user.cpf;
-  document.getElementById('editUserGroup').value = user.grupo;
-  document.getElementById('editUserStatus').value = user.status;
-  document.getElementById('editUserModal').style.display = 'block';
-}
-
 function closeEditModal() {
   document.getElementById('editUserModal').style.display = 'none';
-}
-
-function editUser() {
-  // Aqui você vai editar o usuário no array 'users'
-  const email = document.getElementById('editUserEmail').value;
-  const userIndex = users.findIndex(u => u.email === email);
-  const updatedUser = {
-    nome: document.getElementById('editUserName').value,
-    email: email,
-    cpf: document.getElementById('editUserCpf').value,
-    grupo: document.getElementById('editUserGroup').value,
-    status: document.getElementById('editUserStatus').value,
-    senha: document.getElementById('editUserPassword').value,
-  };
-
-  users[userIndex] = updatedUser; // Atualiza no array
-
-  closeEditModal(); // Fecha o modal
-  renderUsers(); // Re-renderiza a tabela
-}
-
-// Funções de Modal de Confirmação
-function openConfirmationModal(email) {
-  const user = users.find(u => u.email === email);
-  document.getElementById('modalMessage').textContent = `Você deseja ${user.status === 'Ativo' ? 'desativar' : 'ativar'} o usuário ${user.nome}?`;
-  document.getElementById('confirmBtn').onclick = () => toggleUserStatus(user.email);
-  document.getElementById('confirmationModal').style.display = 'block';
 }
 
 function closeModal() {
   document.getElementById('confirmationModal').style.display = 'none';
 }
 
-function toggleUserStatus(email) {
-  const user = users.find(u => u.email === email);
-  user.status = user.status === 'Ativo' ? 'Inativo' : 'Ativo';
-  closeModal();
-  renderUsers();
-}
+// Inicialização
+document.addEventListener('DOMContentLoaded', function() {
+  // Event listeners
+  document.getElementById('registerForm').addEventListener('submit', registerUser);
+  document.getElementById('editUserForm').addEventListener('submit', editUser);
+  
+  // Adicionar evento de tecla para a pesquisa
+  document.getElementById('search').addEventListener('keyup', function(event) {
+      if (event.key === 'Enter') {
+          applyFilters();
+      }
+  });
 
-// Inicializar com a renderização dos usuários
-renderUsers();
+  // Renderizar tabela inicial
+  renderUsers();
+});

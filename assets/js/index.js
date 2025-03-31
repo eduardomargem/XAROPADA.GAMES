@@ -1,7 +1,9 @@
 document.addEventListener("DOMContentLoaded", function () {
     const usuariosCadastrados = [
-        { usuario: "admin", email: "xaropada@gmail.com", senha: "Admin@123" },
-        { usuario: "user", email: "Xaropadinha@gmail.com", senha: "User@456" }
+        { usuario: "admin", email: "xaropada@gmail.com", senha: "Admin@123", tipo: "ADM" },
+        { usuario: "user", email: "xaropadinha@gmail.com", senha: "@100Senha", tipo: "Estoquista" },
+        { usuario: "vinicius", email: "viniii@gmail.com", senha: "Cliente@123", tipo: "Cliente" },
+        { usuario: "Test", email: "test@gmail.com", senha: "Cliente@123", tipo: "Cliente" }
     ];
 
     function validarEmail(email) {
@@ -37,11 +39,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
             const emailOuUsuario = document.querySelector("input[type='text']");
             const senha = document.querySelector("input[type='password']");
-            const valor = emailOuUsuario.value.trim().toLowerCase(); // Converte usuário/email para minúsculas
-            const senhaValor = senha.value.trim(); 
-
-            console.log("Usuário digitado:", valor);
-            console.log("Senha digitada:", senhaValor);
+            const valor = emailOuUsuario.value.trim().toLowerCase();
+            const senhaValor = senha.value.trim();
 
             if (!valor) {
                 exibirErro(emailOuUsuario, "Preencha este campo.");
@@ -49,7 +48,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
             if (valor.length < 6) {
-                exibirErro(emailOuUsuario, "O e-mail ou nome de usuário deve ter pelo menos 6 caracteres.");
+                exibirErro(emailOuUsuario, "Mínimo 6 caracteres.");
                 return;
             }
 
@@ -59,17 +58,17 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
             if (validarEmail(valor) && valor.length > 100) {
-                exibirErro(emailOuUsuario, "O e-mail pode ter no máximo 100 caracteres.");
+                exibirErro(emailOuUsuario, "E-mail muito longo.");
                 return;
             }
 
             if (!validarEmail(valor) && valor.length > 50) {
-                exibirErro(emailOuUsuario, "O nome de usuário pode ter no máximo 50 caracteres.");
+                exibirErro(emailOuUsuario, "Usuário muito longo.");
                 return;
             }
 
             if (!validarSenha(senhaValor)) {
-                exibirErro(senha, "A senha deve ter no mínimo 6 caracteres, incluindo pelo menos 1 número e 1 caractere especial.");
+                exibirErro(senha, "Mínimo 6 caracteres com número e especial.");
                 return;
             }
 
@@ -78,13 +77,19 @@ document.addEventListener("DOMContentLoaded", function () {
                 user.senha === senhaValor
             );
 
-            console.log("Usuário encontrado:", usuarioEncontrado);
-
             if (usuarioEncontrado) {
-                console.log("Login bem-sucedido! Redirecionando...");
-                window.location.href = "dashboard.html";
+                localStorage.setItem("usuarioLogado", JSON.stringify({
+                    nome: usuarioEncontrado.email.split('@')[0],
+                    tipo: usuarioEncontrado.tipo,
+                    email: usuarioEncontrado.email
+                }));
+
+                if (usuarioEncontrado.tipo === "ADM" || usuarioEncontrado.tipo === "Estoquista") {
+                    window.location.href = "dashboard.html";
+                } else {
+                    window.location.href = "Loja.html";
+                }
             } else {
-                console.log("Usuário ou senha incorretos!");
                 exibirErro(emailOuUsuario, "Usuário ou senha incorretos!");
             }
         });
