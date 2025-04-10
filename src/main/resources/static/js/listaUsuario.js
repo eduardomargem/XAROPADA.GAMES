@@ -5,6 +5,48 @@ let users = [];
 
 const apiUrl = 'http://localhost:8080/usuarios';
 
+// Função de validação de CPF (adicionada conforme o algoritmo do Macoratti)
+function validarCPF(cpf) {
+    cpf = cpf.replace(/[^\d]+/g, '');
+    if (cpf === '') return false;
+    
+    // Elimina CPFs invalidos conhecidos
+    if (cpf.length !== 11 ||
+        cpf === "00000000000" ||
+        cpf === "11111111111" ||
+        cpf === "22222222222" ||
+        cpf === "33333333333" ||
+        cpf === "44444444444" ||
+        cpf === "55555555555" ||
+        cpf === "66666666666" ||
+        cpf === "77777777777" ||
+        cpf === "88888888888" ||
+        cpf === "99999999999")
+        return false;
+        
+    // Valida 1o digito
+    let add = 0;
+    for (let i = 0; i < 9; i++)
+        add += parseInt(cpf.charAt(i)) * (10 - i);
+    let rev = 11 - (add % 11);
+    if (rev === 10 || rev === 11)
+        rev = 0;
+    if (rev !== parseInt(cpf.charAt(9)))
+        return false;
+        
+    // Valida 2o digito
+    add = 0;
+    for (let i = 0; i < 10; i++)
+        add += parseInt(cpf.charAt(i)) * (11 - i);
+    rev = 11 - (add % 11);
+    if (rev === 10 || rev === 11)
+        rev = 0;
+    if (rev !== parseInt(cpf.charAt(10)))
+        return false;
+        
+    return true;
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     fetchUsers();
     setupModalEvents();
@@ -116,6 +158,13 @@ function openEditModal(ds_email) {
 async function editUser(event) {
     event.preventDefault();
 
+    // Valida o CPF antes de enviar
+    const cpf = document.getElementById('editUserCpf').value;
+    if (!validarCPF(cpf)) {
+        alert('CPF inválido! Por favor, insira um CPF válido.');
+        return;
+    }
+
     // Exibir loader ou desativar botão de salvar alterações
     const saveButton = document.querySelector('#editUserForm button[type="submit"]');
     saveButton.disabled = true;
@@ -125,7 +174,7 @@ async function editUser(event) {
     const email = document.getElementById('editUserEmail').value;
     const updatedUser = {
         ds_nome: document.getElementById('editUserName').value,
-        nr_cpf: document.getElementById('editUserCpf').value,
+        nr_cpf: cpf,
         ds_email: email,
         ds_senha: document.getElementById('editUserPassword').value,
         id_grupo: document.getElementById('editUserGroup').value,
@@ -163,9 +212,16 @@ document.getElementById('editUserForm').addEventListener('submit', editUser);
 document.getElementById('registerForm').addEventListener('submit', async function(event) {
     event.preventDefault();
 
+    // Valida o CPF antes de enviar
+    const cpf = document.getElementById('userCpf').value;
+    if (!validarCPF(cpf)) {
+        alert('CPF inválido! Por favor, insira um CPF válido.');
+        return;
+    }
+
     const newUser = {
         ds_nome: document.getElementById('userName').value,
-        nr_cpf: document.getElementById('userCpf').value,
+        nr_cpf: cpf,
         ds_email: document.getElementById('userEmail').value,
         ds_senha: document.getElementById('userPassword').value,
         id_grupo: document.getElementById('userGroup').value === 'admin' ? 1 : 2,
