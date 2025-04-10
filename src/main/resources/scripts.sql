@@ -47,3 +47,5 @@ CREATE TABLE imagens_produto (
 );
 
 select * from usuarios
+
+select * from produtos
