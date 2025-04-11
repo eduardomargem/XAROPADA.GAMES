@@ -1,0 +1,265 @@
+/* ===== RESET E ESTILOS GERAIS ===== */
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%; 
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+/* ===== TIPOGRAFIA ===== */
+.press-start-2p-regular {
+    font-family: "Press Start 2P", serif;
+    font-weight: 400;
+    font-style: normal;
+}
+
+h1, h2, h3 {
+    font-family: "Press Start 2P", serif;
+    color: white;
+}
+
+h1 {
+    font-size: 100px;
+    text-shadow: 4px 4px 15px rgba(255, 255, 255, 1), -3px -3px 5px rgba(0, 0, 0, 0.7);
+}
+
+h2 {
+    font-size: 50px;
+    margin-bottom: -1px;
+    text-shadow: 3px 3px 10px rgba(255, 255, 255, 1), -2px -2px 5px rgba(0, 0, 0, 0.7);
+    text-align: center;
+    padding: 20px;
+    color: #00FF85;
+}
+
+h3 {
+    font-size: 16px;
+    margin: 20px 0 10px;
+    color: #00FF85;
+}
+
+p {
+    font-size: 15px;
+    color: #00FF85;
+    margin-bottom: 5px;
+}
+
+/* ===== LAYOUT PRINCIPAL ===== */
+.section {
+    position: absolute; 
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden; 
+}
+
+.container {
+    position: fixed; 
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    display: flex;
+    height: 100vh;
+    align-items: center;
+}
+
+.video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(50%);
+}
+
+.logo {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    animation: arcade-vibration 3s ease-in-out infinite;
+}
+
+.logo img {
+    width: 150px;
+    height: 150px;
+    animation: arcade-vibration-horizontal 3s ease-in-out infinite;
+}
+
+.press-key-message {
+    margin-top: 30px;
+    font-family: "Press Start 2P", serif;
+    color: #00FF85;
+    font-size: 16px;
+    text-align: center;
+    animation: blink 1.5s infinite;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* ===== FORMULÁRIO ===== */
+.login-box {
+    flex: 1;
+    background-color: rgba(44, 42, 100, 0.8);
+    max-width: 530px;
+    width: 100%;
+    height: 90vh;
+    border-radius: 5px;
+    padding: 20px;
+    margin-right: 100px;
+    overflow-y: auto;
+    position: relative;
+    z-index: 10;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-row {
+    display: flex;
+    gap: 10px;
+}
+
+.half-width {
+    flex: 1;
+}
+
+/* ===== ELEMENTOS DE FORMULÁRIO ===== */
+input, select, button {
+    width: 100%;
+    padding: 12px;
+    margin: 5px 0;
+    border: none;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+input, select {
+    background-color: #f0f0f0;
+}
+
+input:focus, select:focus {
+    outline: none;
+    box-shadow: 0 0 10px rgba(0, 255, 133, 0.7);
+}
+
+button {
+    background-color: #00FF85;
+    font-family: "Press Start 2P", serif;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+    margin-top: 20px;
+    font-size: 16px;
+    padding: 15px;
+}
+
+button:hover {
+    background-color: #00cc66; 
+}
+
+/* ===== COMPONENTES ESPECÍFICOS ===== */
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    margin: 10px 0;
+}
+
+.checkbox-group input {
+    width: auto;
+    margin-right: 10px;
+}
+
+.checkbox-group label {
+    color: white;
+    font-size: 14px;
+}
+
+.erro {
+    color: #ff6b6b;
+    font-size: 12px;
+    display: block;
+    margin-top: 2px;
+    min-height: 14px;
+}
+
+/* ===== ANIMAÇÕES ===== */
+@keyframes arcade-vibration {
+    0% { transform: translateY(0); }
+    10% { transform: translateY(-5px); }
+    20% { transform: translateY(5px); } 
+    30% { transform: translateY(-5px); }
+    40% { transform: translateY(5px); } 
+    50% { transform: translateY(0); }    
+    100% { transform: translateY(0); }  
+}
+
+@keyframes arcade-vibration-horizontal {
+    0% { transform: translateX(0); }       
+    25% { transform: translateX(-65px); }  
+    50% { transform: translateX(65px); }   
+    75% { transform: translateX(-65px); }   
+    100% { transform: translateX(0); }     
+}
+
+/* ===== RESPONSIVIDADE ===== */
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+        padding: 20px;
+    }
+    
+    .logo {
+        margin-bottom: 20px;
+    }
+    
+    .login-box {
+        margin-right: 0;
+        max-width: 100%;
+        height: auto;
+        max-height: 70vh;
+    }
+    
+    .form-row {
+        flex-direction: column;
+    }
+    
+    .half-width {
+        width: 100%;
+    }
+    
+    .press-key-message {
+        font-size: 12px;
+    }
+}
+
+/* ===== SCROLLBAR ===== */
+.login-box::-webkit-scrollbar {
+    width: 8px;
+}
+
+.login-box::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+}
+
+.login-box::-webkit-scrollbar-thumb {
+    background-color: #00FF85;
+    border-radius: 10px;
+}
