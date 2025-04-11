@@ -1,4 +1,4 @@
--- Active: 1741726533463@@127.0.0.1@3307@phpmyadmin
+-- Active: 1743459186615@@127.0.0.1@3307@phpmyadmin
 CREATE DATABASE xaropadagames;
 
 use xaropadagames;
