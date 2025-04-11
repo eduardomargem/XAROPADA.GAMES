@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XaropadaGames - MarketPlace</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link th:href="@{/styles/carrinho.css}" rel="stylesheet" />
+</head>
+<body>
+    <header class="header">
+        <div class="logo">
+            <h1>Xaropada<span>Games</span></h1>
+        </div>
+        <div class="user-section" id="userSection">
+            <div class="login-option">
+                <div><i class="fas fa-user"></i> <span>ENTRE OU</span></div>
+                <div>CADASTRE-SE</div>
+            </div>
+        </div>
+        <div class="cart-info">
+            <div class="cart-icon" id="cartIcon">
+                <i class="fas fa-shopping-cart"></i>
+                <span id="cartCount">0</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="products-grid" id="productsGrid">
+            <!-- Produtos serão gerados dinamicamente via JavaScript -->
+        </section>
+    </main>
+
+    <!-- Modal do Carrinho -->
+    <div class="cart-modal" id="cartModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Seu Carrinho</h2>
+                <span class="close-modal" id="closeModal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="cart-items" id="cartItems"></div>
+                <div class="frete-section">
+                    <h3>Calcular Frete</h3>
+                    <div class="cep-input">
+                        <input type="text" id="cepInput" placeholder="Digite seu CEP" maxlength="9">
+                        <button id="calcFreteBtn">Calcular</button>
+                    </div>
+                    <div id="cepInfo" class="cep-info"></div>
+                    <div class="frete-options" id="freteOptions">
+                        <div class="frete-option" data-value="15">
+                            <input type="radio" name="frete" id="frete1">
+                            <label for="frete1">Economia - R$ 15,00 (5-7 dias)</label>
+                        </div>
+                        <div class="frete-option" data-value="25">
+                            <input type="radio" name="frete" id="frete2">
+                            <label for="frete2">Padrão - R$ 25,00 (3-5 dias)</label>
+                        </div>
+                        <div class="frete-option" data-value="40">
+                            <input type="radio" name="frete" id="frete3">
+                            <label for="frete3">Expresso - R$ 40,00 (1-2 dias)</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="cart-summary">
+                    <div class="summary-row">
+                        <span>Subtotal:</span>
+                        <span id="subtotalValue">R$ 0,00</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Frete:</span>
+                        <span id="freteValue">R$ 0,00</span>
+                    </div>
+                    <div class="summary-row total">
+                        <span>Total:</span>
+                        <span id="totalValue">R$ 0,00</span>
+                    </div>
+                </div>
+
+               
+            </div>
+            <div class="modal-footer">
+                <button class="continue-btn" id="continueBtn">Continuar Comprando</button>
+                <button class="checkout-btn" id="checkoutBtn">Finalizar Compra</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Detalhes do Produto -->
+    <div class="product-modal" id="productModal">
+        <div class="modal-product-content">
+            <span class="close-product-modal" id="closeProductModal">&times;</span>
+            <div class="product-modal-body" id="productModalBody"></div>
+        </div>
+    </div>
+
+    <script th:src="@{/js/Carrinho.js}"></script>
+    <script>
+        // Verificação de login e exibição do usuário
+        document.addEventListener("DOMContentLoaded", function() {
+            const userSection = document.getElementById('userSection');
+            const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
+            
+            if (usuarioLogado) {
+                userSection.innerHTML = `
+                    <div class="user-info">
+                        <i class="fas fa-user"></i>
+                        <span>Olá, ${usuarioLogado.nome}!</span>
+                        <button id="logoutBtn" class="logout-btn">Sair</button>
+                    </div>
+                `;
+                
+                document.getElementById('logoutBtn').addEventListener('click', function() {
+                    localStorage.removeItem('usuarioLogado');
+                    window.location.reload();
+                });
+            } else {
+                userSection.innerHTML = `
+                    <div class="login-option">
+                        <div><i class="fas fa-user"></i> <span>ENTRE OU</span></div>
+                        <div>CADASTRE-SE</div>
+                    </div>
+                `;
+                
+                userSection.addEventListener('click', function() {
+                    window.location.href = '/index';
+                });
+            }
+            
+            // Bloqueia finalização de compra se não estiver logado
+            const checkoutBtn = document.getElementById('checkoutBtn');
+            if (checkoutBtn) {
+                checkoutBtn.addEventListener('click', function(e) {
+                    const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
+                    if (!usuarioLogado) {
+                        e.preventDefault();
+                        alert('Por favor, faça login para finalizar sua compra!');
+                        window.location.href = '/index';
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
