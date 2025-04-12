@@ -47,3 +47,33 @@ CREATE TABLE imagens_produto (
 );
 
 select * from usuarios
+
+CREATE TABLE clientes (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    nome_completo VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    cpf VARCHAR(14) NOT NULL UNIQUE,
+    data_nascimento DATE NOT NULL,
+    genero VARCHAR(20) NOT NULL,
+    senha VARCHAR(100) NOT NULL
+) ENGINE=InnoDB;
+
+CREATE TABLE enderecos (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    tipo VARCHAR(20) NOT NULL,
+    cep VARCHAR(9) NOT NULL,
+    logradouro VARCHAR(100) NOT NULL,
+    numero VARCHAR(20) NOT NULL,
+    complemento VARCHAR(100),
+    bairro VARCHAR(50) NOT NULL,
+    cidade VARCHAR(50) NOT NULL,
+    uf VARCHAR(2) NOT NULL,
+    cliente_id BIGINT NOT NULL,
+    FOREIGN KEY (cliente_id) REFERENCES clientes(id)
+) ENGINE=InnoDB;
+
+
+SHOW TABLES;
+DESCRIBE clientes;
+
+SELECT * FROM CLIENTES

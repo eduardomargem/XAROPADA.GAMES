@@ -1,6 +1,6 @@
 // Função para validar CPF (adaptada de https://www.macoratti.net/alg_cpf.htm)
 function validarCPF(cpf) {
-    cpf = cpf.replace(/[^\d]+/g, '');
+    cpf = cpf.replace(/\D/g, '');
     if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false;
     
     let soma = 0;
@@ -22,11 +22,6 @@ function validarCPF(cpf) {
     return true;
 }
 
-// Função para formatar CPF
-function formatarCPF(cpf) {
-    return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
-}
-
 // Função para validar CEP via API
 async function validarCEP(cep) {
     cep = cep.replace(/\D/g, '');
@@ -42,39 +37,25 @@ async function validarCEP(cep) {
     }
 }
 
-// Função para formatar CEP
-function formatarCEP(cep) {
-    return cep.replace(/(\d{5})(\d{3})/, '$1-$2');
-}
-
 // Função para validar nome completo (2 palavras com pelo menos 3 letras cada)
 function validarNome(nome) {
+    if (!nome || typeof nome !== 'string') return false;
     const partes = nome.trim().split(/\s+/);
     return partes.length >= 2 && partes.every(part => part.length >= 3);
 }
 
-// Função para validar e-mail único (simulação)
-async function verificarEmailUnico(email) {
-    // Simulação - em uma aplicação real, faria uma requisição ao servidor
-    return new Promise(resolve => {
-        setTimeout(() => {
-            resolve(true); // Assume que o e-mail é único
-        }, 500);
-    });
-}
-
 // Função para validar data de nascimento (mínimo 12 anos)
 function validarNascimento(data) {
+    if (!data) return false;
     const nascimento = new Date(data);
     const hoje = new Date();
     const idadeMinima = new Date(hoje.getFullYear() - 12, hoje.getMonth(), hoje.getDate());
     return nascimento <= idadeMinima;
 }
 
-// Função para encriptar senha (simulação usando bcrypt.js)
+// Função para encriptar senha (simulação usando SHA-256)
 async function encriptarSenha(senha) {
-    // Em uma aplicação real, usaria bcrypt ou similar
-    // Esta é uma simulação básica apenas para demonstração
+    if (!senha) return '';
     const encoder = new TextEncoder();
     const data = encoder.encode(senha);
     const hashBuffer = await crypto.subtle.digest('SHA-256', data);
@@ -83,43 +64,27 @@ async function encriptarSenha(senha) {
     return hashHex;
 }
 
-// Função para criar um objeto de endereço
-function criarEndereco(tipo, dados) {
-    return {
-        tipo,
-        cep: dados.cep,
-        logradouro: dados.logradouro,
-        numero: dados.numero,
-        complemento: dados.complemento || '',
-        bairro: dados.bairro,
-        cidade: dados.cidade,
-        uf: dados.uf
-    };
-}
-
 // Função para validar todos os campos do formulário
 async function validarFormulario(formData) {
     const erros = {};
 
     // Validar nome
-    if (!validarNome(formData.nome)) {
+    if (!formData.nomeCompleto || !validarNome(formData.nomeCompleto)) {
         erros.nome = 'Nome completo deve ter pelo menos 2 palavras com 3+ letras cada';
     }
 
     // Validar e-mail
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+    if (!formData.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
         erros.email = 'E-mail inválido';
-    } else if (!await verificarEmailUnico(formData.email)) {
-        erros.email = 'E-mail já cadastrado';
     }
 
     // Validar CPF
-    if (!validarCPF(formData.cpf)) {
-        erros.cpf = 'CPF inválido';
+    if (!formData.cpf || !validarCPF(formData.cpf) || !/^\d{3}\.\d{3}\.\d{3}-\d{2}$/.test(formData.cpf)) {
+        erros.cpf = 'CPF inválido (formato: 123.456.789-09)';
     }
 
     // Validar data de nascimento
-    if (!formData.nascimento || !validarNascimento(formData.nascimento)) {
+    if (!validarNascimento(formData.dataNascimento)) {
         erros.nascimento = 'Data de nascimento inválida ou idade mínima não atingida';
     }
 
@@ -129,19 +94,24 @@ async function validarFormulario(formData) {
     }
 
     // Validar senha
-    if (formData.senha.length < 6) {
+    if (!formData.senha || formData.senha.trim() === '') {
+        erros.senha = 'A senha é obrigatória';
+    } else if (formData.senha.length < 6) {
         erros.senha = 'Senha deve ter pelo menos 6 caracteres';
     }
 
     // Validar endereço de faturamento
-    if (!formData.cep || !formData.logradouro || !formData.numero || 
-        !formData.bairro || !formData.cidade || !formData.uf) {
+    if (!formData.enderecos || formData.enderecos.length === 0 || 
+        !formData.enderecos[0].cep || !formData.enderecos[0].logradouro || 
+        !formData.enderecos[0].numero || !formData.enderecos[0].bairro || 
+        !formData.enderecos[0].cidade || !formData.enderecos[0].uf) {
         erros.endereco = 'Endereço de faturamento incompleto';
     }
 
     // Validar endereços de entrega
-    if (formData.enderecosEntrega.length === 0) {
-        erros.enderecosEntrega = 'Pelo menos um endereço de entrega é obrigatório';
+    if (formData.enderecos.length < 2 || formData.enderecos.some((end, i) => 
+        i > 0 && (!end.cep || !end.logradouro || !end.numero || !end.bairro || !end.cidade || !end.uf))) {
+        erros.enderecosEntrega = 'Pelo menos um endereço de entrega válido é obrigatório';
     }
 
     return erros;
@@ -172,24 +142,14 @@ function aplicarMascaraCEP(input) {
 }
 
 // Função para preencher endereço a partir do CEP
-function configurarAutoPreenchimentoCEP() {
-    const cepInput = document.getElementById('cep');
-    
-    cepInput.addEventListener('blur', async function() {
-        const cep = cepInput.value.replace(/\D/g, '');
+function configurarAutoPreenchimentoCEP(input, callback) {
+    input.addEventListener('blur', async function() {
+        const cep = this.value.replace(/\D/g, '');
         if (cep.length !== 8) return;
         
         const endereco = await validarCEP(cep);
-        if (endereco) {
-            document.getElementById('logradouro').value = endereco.logradouro || '';
-            document.getElementById('bairro').value = endereco.bairro || '';
-            document.getElementById('cidade').value = endereco.localidade || '';
-            document.getElementById('uf').value = endereco.uf || '';
-            
-            // Focar no número depois de preencher
-            document.getElementById('numero').focus();
-        } else {
-            document.getElementById('erro-cep').textContent = 'CEP não encontrado';
+        if (endereco && callback) {
+            callback(endereco);
         }
     });
 }
@@ -197,7 +157,7 @@ function configurarAutoPreenchimentoCEP() {
 // Função para adicionar um novo endereço de entrega
 function adicionarEnderecoEntrega(dados = null) {
     const container = document.getElementById('enderecos-entrega');
-    const id = Date.now(); // ID único para o endereço
+    const id = Date.now();
     
     const enderecoDiv = document.createElement('div');
     enderecoDiv.className = 'endereco-entrega';
@@ -246,35 +206,22 @@ function adicionarEnderecoEntrega(dados = null) {
         <button type="button" class="btn-remover-endereco">Remover Endereço</button>
     `;
     
-    // Inserir antes do botão de adicionar
     container.insertBefore(enderecoDiv, document.getElementById('adicionar-endereco'));
     
-    // Configurar máscara de CEP para o novo campo
+    // Configurar máscara e auto-preenchimento para o novo CEP
     const novoCepInput = enderecoDiv.querySelector('.cep-entrega');
     aplicarMascaraCEP(novoCepInput);
     
-    // Configurar auto-preenchimento para o novo CEP
-    novoCepInput.addEventListener('blur', async function() {
-        const cep = this.value.replace(/\D/g, '');
-        if (cep.length !== 8) return;
-        
-        const endereco = await validarCEP(cep);
-        if (endereco) {
-            enderecoDiv.querySelector('.logradouro-entrega').value = endereco.logradouro || '';
-            enderecoDiv.querySelector('.bairro-entrega').value = endereco.bairro || '';
-            enderecoDiv.querySelector('.cidade-entrega').value = endereco.localidade || '';
-            enderecoDiv.querySelector('.uf-entrega').value = endereco.uf || '';
-            
-            // Focar no número depois de preencher
-            enderecoDiv.querySelector('.numero-entrega').focus();
-        } else {
-            enderecoDiv.querySelector('.erro-cep-entrega').textContent = 'CEP não encontrado';
-        }
+    configurarAutoPreenchimentoCEP(novoCepInput, (endereco) => {
+        enderecoDiv.querySelector('.logradouro-entrega').value = endereco.logradouro || '';
+        enderecoDiv.querySelector('.bairro-entrega').value = endereco.bairro || '';
+        enderecoDiv.querySelector('.cidade-entrega').value = endereco.localidade || '';
+        enderecoDiv.querySelector('.uf-entrega').value = endereco.uf || '';
+        enderecoDiv.querySelector('.numero-entrega').focus();
     });
     
     // Configurar botão de remover
     enderecoDiv.querySelector('.btn-remover-endereco').addEventListener('click', function() {
-        // Não permitir remover se for o único endereço
         const enderecos = document.querySelectorAll('.endereco-entrega');
         if (enderecos.length > 1) {
             enderecoDiv.remove();
@@ -282,50 +229,53 @@ function adicionarEnderecoEntrega(dados = null) {
             alert('Pelo menos um endereço de entrega é obrigatório.');
         }
     });
-    
-    return id;
 }
 
 // Função para coletar dados do formulário
 async function coletarDadosFormulario() {
-    // Dados básicos
-    const formData = {
-        nome: document.getElementById('nome').value.trim(),
+    let cpf = document.getElementById('cpf').value.replace(/\D/g, '');
+    cpf = cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+    
+    const cliente = {
+        nomeCompleto: document.getElementById('nome').value.trim(),
         email: document.getElementById('email').value.trim(),
-        cpf: document.getElementById('cpf').value.replace(/\D/g, ''),
-        nascimento: document.getElementById('nascimento').value,
+        cpf: cpf,
+        dataNascimento: document.getElementById('nascimento').value,
         genero: document.getElementById('genero').value,
         senha: document.getElementById('senha').value,
-        // Endereço de faturamento
+        enderecos: []
+    };
+
+    // Encriptar senha
+    cliente.senha = await encriptarSenha(cliente.senha);
+
+    // Endereço de faturamento
+    cliente.enderecos.push({
+        tipo: "FATURAMENTO",
         cep: document.getElementById('cep').value.replace(/\D/g, ''),
         logradouro: document.getElementById('logradouro').value.trim(),
         numero: document.getElementById('numero').value.trim(),
         complemento: document.getElementById('complemento').value.trim(),
         bairro: document.getElementById('bairro').value.trim(),
         cidade: document.getElementById('cidade').value.trim(),
-        uf: document.getElementById('uf').value.trim(),
-        // Endereços de entrega
-        enderecosEntrega: []
-    };
-    
-    // Encriptar senha
-    formData.senha = await encriptarSenha(formData.senha);
-    
-    // Coletar endereços de entrega
-    const enderecosEntrega = document.querySelectorAll('.endereco-entrega');
-    enderecosEntrega.forEach(endereco => {
-        formData.enderecosEntrega.push({
-            cep: endereco.querySelector('.cep-entrega').value.replace(/\D/g, ''),
-            logradouro: endereco.querySelector('.logradouro-entrega').value.trim(),
-            numero: endereco.querySelector('.numero-entrega').value.trim(),
-            complemento: endereco.querySelector('.complemento-entrega').value.trim(),
-            bairro: endereco.querySelector('.bairro-entrega').value.trim(),
-            cidade: endereco.querySelector('.cidade-entrega').value.trim(),
-            uf: endereco.querySelector('.uf-entrega').value.trim()
+        uf: document.getElementById('uf').value.trim()
+    });
+
+    // Endereços de entrega
+    document.querySelectorAll('.endereco-entrega').forEach(enderecoEl => {
+        cliente.enderecos.push({
+            tipo: "ENTREGA",
+            cep: enderecoEl.querySelector('.cep-entrega').value.replace(/\D/g, ''),
+            logradouro: enderecoEl.querySelector('.logradouro-entrega').value.trim(),
+            numero: enderecoEl.querySelector('.numero-entrega').value.trim(),
+            complemento: enderecoEl.querySelector('.complemento-entrega').value.trim(),
+            bairro: enderecoEl.querySelector('.bairro-entrega').value.trim(),
+            cidade: enderecoEl.querySelector('.cidade-entrega').value.trim(),
+            uf: enderecoEl.querySelector('.uf-entrega').value.trim()
         });
     });
-    
-    return formData;
+
+    return cliente;
 }
 
 // Função para exibir erros no formulário
@@ -340,34 +290,39 @@ function exibirErros(erros) {
     if (erros.nascimento) document.getElementById('erro-nascimento').textContent = erros.nascimento;
     if (erros.genero) document.getElementById('erro-genero').textContent = erros.genero;
     if (erros.senha) document.getElementById('erro-senha').textContent = erros.senha;
-    if (erros.cep) document.getElementById('erro-cep').textContent = erros.cep;
-    if (erros.logradouro) document.getElementById('erro-logradouro').textContent = erros.logradouro;
-    if (erros.numero) document.getElementById('erro-numero').textContent = erros.numero;
-    if (erros.bairro) document.getElementById('erro-bairro').textContent = erros.bairro;
-    if (erros.cidade) document.getElementById('erro-cidade').textContent = erros.cidade;
-    if (erros.uf) document.getElementById('erro-uf').textContent = erros.uf;
-    
-    // Exibir erros de endereço de entrega
-    if (erros.enderecosEntrega) {
-        alert(erros.enderecosEntrega);
-    }
+    if (erros.endereco) document.getElementById('erro-cep').textContent = erros.endereco;
+    if (erros.enderecosEntrega) alert(erros.enderecosEntrega);
 }
 
-// Função para salvar cliente (simulação)
-async function salvarCliente(cliente) {
-    // Em uma aplicação real, faria uma requisição POST para o servidor
-    console.log('Cliente a ser salvo:', cliente);
-    
-    // Simular atraso de rede
-    return new Promise(resolve => {
-        setTimeout(() => {
-            // Simular sucesso
-            resolve({ success: true });
-            
-            // Em uma aplicação real, redirecionar para login após cadastro
-            window.location.href = '/login.html';
-        }, 1000);
-    });
+// Função para salvar cliente
+async function salvarCliente() {
+    try {
+        const cliente = await coletarDadosFormulario();
+        
+        // Verificação final antes de enviar
+        if (!cliente.senha || cliente.senha.trim() === '') {
+            throw new Error('Por favor, insira uma senha válida');
+        }
+        
+        // Encriptar a senha (se necessário)
+        cliente.senha = await encriptarSenha(cliente.senha);
+        
+        const response = await fetch('http://localhost:8080/clientes', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(cliente)
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Erro ao cadastrar');
+        }
+        
+        window.location.href = '/login';
+    } catch (error) {
+        console.error('Erro:', error);
+        alert(error.message);
+    }
 }
 
 // Função principal para inicializar o formulário
@@ -376,16 +331,20 @@ function inicializarFormulario() {
     aplicarMascaraCPF(document.getElementById('cpf'));
     aplicarMascaraCEP(document.getElementById('cep'));
     
-    // Configurar auto-preenchimento de CEP
-    configurarAutoPreenchimentoCEP();
+    // Configurar auto-preenchimento de CEP para faturamento
+    configurarAutoPreenchimentoCEP(document.getElementById('cep'), (endereco) => {
+        document.getElementById('logradouro').value = endereco.logradouro || '';
+        document.getElementById('bairro').value = endereco.bairro || '';
+        document.getElementById('cidade').value = endereco.localidade || '';
+        document.getElementById('uf').value = endereco.uf || '';
+        document.getElementById('numero').focus();
+    });
     
     // Configurar checkbox para copiar endereço de faturamento
     document.getElementById('mesmo-endereco').addEventListener('change', function() {
         if (this.checked) {
-            // Limpar endereços de entrega existentes
             document.querySelectorAll('.endereco-entrega').forEach(el => el.remove());
             
-            // Adicionar um novo endereço com os dados de faturamento
             const dadosFaturamento = {
                 cep: document.getElementById('cep').value,
                 logradouro: document.getElementById('logradouro').value,
@@ -409,29 +368,9 @@ function inicializarFormulario() {
     adicionarEnderecoEntrega();
     
     // Configurar envio do formulário
-    document.getElementById('registerForm').addEventListener('submit', async function(e) {
+    document.getElementById('registerForm').addEventListener('submit', function(e) {
         e.preventDefault();
-        
-        // Coletar dados
-        const formData = await coletarDadosFormulario();
-        
-        // Validar
-        const erros = await validarFormulario(formData);
-        
-        if (Object.keys(erros).length > 0) {
-            exibirErros(erros);
-            return;
-        }
-        
-        // Salvar cliente
-        const resultado = await salvarCliente(formData);
-        
-        if (resultado.success) {
-            // Redirecionar para login
-            window.location.href = '/src/main/resources/templates/index.html';
-        } else {
-            alert('Erro ao cadastrar cliente. Por favor, tente novamente.');
-        }
+        salvarCliente();
     });
 }
 
@@ -440,14 +379,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const loginBox = document.getElementById('loginBox');
     const pressKeyMessage = document.getElementById('press-key-message');
     
-    // Mostrar o formulário quando qualquer tecla for pressionada
     document.addEventListener('keydown', function() {
         loginBox.style.display = 'block';
         pressKeyMessage.style.display = 'none';
         inicializarFormulario();
     }, { once: true });
     
-    // Também permitir clique/touch para dispositivos móveis
     document.addEventListener('click', function() {
         loginBox.style.display = 'block';
         pressKeyMessage.style.display = 'none';
