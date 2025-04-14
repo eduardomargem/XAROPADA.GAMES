@@ -1,4 +1,4 @@
--- Active: 1743459186615@@127.0.0.1@3307@phpmyadmin
+-- Active: 1744504496810@@127.0.0.1@3307
 CREATE DATABASE xaropadagames;
 
 use xaropadagames;
@@ -31,16 +31,17 @@ create table Produtos (
     qtd_produto     int not null,
     vl_produto      DECIMAL(10, 2) not null,
     ds_descricao    varchar(2000) not null,
-    nr_avaliacao    DECIMAL(10, 2) not null
+    nr_avaliacao    DECIMAL(10, 2) not null,
+    bo_status       int not null
 )
 
-insert into produtos (ds_nome, qtd_produto, vl_produto, ds_descricao, nr_avaliacao)
-values ('Xbox 360', 5, 1250.00, 'Videogame da nova geração', 5.00)
+insert into produtos (ds_nome, qtd_produto, vl_produto, ds_descricao, nr_avaliacao, bo_status)
+values ('Xbox 360', 5, 1250.00, 'Videogame da nova geração', 5.00, 1)
 
 CREATE TABLE imagens_produto (
     id              int AUTO_INCREMENT PRIMARY KEY,
     id_produto      int NOT NULL,
-    imagem          BLOB,
+    imagem          LONGBLOB,
     caminho         VARCHAR(255),
     tipo_imagem     VARCHAR(50),
     FOREIGN KEY (id_produto) REFERENCES produtos(id) ON DELETE CASCADE

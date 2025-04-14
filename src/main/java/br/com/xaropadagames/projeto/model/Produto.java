@@ -1,6 +1,7 @@
 package br.com.xaropadagames.projeto.model;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import jakarta.persistence.*;
 
@@ -27,6 +28,13 @@ public class Produto {
 
     @Column(name = "nr_avaliacao", precision = 10, scale = 2, nullable = false)
     private BigDecimal avaliacao;
+
+    @Column(name = "bo_status", columnDefinition = "INT", nullable = true)
+    private Integer bo_status;
+
+    // Relacionamento com imagens
+    @OneToMany(mappedBy = "produto", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ImagemProduto> imagens;
 
     public Integer getId() {
         return id;
@@ -74,5 +82,21 @@ public class Produto {
 
     public void setAvaliacao(BigDecimal avaliacao) {
         this.avaliacao = avaliacao;
+    }
+
+    public Integer getBo_status() {
+        return bo_status;
+    }
+
+    public void setBo_status(Integer bo_status) {
+        this.bo_status = bo_status;
+    }
+
+    public List<ImagemProduto> getImagens() {
+        return imagens;
+    }
+
+    public void setImagens(List<ImagemProduto> imagens) {
+        this.imagens = imagens;
     }
 }

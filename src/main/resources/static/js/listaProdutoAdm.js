@@ -89,8 +89,8 @@ function closeRegisterProductModal() {
 function cadastrarProduto() {
   const novoProduto = {
     nome: document.getElementById('productName').value,
-    quantidade: document.getElementById('productQuantity').value,
     valor: document.getElementById('productPrice').value,
+    quantidade: document.getElementById('productQuantity').value,
     descricao: document.getElementById('productDescription').value,
     avaliacao: document.getElementById('productRating').value
   };
@@ -103,11 +103,35 @@ function cadastrarProduto() {
     body: JSON.stringify(novoProduto)
   })
   .then(response => response.json())
-  .then(data => {
-    listarProdutos(); // Atualiza a lista de produtos
-    closeRegisterProductModal(); // Fecha o modal de cadastro
+  .then(produtoCadastrado => {
+    // Aqui você recebe o produto cadastrado com o ID gerado
+    const imagens = document.getElementById('productImages').files;
+    
+    if (imagens.length > 0) {
+      return addImage(produtoCadastrado.id, imagens)
+        .then(() => produtoCadastrado);
+    }
+    return produtoCadastrado;
+  })
+  .then(() => {
+    listarProdutos();
+    closeRegisterProductModal();
   })
   .catch(error => console.error('Erro ao cadastrar produto:', error));
+}
+
+function addImage(produtoId, arquivosImagens) {
+  const formData = new FormData();
+  
+  // Adiciona cada imagem ao FormData
+  for (let i = 0; i < arquivosImagens.length; i++) {
+    formData.append('imagens', arquivosImagens[i]);
+  }
+  
+  return fetch(`http://localhost:8080/produtos/${produtoId}/imagens`, {
+    method: 'POST',
+    body: formData
+  });
 }
 
 // Funções de Modal de Edição de Produto

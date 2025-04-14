@@ -16,6 +16,11 @@ public class WebController {
         return "index";
     }
 
+    @GetMapping("/dashboard")
+    public String dashboard() {
+        return "dashboard";
+    }
+
     @GetMapping("/listaUsuario")
     public String listaUsuario() {
         return "listaUsuario";
@@ -29,11 +34,6 @@ public class WebController {
     @GetMapping("/ListaProdutoEstq")
     public String ListaProdutoEstq() {
         return "ListaProdutoEstq";
-    }
-
-    @GetMapping("/Loja")
-    public String Loja() {
-        return "Loja";
     }
 
     @GetMapping("/Cadastro")

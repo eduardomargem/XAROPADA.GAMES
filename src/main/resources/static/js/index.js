@@ -25,7 +25,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function redirecionar() {
-        window.location.href = "/";s
+        window.location.href = "/";
     }
 
     const formLogin = document.getElementById("loginForm");

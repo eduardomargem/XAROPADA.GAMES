@@ -1,5 +1,7 @@
 package br.com.xaropadagames.projeto.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -13,10 +15,11 @@ public class ImagemProduto {
 
     @ManyToOne
     @JoinColumn(name = "id_produto", nullable = false)
+    @JsonIgnore
     private Produto produto;
 
-    @Lob
-    @Column(name = "imagem")
+    @Lob    
+    @Column(name = "imagem", columnDefinition = "LONGBLOB")
     private byte[] imagem;
 
     @Column(name = "caminho", length = 255)
