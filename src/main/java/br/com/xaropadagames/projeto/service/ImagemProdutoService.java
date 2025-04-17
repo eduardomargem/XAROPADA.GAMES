@@ -24,7 +24,7 @@ public class ImagemProdutoService {
     @Autowired
     private ProdutoRepository produtoRepository;
     
-    public List<ImagemProduto> uploadImagens(Long produtoId, MultipartFile[] arquivos) {
+    public List<ImagemProduto> uploadImagens(Integer produtoId, MultipartFile[] arquivos) {
         Produto produto = produtoRepository.findById(produtoId)
             .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado"));
         

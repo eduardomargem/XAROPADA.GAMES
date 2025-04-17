@@ -24,7 +24,7 @@ public class ImagemProdutoController {
     
     @PostMapping
     public ResponseEntity<List<ImagemProduto>> uploadImagens(
-            @PathVariable Long produtoId,
+            @PathVariable Integer produtoId,
             @RequestParam("imagens") MultipartFile[] arquivos) {
         
         List<ImagemProduto> imagensSalvas = imagemService.uploadImagens(produtoId, arquivos);

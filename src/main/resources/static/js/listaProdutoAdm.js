@@ -87,50 +87,43 @@ function closeRegisterProductModal() {
 
 // Função para cadastrar um novo produto
 function cadastrarProduto() {
-  const novoProduto = {
-    nome: document.getElementById('productName').value,
-    valor: document.getElementById('productPrice').value,
-    quantidade: document.getElementById('productQuantity').value,
-    descricao: document.getElementById('productDescription').value,
-    avaliacao: document.getElementById('productRating').value
-  };
-
-  fetch('http://localhost:8080/produtos', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(novoProduto)
-  })
-  .then(response => response.json())
-  .then(produtoCadastrado => {
-    // Aqui você recebe o produto cadastrado com o ID gerado
-    const imagens = document.getElementById('productImages').files;
-    
-    if (imagens.length > 0) {
-      return addImage(produtoCadastrado.id, imagens)
-        .then(() => produtoCadastrado);
-    }
-    return produtoCadastrado;
-  })
-  .then(() => {
-    listarProdutos();
-    closeRegisterProductModal();
-  })
-  .catch(error => console.error('Erro ao cadastrar produto:', error));
-}
-
-function addImage(produtoId, arquivosImagens) {
+  // 1. Coletar dados do formulário
   const formData = new FormData();
   
-  // Adiciona cada imagem ao FormData
-  for (let i = 0; i < arquivosImagens.length; i++) {
-    formData.append('imagens', arquivosImagens[i]);
+  // Adiciona campos textuais
+  formData.append('nome', document.getElementById('nomeProduto').value);
+  formData.append('preco', document.getElementById('precoProduto').value);
+  formData.append('quantidade', document.getElementById('quantidadeProduto').value);
+  formData.append('descricao', document.getElementById('descricaoProduto').value);
+  formData.append('avaliacao', document.getElementById('avaliacaoProduto').value);
+
+  // 2. Adiciona imagens (se existirem)
+  const inputImagens = document.getElementById('imagensProduto');
+  if (inputImagens.files.length > 0) {
+    for (let i = 0; i < inputImagens.files.length; i++) {
+      formData.append('imagens', inputImagens.files[i]);
+    }
   }
-  
-  return fetch(`http://localhost:8080/produtos/${produtoId}/imagens`, {
+
+  // 3. Envio para o backend
+  fetch('http://localhost:8080/produtos/com-imagens', {
     method: 'POST',
     body: formData
+  })
+  .then(response => {
+    if (!response.ok) {
+      return response.json().then(err => { throw new Error(err.message) });
+    }
+    return response.json();
+  })
+  .then(data => {
+    alert('Produto cadastrado com sucesso! ID: ' + data.id);
+    // Redirecionar ou limpar formulário
+    document.getElementById('formCadastroProduto').reset();
+  })
+  .catch(error => {
+    console.error('Erro:', error);
+    alert('Falha no cadastro: ' + error.message);
   });
 }
 

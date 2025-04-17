@@ -6,6 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import br.com.xaropadagames.projeto.model.ImagemProduto;
 
-public interface ImagemProdutoRepository extends JpaRepository<ImagemProduto, Long> {
-    List<ImagemProduto> findByProdutoId(Long produtoId);
+public interface ImagemProdutoRepository extends JpaRepository<ImagemProduto, Integer> {
+    List<ImagemProduto> findByProdutoId(Integer produtoId);
 }
