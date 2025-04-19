@@ -1,4 +1,4 @@
--- Active: 1741726533463@@127.0.0.1@3307@xaropadagames
+-- Active: 1744504496810@@127.0.0.1@3307@xaropadagames
 CREATE DATABASE xaropadagames;
 
 use xaropadagames;
@@ -78,3 +78,5 @@ SHOW TABLES;
 DESCRIBE clientes;
 
 SELECT * FROM CLIENTES
+
+select * from imagens_produto

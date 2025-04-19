@@ -1,6 +1,7 @@
 package br.com.xaropadagames.projeto.model;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.*;
@@ -34,7 +35,7 @@ public class Produto {
 
     // Relacionamento com imagens
     @OneToMany(mappedBy = "produto", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ImagemProduto> imagens;
+    private List<ImagemProduto> imagens = new ArrayList<>();
 
     public Integer getId() {
         return id;

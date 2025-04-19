@@ -1,7 +1,9 @@
 package br.com.xaropadagames.projeto.service;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,22 +27,39 @@ public class ImagemProdutoService {
     private ProdutoRepository produtoRepository;
     
     public List<ImagemProduto> uploadImagens(Integer produtoId, MultipartFile[] arquivos) {
+        if (arquivos == null || arquivos.length == 0) {
+            return Collections.emptyList();
+        }
+
         Produto produto = produtoRepository.findById(produtoId)
             .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado"));
+
+        if (produto.getImagens() == null) {
+            produto.setImagens(new ArrayList<>());
+        }
+
+        List<ImagemProduto> imagensSalvas = new ArrayList<>();
         
-        return Arrays.stream(arquivos)
-            .map(arquivo -> {
-                try {
-                    ImagemProduto imagem = new ImagemProduto();
-                    imagem.setProduto(produto);
-                    imagem.setTipoImagem(arquivo.getContentType());
-                    imagem.setImagem(arquivo.getBytes());
-                    imagem.setCaminho(arquivo.getOriginalFilename());
-                    return imagemRepository.save(imagem);
-                } catch (IOException e) {
-                    throw new RuntimeException("Falha ao processar imagem: " + arquivo.getOriginalFilename(), e);
-                }
-            })
-            .collect(Collectors.toList());
+        for (MultipartFile arquivo : arquivos) {
+            try {
+                ImagemProduto imagem = new ImagemProduto();
+                imagem.setProduto(produto);
+                imagem.setTipoImagem(arquivo.getContentType());
+                imagem.setImagem(arquivo.getBytes());
+                imagem.setCaminho(arquivo.getOriginalFilename());
+                
+                ImagemProduto imagemSalva = imagemRepository.save(imagem);
+                imagensSalvas.add(imagemSalva);
+                
+                produto.getImagens().add(imagemSalva);
+                
+            } catch (IOException e) {
+                throw new RuntimeException("Falha ao processar imagem: " + arquivo.getOriginalFilename(), e);
+            }
+        }
+
+        produtoRepository.save(produto);
+        
+        return imagensSalvas;
     }
 }

@@ -47,11 +47,13 @@ public class ProdutoController {
             @RequestParam String descricao,
             @RequestParam BigDecimal avaliacao,
             @RequestParam Integer status,
-            @RequestParam("imagens[]") MultipartFile[] imagens) {
+            @RequestParam(required = false) MultipartFile[] imagens) {
 
         Produto produtoSalvo = produtoService.salvarProduto(
             nome, preco, quantidade, descricao, avaliacao, status, imagens
         );
+
+        produtoSalvo = produtoService.buscarProdutoComImagens(produtoSalvo.getId());
         
         return ResponseEntity.status(HttpStatus.CREATED).body(produtoSalvo);
     }

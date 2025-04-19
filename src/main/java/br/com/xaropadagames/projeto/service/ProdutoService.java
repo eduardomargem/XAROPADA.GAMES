@@ -2,7 +2,10 @@ package br.com.xaropadagames.projeto.service;
 
 import br.com.xaropadagames.projeto.dao.IProduto;
 import br.com.xaropadagames.projeto.model.Produto;
+
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -47,5 +50,15 @@ public class ProdutoService {
         }
         
         return produtoSalvo;
+    }
+
+    public Produto buscarProdutoComImagens(Integer produtoId) {
+        Produto produto = produtoRepository.findById(produtoId)
+            .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado"));
+        
+        // Força o carregamento das imagens
+        Hibernate.initialize(produto.getImagens());
+        
+        return produto;
     }
 }
