@@ -1,4 +1,4 @@
--- Active: 1744504496810@@127.0.0.1@3307@xaropadagames
+-- Active: 1741726533463@@127.0.0.1@3307@xaropadagames
 CREATE DATABASE xaropadagames;
 
 use xaropadagames;
@@ -34,9 +34,6 @@ create table Produtos (
     nr_avaliacao    DECIMAL(10, 2) not null,
     bo_status       int not null
 )
-
-insert into produtos (ds_nome, qtd_produto, vl_produto, ds_descricao, nr_avaliacao, bo_status)
-values ('Xbox 360', 5, 1250.00, 'Videogame da nova geração', 5.00, 1)
 
 CREATE TABLE imagens_produto (
     id              int AUTO_INCREMENT PRIMARY KEY,
@@ -80,3 +77,5 @@ DESCRIBE clientes;
 SELECT * FROM CLIENTES
 
 select * from imagens_produto
+
+select * from produtos

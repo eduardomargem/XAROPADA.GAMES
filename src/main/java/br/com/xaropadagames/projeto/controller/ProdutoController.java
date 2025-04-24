@@ -39,7 +39,7 @@ public class ProdutoController {
     }
 
     // Método para adicionar um novo produto
-    @PostMapping(value = "/com-imagens", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(path = "/com-imagens", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Produto> cadastrarProdutoComImagens(
             @RequestParam String nome,
             @RequestParam BigDecimal preco,
@@ -47,15 +47,18 @@ public class ProdutoController {
             @RequestParam String descricao,
             @RequestParam BigDecimal avaliacao,
             @RequestParam Integer status,
-            @RequestParam(required = false) MultipartFile[] imagens) {
+            @RequestParam("imagens") MultipartFile[] imagens) {
 
         Produto produtoSalvo = produtoService.salvarProduto(
-            nome, preco, quantidade, descricao, avaliacao, status, imagens
+            nome, preco, quantidade, descricao, avaliacao, status, null
         );
 
-        produtoSalvo = produtoService.buscarProdutoComImagens(produtoSalvo.getId());
+        if (imagens != null && imagens.length > 0) {
+            ImagemProdutoService.uploadImagens(produtoSalvo.getId(), imagens);
+        }
         
-        return ResponseEntity.status(HttpStatus.CREATED).body(produtoSalvo);
+        return ResponseEntity.status(HttpStatus.CREATED)
+           .body(produtoService.buscarProdutoComImagens(produtoSalvo.getId()));
     }
 
     // Método para atualizar um produto

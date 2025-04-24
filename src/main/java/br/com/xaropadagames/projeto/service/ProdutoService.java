@@ -42,23 +42,11 @@ public class ProdutoService {
         produto.setAvaliacao(avaliacao);
         produto.setBo_status(status);
         
-        Produto produtoSalvo = produtoRepository.save(produto);
-
-        if (imagens != null && imagens.length > 0) {
-            // Corrigido: chamada via instância injetada
-            imagemProdutoService.uploadImagens(produtoSalvo.getId(), imagens);
-        }
-        
-        return produtoSalvo;
+        return produtoRepository.save(produto);
     }
 
-    public Produto buscarProdutoComImagens(Integer produtoId) {
-        Produto produto = produtoRepository.findById(produtoId)
-            .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado"));
-        
-        // Força o carregamento das imagens
-        Hibernate.initialize(produto.getImagens());
-        
-        return produto;
+    public Produto buscarProdutoComImagens(Integer id) {
+        return produtoRepository.findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado"));
     }
 }

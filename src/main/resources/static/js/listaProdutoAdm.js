@@ -1,3 +1,33 @@
+// Coloque este código fora da função cadastrarProduto(), no início do arquivo
+document.getElementById('productImages').addEventListener('change', function(e) {
+  const previewsContainer = document.getElementById('imagePreviewsContainer');
+  if (!previewsContainer) return;
+
+  previewsContainer.innerHTML = ''; // Limpa pré-visualizações anteriores
+  
+  if (this.files && this.files.length > 0) {
+    document.getElementById('imagePreviewContainer').style.display = 'block';
+    
+    Array.from(this.files).forEach(file => {
+      const reader = new FileReader();
+      const previewDiv = document.createElement('div');
+      previewDiv.style.margin = '5px';
+      previewDiv.style.maxWidth = '200px'; // Tamanho máximo para cada pré-visualização
+      
+      const img = document.createElement('img');
+      img.style.maxWidth = '100%';
+      img.style.maxHeight = '150px';
+      previewDiv.appendChild(img);
+      previewsContainer.appendChild(previewDiv);
+      
+      reader.onload = function(e) {
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+});
+
 // Variáveis de controle de produtos e paginação
 let produtos = [];
 let currentProductPage = 1;
@@ -30,7 +60,7 @@ function renderProducts() {
       <td>${product.id}</td>
       <td>${product.nome}</td>
       <td>${product.quantidade}</td>
-      <td>${product.valor}</td>
+      <td>${product.preco || product.valor || 'N/A'}</td>
       <td>${product.status || (product.quantidade > 0 ? 'Ativo' : 'Inativo')}</td>
       <td>
         <button onclick="openEditProductModal(${product.id})">Alterar</button>
@@ -91,39 +121,52 @@ function cadastrarProduto() {
   const formData = new FormData();
   
   // Adiciona campos textuais
-  formData.append('nome', document.getElementById('nomeProduto').value);
-  formData.append('preco', document.getElementById('precoProduto').value);
-  formData.append('quantidade', document.getElementById('quantidadeProduto').value);
-  formData.append('descricao', document.getElementById('descricaoProduto').value);
-  formData.append('avaliacao', document.getElementById('avaliacaoProduto').value);
+  formData.append('nome', document.getElementById('productName').value);
+  formData.append('preco', document.getElementById('productPrice').value);
+  formData.append('quantidade', document.getElementById('productQuantity').value);
+  formData.append('descricao', document.getElementById('productDescription').value);
+  formData.append('avaliacao', document.getElementById('productRating').value);
+  formData.append('status', 1);
 
-  // 2. Adiciona imagens (se existirem)
-  const inputImagens = document.getElementById('imagensProduto');
-  if (inputImagens.files.length > 0) {
-    for (let i = 0; i < inputImagens.files.length; i++) {
-      formData.append('imagens', inputImagens.files[i]);
+  // Adiciona as imagens ao FormData
+  const imageInput = document.getElementById('productImages');
+  if (imageInput.files && imageInput.files.length > 0) {
+    for (let i = 0; i < imageInput.files.length; i++) {
+      formData.append('imagens', imageInput.files[i]);
     }
   }
 
-  // 3. Envio para o backend
+  // Envio para o backend
   fetch('http://localhost:8080/produtos/com-imagens', {
     method: 'POST',
     body: formData
   })
   .then(response => {
     if (!response.ok) {
-      return response.json().then(err => { throw new Error(err.message) });
+      return response.json().then(err => { throw new Error(err.message || 'Erro ao cadastrar') });
     }
     return response.json();
   })
   .then(data => {
-    alert('Produto cadastrado com sucesso! ID: ' + data.id);
-    // Redirecionar ou limpar formulário
-    document.getElementById('formCadastroProduto').reset();
+    alert('Produto cadastrado com sucesso com ' + data.imagens.length + ' imagens!');
+    closeRegisterProductModal();
+    listarProdutos(); // Atualiza a lista
+    
+    // Limpa o formulário e as pré-visualizações
+    document.getElementById('registerProductForm').reset();
+    const previewsContainer = document.getElementById('imagePreviews');
+    if (previewsContainer) {
+      previewsContainer.innerHTML = '';
+    }
+
+    const previewContainer = document.getElementById('imagePreviewContainer');
+    if (previewContainer) {
+      previewContainer.style.display = 'none';
+    }
   })
   .catch(error => {
     console.error('Erro:', error);
-    alert('Falha no cadastro: ' + error.message);
+    alert('Erro: ' + error.message);
   });
 }
 

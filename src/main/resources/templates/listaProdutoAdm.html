@@ -39,11 +39,15 @@
               <label for="productRating">Avaliação</label>
               <input type="text" id="productRating" required>
 
-              <button type="button" onclick="addImage()">Adicionar Imagens do Produto</button>
+              <label for="productImages">Imagens do Produto</label>
+              <input type="file" id="productImages" multiple accept="image/*" style="display: none">
+              <button type="button" onclick="document.getElementById('productImages').click()">
+                Selecionar Imagens
+              </button>
             </div>
-            <div id="imagePreviewContainer" style="flex: 1; display: none;">
+            <div id="imagePreviewContainer" style="display: flex; flex-wrap: wrap;">
               <p>Pré-visualização da Imagem:</p>
-              <img id="imagePreview" src="#" alt="Pré-visualização da Imagem">
+              <div id="imagePreviewsContainer"></div>
             </div>
           </div>
           <button type="button" onclick="cadastrarProduto()">Cadastrar</button>
