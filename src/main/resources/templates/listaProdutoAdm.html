@@ -76,13 +76,22 @@
               <label for="editProductPrice">Preço</label>
               <input type="number" id="editProductPrice" required>
 
+              <label for="editProductImages">Adicionar Mais Imagens</label>
+              <input type="file" id="editProductImages" multiple accept="image/*" style="display: none">
+              <button type="button" onclick="document.getElementById('editProductImages').click()">
+                Selecionar Imagens
+              </button>
+
               <button type="button" onclick="alterarProduto()">Salvar Alterações</button>
               <button type="button" onclick="closeEditProductModal()">Cancelar</button>
             </form>
           </div>
-          <div id="editProductImagePreviewContainer" style="flex: 1; display: none;">
-            <p>Pré-visualização da Imagem</p>
-            <img id="editProductImagePreview" src="#" alt="Pré-visualização da Imagem">
+          <div id="editProductImageContainer" style="flex: 1;">
+            <p>Imagens Atuais:</p>
+            <div id="currentImagesContainer" style="display: flex; flex-wrap: wrap; gap: 10px;"></div>
+            
+            <p>Novas Imagens:</p>
+            <div id="newImagesPreviewContainer" style="display: flex; flex-wrap: wrap; gap: 10px;"></div>
           </div>
         </div>
       </div>

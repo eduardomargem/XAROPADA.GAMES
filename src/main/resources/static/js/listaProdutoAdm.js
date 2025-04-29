@@ -61,10 +61,12 @@ function renderProducts() {
       <td>${product.nome}</td>
       <td>${product.quantidade}</td>
       <td>${product.preco || product.valor || 'N/A'}</td>
-      <td>${product.status || (product.quantidade > 0 ? 'Ativo' : 'Inativo')}</td>
+      <td>${product.bo_status === 1 ? 'Ativo' : 'Inativo'}</td>
       <td>
         <button onclick="openEditProductModal(${product.id})">Alterar</button>
-        <button onclick="openProductConfirmationModal(${product.id})">${product.quantidade > 0 ? 'Desativar' : 'Reativar'}</button>
+        <button onclick="openProductConfirmationModal(${product.id})">
+          ${product.bo_status === 1 ? 'Desativar' : 'Ativar'}
+        </button>
       </td>
     `;
   });
@@ -170,50 +172,163 @@ function cadastrarProduto() {
   });
 }
 
+function updateNewImagesPreview() {
+  const container = document.getElementById('newImagesPreviewContainer');
+  container.innerHTML = '';
+  
+  novasImagensEdit.forEach((file, index) => {
+    const reader = new FileReader();
+    const previewDiv = document.createElement('div');
+    previewDiv.style.position = 'relative';
+    previewDiv.style.margin = '5px';
+    
+    const img = document.createElement('img');
+    img.style.maxWidth = '100px';
+    img.style.maxHeight = '100px';
+    
+    const removeBtn = document.createElement('button');
+    removeBtn.innerHTML = '×';
+    removeBtn.style.position = 'absolute';
+    removeBtn.style.top = '0';
+    removeBtn.style.right = '0';
+    removeBtn.style.background = 'red';
+    removeBtn.style.color = 'white';
+    removeBtn.style.border = 'none';
+    removeBtn.style.borderRadius = '50%';
+    removeBtn.style.cursor = 'pointer';
+    
+    removeBtn.onclick = () => {
+      novasImagensEdit = novasImagensEdit.filter((_, i) => i !== index);
+      updateNewImagesPreview();
+    };
+    
+    previewDiv.appendChild(img);
+    previewDiv.appendChild(removeBtn);
+    container.appendChild(previewDiv);
+    
+    reader.onload = function(e) {
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+let novasImagensEdit = [];
+
 // Funções de Modal de Edição de Produto
 function openEditProductModal(id) {
-  const product = produtos.find(p => p.id === id);
-  document.getElementById('editProductName').value = product.nome;
-  document.getElementById('editProductCodigo').value = product.id;
-  document.getElementById('editProductQuantity').value = product.quantidade;
-  document.getElementById('editProductPrice').value = product.valor;
-  document.getElementById('editProductModal').style.display = "block";
+  fetch(`http://localhost:8080/produtos/${id}`)
+    .then(response => response.json())
+    .then(produto => {
+      // Preenche os campos básicos
+      document.getElementById('editProductName').value = produto.nome;
+      document.getElementById('editProductCodigo').value = produto.id;
+      document.getElementById('editProductQuantity').value = produto.quantidade;
+      document.getElementById('editProductPrice').value = produto.preco;
+      
+      // Limpa containers de imagem
+      document.getElementById('currentImagesContainer').innerHTML = '';
+      document.getElementById('newImagesPreviewContainer').innerHTML = '';
+      novasImagensEdit = [];
+      
+      // Exibe imagens atuais do produto
+      if (produto.imagens && produto.imagens.length > 0) {
+        produto.imagens.forEach(imagem => {
+          const imgContainer = document.createElement('div');
+          imgContainer.style.position = 'relative';
+          
+          const img = document.createElement('img');
+          img.src = `data:${imagem.tipoImagem};base64,${arrayBufferToBase64(imagem.imagem)}`;
+          img.style.maxWidth = '100px';
+          img.style.maxHeight = '100px';
+          
+          const removeBtn = document.createElement('button');
+          removeBtn.innerHTML = '×';
+          removeBtn.style.position = 'absolute';
+          removeBtn.style.top = '0';
+          removeBtn.style.right = '0';
+          removeBtn.style.background = 'red';
+          removeBtn.style.color = 'white';
+          removeBtn.style.border = 'none';
+          removeBtn.style.borderRadius = '50%';
+          removeBtn.style.cursor = 'pointer';
+          
+          removeBtn.onclick = () => removerImagemExistente(produto.id, imagem.id);
+          
+          imgContainer.appendChild(img);
+          imgContainer.appendChild(removeBtn);
+          document.getElementById('currentImagesContainer').appendChild(imgContainer);
+        });
+      }
+      
+      // Configura o input de novas imagens
+      document.getElementById('editProductImages').addEventListener('change', function(e) {
+        novasImagensEdit = Array.from(this.files);
+        updateNewImagesPreview();
+      });
+      
+      document.getElementById('editProductModal').style.display = "block";
+    })
+    .catch(error => console.error('Erro ao carregar produto:', error));
 }
 
 function closeEditProductModal() {
   document.getElementById('editProductModal').style.display = "none";
 }
 
+// Função para converter ArrayBuffer para Base64
+function arrayBufferToBase64(buffer) {
+  let binary = '';
+  const bytes = new Uint8Array(buffer);
+  for (let i = 0; i < bytes.byteLength; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return window.btoa(binary);
+}
+
 // Função para alterar um produto existente
 function alterarProduto() {
   const produtoId = document.getElementById('editProductCodigo').value;
-
-  const produtoAtualizado = {
-    nome: document.getElementById('editProductName').value,
-    quantidade: document.getElementById('editProductQuantity').value,
-    valor: document.getElementById('editProductPrice').value
-  };
+  const formData = new FormData();
+  
+  // Adiciona campos textuais
+  formData.append('nome', document.getElementById('editProductName').value);
+  formData.append('preco', document.getElementById('editProductPrice').value);
+  formData.append('quantidade', document.getElementById('editProductQuantity').value);
+  
+  // Adiciona novas imagens
+  novasImagensEdit.forEach(file => {
+    formData.append('imagens', file);
+  });
 
   fetch(`http://localhost:8080/produtos/${produtoId}`, {
     method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(produtoAtualizado)
+    body: formData
   })
-  .then(response => response.json())
+  .then(response => {
+    if (!response.ok) throw new Error('Erro ao atualizar');
+    return response.json();
+  })
   .then(data => {
-    listarProdutos(); // Atualiza a lista de produtos
-    closeEditProductModal(); // Fecha o modal de edição
+    alert('Produto atualizado com sucesso!');
+    listarProdutos();
+    closeEditProductModal();
   })
-  .catch(error => console.error('Erro ao alterar produto:', error));
+  .catch(error => {
+    console.error('Erro:', error);
+    alert('Erro: ' + error.message);
+  });
 }
 
 // Funções de Modal de Confirmação de Status de Produto
 function openProductConfirmationModal(id) {
   const product = produtos.find(p => p.id === id);
-  document.getElementById('productModalMessage').textContent = `Você deseja ${product.quantidade > 0 ? 'desativar' : 'reativar'} o produto ${product.nome}?`;
-  document.getElementById('confirmProductBtn').onclick = () => toggleProductStatus(product.id);
+  const acao = product.bo_status === 1 ? 'desativar' : 'ativar';
+  
+  document.getElementById('productModalMessage').textContent = 
+    `Você deseja ${acao} o produto ${product.nome}?`;
+  
+  document.getElementById('confirmProductBtn').onclick = () => toggleProductStatus(id);
   document.getElementById('productConfirmationModal').style.display = "block";
 }
 
@@ -222,11 +337,33 @@ function closeProductModal() {
 }
 
 // Função para alterar o status do produto
-function toggleProductStatus(id) {
-  const product = produtos.find(p => p.id === id);
-  product.status = product.status === 'Ativo' ? 'Inativo' : 'Ativo';
-  closeProductModal();
-  renderProducts();
+async function toggleProductStatus(id) {
+  try {
+      const response = await fetch(`http://localhost:8080/produtos/${id}/status`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' }
+      });
+
+      if (response.ok) {
+          const produtoAtualizado = await response.json(); // Recebe o produto atualizado
+          
+          // Atualiza o produto na lista local
+          const index = produtos.findIndex(p => p.id === id);
+          if (index !== -1) {
+              produtos[index].bo_status = produtoAtualizado.bo_status;
+          }
+          
+          alert('Status do produto alterado com sucesso!');
+          renderProducts(); // Re-renderiza a tabela com os dados locais atualizados
+      } else {
+          alert('Erro ao alterar status do produto.');
+      }
+  } catch (error) {
+      console.error('Erro:', error);
+      alert('Erro ao alterar status do produto.');
+  } finally {
+      closeProductModal();
+  }
 }
 
 // Fecha o modal se clicar fora da área do conteúdo do modal

@@ -49,4 +49,33 @@ public class ProdutoService {
         return produtoRepository.findById(id)
         .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado"));
     }
+
+    public Produto atualizarProduto(Integer id, String nome, BigDecimal preco, Integer quantidade, 
+        String descricao, BigDecimal avaliacao, Integer status) {
+    
+        Produto produtoExistente = produtoRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado"));
+    
+        // Atualiza apenas os campos que foram fornecidos (não-nulos)
+        if (nome != null) {
+            produtoExistente.setNome(nome);
+        }
+        if (preco != null) {
+            produtoExistente.setPreco(preco);
+        }
+        if (quantidade != null) {
+            produtoExistente.setQuantidade(quantidade);
+        }
+        if (descricao != null) {
+            produtoExistente.setDescricao(descricao);
+        }
+        if (avaliacao != null) {
+            produtoExistente.setAvaliacao(avaliacao);
+        }
+        if (status != null) {
+            produtoExistente.setBo_status(status);
+        }
+        
+        return produtoRepository.save(produtoExistente);
+    }
 }

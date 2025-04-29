@@ -1,6 +1,8 @@
 package br.com.xaropadagames.projeto.controller;
 
+import br.com.xaropadagames.projeto.dao.IProduto;
 import br.com.xaropadagames.projeto.model.Produto;
+import br.com.xaropadagames.projeto.model.Usuario;
 import br.com.xaropadagames.projeto.service.ImagemProdutoService;
 import br.com.xaropadagames.projeto.service.ProdutoService;
 
@@ -25,6 +27,9 @@ public class ProdutoController {
 
     @Autowired
     private ImagemProdutoService ImagemProdutoService;
+
+    @Autowired
+    private IProduto dao;
 
     @GetMapping
     public List<Produto> listarProdutos() {
@@ -61,28 +66,57 @@ public class ProdutoController {
            .body(produtoService.buscarProdutoComImagens(produtoSalvo.getId()));
     }
 
+    // Novo endpoint para adicionar imagens a um produto existente
+    @PostMapping(path = "/{id}/imagens", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Produto> adicionarImagensProduto(
+            @PathVariable Integer id,
+            @RequestParam("imagens") MultipartFile[] imagens) {
+        
+        if (imagens != null && imagens.length > 0) {
+            ImagemProdutoService.uploadImagens(id, imagens);
+        }
+        
+        return ResponseEntity.ok(produtoService.buscarProdutoComImagens(id));
+    }
+
     // Método para atualizar um produto
     @PutMapping("/{id}")
     public ResponseEntity<Produto> atualizarProduto(
-        @PathVariable Integer id, 
-        @RequestBody Produto produto) {
+        @PathVariable Integer id,
+        @RequestParam(required = false) String nome,
+        @RequestParam(required = false) BigDecimal preco,
+        @RequestParam(required = false) Integer quantidade,
+        @RequestParam(required = false) String descricao,
+        @RequestParam(required = false) BigDecimal avaliacao,
+        @RequestParam(required = false) Integer status,
+        @RequestParam(value = "imagens", required = false) MultipartFile[] imagens) {
         
-        Produto produtoExistente = produtoService.buscarProdutoPorId(id);
-        if (produtoExistente == null) {
-            return ResponseEntity.notFound().build();
-        }
+        Produto produtoAtualizado = produtoService.atualizarProduto(
+            id, nome, preco, quantidade, descricao, avaliacao, status
+        );
     
-        produto.setId(id);
+        if (imagens != null && imagens.length > 0) {
+            ImagemProdutoService.uploadImagens(id, imagens);
+        }
         
-        // Converte o objeto para os parâmetros individuais
-        return ResponseEntity.ok(produtoService.salvarProduto(
-            produto.getNome(),
-            produto.getPreco(),
-            produto.getQuantidade(),
-            produto.getDescricao(),
-            produto.getAvaliacao(),
-            produto.getBo_status(),
-            null  // ou um array vazio de imagens
-        ));
+        return ResponseEntity.ok(produtoService.buscarProdutoComImagens(id));
+    }
+
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<?> toggleStatus(@PathVariable Integer id) {
+        try {
+            Produto produtoExistente = dao.findById(id).orElse(null);
+            if (produtoExistente == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"message\": \"Produto não encontrado.\"}");
+            }
+
+            // Alterna o status (1 = Ativo, 0 = Inativo)
+            produtoExistente.setBo_status(produtoExistente.getBo_status() == 1 ? 0 : 1);
+
+            Produto produtoAtualizado = dao.save(produtoExistente);
+            return ResponseEntity.ok(produtoAtualizado);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"message\": \"Erro ao atualizar o status do usuário.\"}");
+        }
     }
 }
