@@ -30,7 +30,7 @@
             <th>Quantidade</th>
             <th>Valor</th>
             <th>Status</th>
-            <th>Ações</th>
+            <th>Ação</th>
           </tr>
         </thead>
         <tbody>
@@ -48,33 +48,31 @@
   </div>
 
   <!-- Modal de Edição de Produto -->
-  <div id="editProductModal" class="modal">
-    <div class="modal-content">
-      <span class="close" onclick="closeEditProductModal()">&times;</span>
-      <h2>Editar Produto</h2>
-      <form id="editProductForm">
-        <label for="editProductName">Nome</label>
-        <input type="text" id="editProductName" required>
-
-        <label for="editProductCodigo">Código</label>
-        <input type="text" id="editProductCodigo" disabled required>
-
-        <label for="editProductQuantity">Quantidade</label>
-        <input type="number" id="editProductQuantity" required>
-
-        <label for="editProductPrice">Preço</label>
-        <input type="number" id="editProductPrice" required>
-
-        <label for="editProductStatus">Status</label>
-        <select id="editProductStatus" required>
-          <option value="Ativo">Ativo</option>
-          <option value="Inativo">Inativo</option>
-        </select>
-
-        <button type="button" onclick="editProduct()">Salvar Alterações</button>
-      </form>
-    </div>
+<div id="editProductModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeEditProductModal()">&times;</span>
+    <h2>Atualizar Estoque</h2>
+    <form id="editProductForm">
+      <label for="editProductCodigo">Código</label>
+      <input type="text" id="editProductCodigo" disabled>
+      
+      <label for="editProductName">Nome</label>
+      <input type="text" id="editProductName" disabled>
+      
+      <label for="editProductQuantity">Quantidade em Estoque</label>
+      <input type="number" id="editProductQuantity" required min="0">
+      
+      <label for="editProductPrice">Valor Unitário</label>
+      <input type="number" id="editProductPrice" disabled step="0.01">
+      
+      <label for="editProductStatus">Status</label>
+      <input type="text" id="editProductStatus" disabled>
+      
+      <button type="button" onclick="updateProductQuantity()">Atualizar Estoque</button>
+      <button type="button" onclick="closeEditProductModal()">Cancelar</button>
+    </form>
   </div>
+</div>
 
   <script th:src="@{/js/listaProdutoEstq.js}"></script>
 </body>

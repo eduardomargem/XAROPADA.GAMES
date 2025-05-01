@@ -29,14 +29,15 @@
   }
   
   .container {
-    width: 90%;
+    width: 100%;
     max-width: 1200px;
     margin: 0 auto;
-    padding: 30px;
+    padding: 20px 15px;
     color: white;
     align-items: center;
     justify-content: center;
     justify-items: center;
+    box-sizing: border-box;
   }
   
   section {
@@ -54,8 +55,13 @@
   }
   
   header {
+    font-size: 1.5rem;
+    white-space: normal;
+    word-wrap: break-word;
+    padding: 0 20px;
     text-align: center;
-    margin-bottom: 30px;
+
+    margin-top: 20px;
   }
   
   h1 {
@@ -290,3 +296,37 @@
     background: #00FF85;
     border-radius: 4px;
   }
+
+  #editProductQuantity {
+    background-color: #ffffcc;
+    border: 2px solid #00FF85;
+  }
+  
+  input:disabled, select:disabled {
+    background-color: #f0f0f0;
+    color: #666;
+    cursor: not-allowed;
+  }
+
+  /* Estilos para o modal de edição - textos brancos */
+.modal-content, 
+.modal-content label, 
+.modal-content input, 
+.modal-content select, 
+.modal-content button {
+    color: white !important;
+}
+
+/* Cor de fundo para inputs desabilitados */
+.modal-content input:disabled, 
+.modal-content select:disabled {
+    background-color: #3a3a3a !important;
+    color: #cccccc !important;
+}
+
+/* Cor de fundo para input de quantidade (habilitado) */
+.modal-content #editProductQuantity {
+    background-color: #2a2a2a !important;
+    color: white !important;
+    border: 1px solid #00FF85 !important;
+}

@@ -2,6 +2,7 @@ package br.com.xaropadagames.projeto.service;
 
 import br.com.xaropadagames.projeto.dao.IProduto;
 import br.com.xaropadagames.projeto.model.Produto;
+import jakarta.persistence.EntityNotFoundException;
 
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,5 +78,16 @@ public class ProdutoService {
         }
         
         return produtoRepository.save(produtoExistente);
+    }
+
+    public Produto atualizarQuantidade(Integer id, Integer novaQuantidade) {
+        Produto produto = produtoRepository.findById(id)
+            .orElseThrow(() -> new EntityNotFoundException("Produto não encontrado"));
+        
+        produto.setQuantidade(novaQuantidade);
+        // Atualiza status baseado na quantidade se necessário
+        produto.setBo_status(novaQuantidade > 0 ? 1 : 0);
+        
+        return produtoRepository.save(produto);
     }
 }

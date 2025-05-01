@@ -3,7 +3,7 @@ document.getElementById('productImages').addEventListener('change', function(e) 
   const previewsContainer = document.getElementById('imagePreviewsContainer');
   if (!previewsContainer) return;
 
-  previewsContainer.innerHTML = ''; // Limpa pré-visualizações anteriores
+  previewsContainer.innerHTML = '';
   
   if (this.files && this.files.length > 0) {
     document.getElementById('imagePreviewContainer').style.display = 'block';
@@ -12,7 +12,7 @@ document.getElementById('productImages').addEventListener('change', function(e) 
       const reader = new FileReader();
       const previewDiv = document.createElement('div');
       previewDiv.style.margin = '5px';
-      previewDiv.style.maxWidth = '200px'; // Tamanho máximo para cada pré-visualização
+      previewDiv.style.maxWidth = '200px';
       
       const img = document.createElement('img');
       img.style.maxWidth = '100%';
@@ -60,7 +60,7 @@ function renderProducts() {
       <td>${product.id}</td>
       <td>${product.nome}</td>
       <td>${product.quantidade}</td>
-      <td>${product.preco || product.valor || 'N/A'}</td>
+      <td>R$ ${product.preco.toFixed(2) || product.valor.toFixed(2) || 'N/A'}</td>
       <td>${product.bo_status === 1 ? 'Ativo' : 'Inativo'}</td>
       <td>
         <button onclick="openEditProductModal(${product.id})">Alterar</button>
@@ -133,6 +133,9 @@ function cadastrarProduto() {
   // Adiciona as imagens ao FormData
   const imageInput = document.getElementById('productImages');
   if (imageInput.files && imageInput.files.length > 0) {
+
+    console.log('Número de imagens selecionadas:', imageInput.files.length);
+
     for (let i = 0; i < imageInput.files.length; i++) {
       formData.append('imagens', imageInput.files[i]);
     }
@@ -150,7 +153,7 @@ function cadastrarProduto() {
     return response.json();
   })
   .then(data => {
-    alert('Produto cadastrado com sucesso com ' + data.imagens.length + ' imagens!');
+    alert('Produto cadastrado com sucesso!');
     closeRegisterProductModal();
     listarProdutos(); // Atualiza a lista
     
@@ -236,27 +239,41 @@ function openEditProductModal(id) {
         produto.imagens.forEach(imagem => {
           const imgContainer = document.createElement('div');
           imgContainer.style.position = 'relative';
+          imgContainer.style.margin = '5px';
           
           const img = document.createElement('img');
           img.src = `data:${imagem.tipoImagem};base64,${arrayBufferToBase64(imagem.imagem)}`;
           img.style.maxWidth = '100px';
           img.style.maxHeight = '100px';
           
-          const removeBtn = document.createElement('button');
-          removeBtn.innerHTML = '×';
-          removeBtn.style.position = 'absolute';
-          removeBtn.style.top = '0';
-          removeBtn.style.right = '0';
-          removeBtn.style.background = 'red';
-          removeBtn.style.color = 'white';
-          removeBtn.style.border = 'none';
-          removeBtn.style.borderRadius = '50%';
-          removeBtn.style.cursor = 'pointer';
+          if (imagem.caminho) {
+            // Se a imagem estiver armazenada como arquivo
+            img.src = `http://localhost:8080/imagens/${encodeURIComponent(imagem.caminho)}`;
+          } else if (imagem.imagem) {
+            // Se a imagem estiver armazenada como byte[] no banco
+            const blob = new Blob([new Uint8Array(imagem.imagem)], { type: imagem.tipoImagem });
+            img.src = URL.createObjectURL(blob);
+          }
           
-          removeBtn.onclick = () => removerImagemExistente(produto.id, imagem.id);
+          img.style.maxWidth = '100px';
+          img.style.maxHeight = '100px';
+          img.style.objectFit = 'cover';
+
+          // const removeBtn = document.createElement('button');
+          // removeBtn.innerHTML = '×';
+          // removeBtn.style.position = 'absolute';
+          // removeBtn.style.top = '0';
+          // removeBtn.style.right = '0';
+          // removeBtn.style.background = 'red';
+          // removeBtn.style.color = 'white';
+          // removeBtn.style.border = 'none';
+          // removeBtn.style.borderRadius = '50%';
+          // removeBtn.style.cursor = 'pointer';
+          
+          // removeBtn.onclick = () => removerImagemExistente(produto.id, imagem.id);
           
           imgContainer.appendChild(img);
-          imgContainer.appendChild(removeBtn);
+          // imgContainer.appendChild(removeBtn);
           document.getElementById('currentImagesContainer').appendChild(imgContainer);
         });
       }

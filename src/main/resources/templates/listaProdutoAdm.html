@@ -37,7 +37,18 @@
               <input type="text" id="productDescription" required>
 
               <label for="productRating">Avaliação</label>
-              <input type="text" id="productRating" required>
+              <select id="productRating" required>
+                  <option value="">Selecione uma avaliação</option>
+                  <option value="1.0">1.0</option>
+                  <option value="1.5">1.5</option>
+                  <option value="2.0">2.0</option>
+                  <option value="2.5">2.5</option>
+                  <option value="3.0">3.0</option>
+                  <option value="3.5">3.5</option>
+                  <option value="4.0">4.0</option>
+                  <option value="4.5">4.5</option>
+                  <option value="5.0">5.0</option>
+              </select>
 
               <label for="productImages">Imagens do Produto</label>
               <input type="file" id="productImages" multiple accept="image/*" style="display: none">
@@ -76,7 +87,7 @@
               <label for="editProductPrice">Preço</label>
               <input type="number" id="editProductPrice" required>
 
-              <label for="editProductImages">Adicionar Mais Imagens</label>
+              
               <input type="file" id="editProductImages" multiple accept="image/*" style="display: none">
               <button type="button" onclick="document.getElementById('editProductImages').click()">
                 Selecionar Imagens
@@ -91,7 +102,7 @@
             <div id="currentImagesContainer" style="display: flex; flex-wrap: wrap; gap: 10px;"></div>
             
             <p>Novas Imagens:</p>
-            <div id="newImagesPreviewContainer" style="display: flex; flex-wrap: wrap; gap: 10px;"></div>
+            <div id="newImagesPreviewContainer" style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;"></div>
           </div>
         </div>
       </div>
@@ -124,7 +135,7 @@
             <th>Quantidade</th>
             <th>Valor</th>
             <th>Status</th>
-            <th>Opções</th>
+            <th>Ações</th>
           </tr>
         </thead>
         <tbody>

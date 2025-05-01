@@ -1,10 +1,14 @@
 package br.com.xaropadagames.projeto.controller;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,21 +17,37 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import br.com.xaropadagames.projeto.model.ImagemProduto;
+import br.com.xaropadagames.projeto.repository.ImagemProdutoRepository;
 import br.com.xaropadagames.projeto.service.ImagemProdutoService;
 
 @RestController
-@RequestMapping("/produtos/{produtoId}/imagens")
+@RequestMapping("/imagens")
 public class ImagemProdutoController {
     
     @Autowired
     private ImagemProdutoService imagemService;
+
+    @Autowired
+    private ImagemProdutoRepository imagemProdutoRepository;
     
     @PostMapping
     public ResponseEntity<List<ImagemProduto>> uploadImagens(
             @PathVariable Integer produtoId,
             @RequestParam("imagens") MultipartFile[] arquivos) {
+
+                System.out.println("Número de arquivos recebidos: " + arquivos.length);
         
         List<ImagemProduto> imagensSalvas = imagemService.uploadImagens(produtoId, arquivos);
         return ResponseEntity.status(HttpStatus.CREATED).body(imagensSalvas);
+    }
+
+    @GetMapping("/{nomeArquivo}")
+    public ResponseEntity<byte[]> getImagem(@PathVariable String nomeArquivo) {
+        ImagemProduto imagem = imagemProdutoRepository.findByCaminho(nomeArquivo)
+            .orElseThrow(() -> new ResourceNotFoundException("Imagem não encontrada"));
+        
+        return ResponseEntity.ok()
+            .contentType(MediaType.parseMediaType(imagem.getTipoImagem()))
+            .body(imagem.getImagem());
     }
 }

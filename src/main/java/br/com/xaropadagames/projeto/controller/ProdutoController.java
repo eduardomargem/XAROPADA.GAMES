@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @CrossOrigin("*")
@@ -118,5 +119,19 @@ public class ProdutoController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"message\": \"Erro ao atualizar o status do usuário.\"}");
         }
+    }
+
+    @PatchMapping("/{id}/quantidade")
+    public ResponseEntity<Produto> atualizarQuantidade(
+        @PathVariable Integer id,
+        @RequestBody Map<String, Integer> request) {
+        
+        Integer novaQuantidade = request.get("quantidade");
+        if (novaQuantidade == null || novaQuantidade < 0) {
+            return ResponseEntity.badRequest().build();
+        }
+        
+        Produto produtoAtualizado = produtoService.atualizarQuantidade(id, novaQuantidade);
+        return ResponseEntity.ok(produtoAtualizado);
     }
 }

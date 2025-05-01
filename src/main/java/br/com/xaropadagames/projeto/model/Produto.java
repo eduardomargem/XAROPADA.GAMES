@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
 
 @Entity
 @Table(name = "produtos")
@@ -28,6 +30,8 @@ public class Produto {
     private String descricao;
 
     @Column(name = "nr_avaliacao", precision = 10, scale = 2, nullable = false)
+    @DecimalMin(value = "1.0", message = "A avaliação mínima é 1.0")
+    @DecimalMax(value = "5.0", message = "A avaliação máxima é 5.0")
     private BigDecimal avaliacao;
 
     @Column(name = "bo_status", columnDefinition = "INT", nullable = true)
