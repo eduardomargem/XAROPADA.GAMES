@@ -65,6 +65,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             fetch('http://localhost:8080/usuarios/login', {
                 method: 'POST',
+                credentials: 'include',
                 headers: {
                     'Content-Type': 'application/json',
                 },
@@ -74,26 +75,30 @@ document.addEventListener("DOMContentLoaded", function () {
                 })
             })
             .then(response => {
-                if (response.ok) {
-                    // Tenta analisar a resposta como texto primeiro
-                    return response.text().then(text => {
-                        try {
-                            return JSON.parse(text); // Tenta converter a resposta em JSON
-                        } catch (e) {
-                            // Se falhar, apenas retorna a resposta como string
-                            return { message: text }; // Tratar como uma mensagem simples
-                        }
-                    });
-                } else {
-                    return response.text().then(data => { throw new Error(data); });
+                if (!response.ok) {
+                    return response.text().then(text => { throw new Error(text); });
                 }
+                return response.json();
             })
             .then(data => {
-                console.log('Login bem-sucedido:', data.message);
-                redirecionar();  // Redireciona para o dashboard
+                console.log('Login bem-sucedido:', data);
+        
+                // Armazena apenas informações não sensíveis no localStorage
+                localStorage.setItem('userInfo', JSON.stringify({
+                    username: data.username,
+                    grupo: data.grupo
+                }));
+                
+                // Redireciona com base no grupo
+                if (data.grupo === 1) { // Supondo que 1 seja Admin
+                    window.location.href = "/dashboard-admin.html";
+                } else {
+                    window.location.href = "/dashboard-estoquista.html";
+            }
             })
             .catch(error => {
                 console.error('Erro no login:', error);
+                alert('Falha no login: ' + error.message);
             });
 
         });

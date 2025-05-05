@@ -6,13 +6,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import br.com.xaropadagames.projeto.config.JwtTokenService;
 import br.com.xaropadagames.projeto.dao.IUsuario;
 import br.com.xaropadagames.projeto.model.LoginRequest;
 import br.com.xaropadagames.projeto.model.Usuario;
 import br.com.xaropadagames.projeto.service.UserService;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +33,9 @@ public class UsuarioController {
 
     @Autowired
     private IUsuario dao;
+
+    @Autowired
+    private JwtTokenService jwtTokenService;
     
     // Método GET para listar todos os usuários
     @GetMapping
@@ -83,14 +90,34 @@ public class UsuarioController {
 
     // Método POST para login
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
-        boolean isAuthenticated = userService.authenticateUser(loginRequest.getUsername(), loginRequest.getPassword());
-
-        if (isAuthenticated) {
-            return ResponseEntity.ok().body("{\"message\": \"Login bem-sucedido!\"}");
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("{\"message\": \"E-mail ou senha incorretos!\"}");
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
+        String token = userService.authenticateUser(loginRequest.getUsername(), loginRequest.getPassword());
+        
+        if (token == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+            .body("{\"message\": \"E-mail ou senha incorretos!\"}");
         }
+        
+        // Adiciona o token ao cookie HTTP-only
+        jwtTokenService.addTokenToCookie(response, token);
+        
+        // Obtém informações do usuário
+        Usuario usuario = dao.findByDs_email(loginRequest.getUsername());
+        
+        // Retorna informações básicas (sem dados sensíveis)
+        Map<String, Object> responseData = new HashMap<>();
+        responseData.put("message", "Login bem-sucedido!");
+        responseData.put("username", usuario.getDsNome());
+        responseData.put("grupo", usuario.getIdGrupo());
+        
+        return ResponseEntity.ok(responseData);
+    }
+
+    // Adicione um método logout
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletResponse response) {
+        jwtTokenService.removeTokenCookie(response);
+        return ResponseEntity.ok("{\"message\": \"Logout realizado com sucesso!\"}");
     }
 
     // Método PATCH para alterar o status do usuário (ativo/inativo)
@@ -103,7 +130,7 @@ public class UsuarioController {
             }
 
             // Alterna o status (1 = Ativo, 0 = Inativo)
-            usuarioExistente.setBo_status(usuarioExistente.getBo_status() == 1 ? 0 : 1);
+            usuarioExistente.setBoStatus(usuarioExistente.getBoStatus() == 1 ? 0 : 1);
 
             Usuario usuarioAtualizado = dao.save(usuarioExistente);
             return ResponseEntity.ok(usuarioAtualizado);

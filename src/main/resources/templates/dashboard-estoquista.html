@@ -18,12 +18,12 @@
     <div class="dashboard-container">
         <h2>Painel de Controle</h2>
         <div class="dashboard-links" id="dashboardLinks">
-            <a th:href="@{/listaUsuario}">Lista de Usuários</a>
-            <a th:href="@{/listaProdutoAdm}">Lista de Produtos</a>
+            <a th:href="@{/ListaProdutoEstq}">Lista de Produtos</a>
         </div>
         <div class="dashboard-link">
             <!-- Botão para voltar à página inicial -->
-            <a th:href="@{/index}">Sair</a>
+            <button id="logoutButton">Sair</button>
     </div>
+    <script th:src="@{/js/dashboard.js}"></script>
 </body>
 </html>
