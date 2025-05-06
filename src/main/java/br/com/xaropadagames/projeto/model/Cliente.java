@@ -37,7 +37,7 @@ public class Cliente {
     
     @NotBlank
     @Size(min = 6)
-    @JsonIgnore
+    
     private String senha;
     
     @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL)
