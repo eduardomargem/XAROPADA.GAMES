@@ -48,10 +48,21 @@ function validarCPF(cpf) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+    verificarPermissaoAdmin();
     fetchUsers();
     setupModalEvents();
     hideAllModals();
 });
+
+// Verifica se o usuário tem permissão (admin = grupo 1)
+function verificarPermissaoAdmin() {
+    const usuario = verificarAutenticacao();
+    if (usuario && usuario.idGrupo !== 1) {
+        window.location.href = "/dashboard-admin";
+        return false;
+    }
+    return true;
+  }
 
 async function fetchUsers() {
     try {

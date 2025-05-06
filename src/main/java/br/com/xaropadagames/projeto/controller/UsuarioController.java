@@ -6,17 +6,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import br.com.xaropadagames.projeto.config.JwtTokenService;
 import br.com.xaropadagames.projeto.dao.IUsuario;
 import br.com.xaropadagames.projeto.model.LoginRequest;
 import br.com.xaropadagames.projeto.model.Usuario;
 import br.com.xaropadagames.projeto.service.UserService;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,9 +30,6 @@ public class UsuarioController {
 
     @Autowired
     private IUsuario dao;
-
-    @Autowired
-    private JwtTokenService jwtTokenService;
     
     // Método GET para listar todos os usuários
     @GetMapping
@@ -90,34 +84,31 @@ public class UsuarioController {
 
     // Método POST para login
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
-        String token = userService.authenticateUser(loginRequest.getUsername(), loginRequest.getPassword());
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
+        Optional<Usuario> usuarioOpt = dao.findByDsEmail(loginRequest.getUsername());
         
-        if (token == null) {
+        // Verifica se o usuário existe
+        if (!usuarioOpt.isPresent()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-            .body("{\"message\": \"E-mail ou senha incorretos!\"}");
+                    .body("{\"message\": \"Usuário não encontrado.\"}");
         }
         
-        // Adiciona o token ao cookie HTTP-only
-        jwtTokenService.addTokenToCookie(response, token);
+        Usuario usuario = usuarioOpt.get();
         
-        // Obtém informações do usuário
-        Usuario usuario = dao.findByDs_email(loginRequest.getUsername());
+        // Verifica se o usuário está inativo
+        if (usuario.getBoStatus() != null && usuario.getBoStatus() == 0) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body("{\"message\": \"Usuário inativo. Contate o administrador.\"}");
+        }
         
-        // Retorna informações básicas (sem dados sensíveis)
-        Map<String, Object> responseData = new HashMap<>();
-        responseData.put("message", "Login bem-sucedido!");
-        responseData.put("username", usuario.getDsNome());
-        responseData.put("grupo", usuario.getIdGrupo());
-        
-        return ResponseEntity.ok(responseData);
-    }
-
-    // Adicione um método logout
-    @PostMapping("/logout")
-    public ResponseEntity<?> logout(HttpServletResponse response) {
-        jwtTokenService.removeTokenCookie(response);
-        return ResponseEntity.ok("{\"message\": \"Logout realizado com sucesso!\"}");
+        // Verifica a senha
+        if (userService.authenticateUser(loginRequest.getUsername(), loginRequest.getPassword())) {
+            usuario.setDsSenha(null); // Remove a senha por segurança
+            return ResponseEntity.ok(usuario);
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("{\"message\": \"Senha incorreta.\"}");
+        }
     }
 
     // Método PATCH para alterar o status do usuário (ativo/inativo)

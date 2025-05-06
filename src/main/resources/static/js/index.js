@@ -24,8 +24,21 @@ document.addEventListener("DOMContentLoaded", function () {
         document.querySelectorAll(".erro").forEach(span => span.textContent = "");
     }
 
-    function redirecionar() {
-        window.location.href = "/";
+    function redirecionarPorTipoUsuario(idGrupo) {
+        if (idGrupo === 1) { // Supondo que 1 seja admin
+            window.location.href = "/dashboard-admin";
+        } else if (idGrupo === 2) { // Supondo que 2 seja estoquista
+            window.location.href = "/dashboard-estoquista";
+        }
+    }
+
+    function verificarAutenticacao() {
+        const usuario = JSON.parse(localStorage.getItem('usuarioLogado'));
+        if (!usuario) {
+            window.location.href = "/index";
+            return null;
+        }
+        return usuario;
     }
 
     const formLogin = document.getElementById("loginForm");
@@ -65,42 +78,26 @@ document.addEventListener("DOMContentLoaded", function () {
 
             fetch('http://localhost:8080/usuarios/login', {
                 method: 'POST',
-                credentials: 'include',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    username: valor,
-                    password: senhaValor,
-                })
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: valor, password: senhaValor })
             })
             .then(response => {
-                if (!response.ok) {
-                    return response.text().then(text => { throw new Error(text); });
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log('Login bem-sucedido:', data);
-        
-                // Armazena apenas informações não sensíveis no localStorage
-                localStorage.setItem('userInfo', JSON.stringify({
-                    username: data.username,
-                    grupo: data.grupo
-                }));
-                
-                // Redireciona com base no grupo
-                if (data.grupo === 1) { // Supondo que 1 seja Admin
-                    window.location.href = "/dashboard-admin.html";
+                if (response.ok) {
+                    return response.json();
                 } else {
-                    window.location.href = "/dashboard-estoquista.html";
-            }
+                    return response.json().then(error => {
+                        throw new Error(error.message || 'Erro no login');
+                    });
+                }
+            })
+            .then(usuario => {
+                localStorage.setItem('usuarioLogado', JSON.stringify(usuario));
+                redirecionarPorTipoUsuario(usuario.idGrupo);
             })
             .catch(error => {
                 console.error('Erro no login:', error);
-                alert('Falha no login: ' + error.message);
+                exibirErro(senha, error.message || "Erro durante o login");
             });
-
         });
     }
 });

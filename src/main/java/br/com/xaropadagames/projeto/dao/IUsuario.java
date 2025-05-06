@@ -1,11 +1,15 @@
 package br.com.xaropadagames.projeto.dao;
 
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
+import java.util.Optional;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 import br.com.xaropadagames.projeto.model.Usuario;
 
-public interface IUsuario extends CrudRepository<Usuario, Integer> {
-    @Query("SELECT u FROM Usuario u WHERE u.ds_email = :ds_email")
-    Usuario findByDs_email(String ds_email);
+@Repository
+public interface IUsuario extends JpaRepository<Usuario, Integer> {
+    
+    // Método para buscar usuário por email
+    Optional<Usuario> findByDsEmail(String dsEmail);
 }

@@ -1,5 +1,6 @@
 // Coloque este código fora da função cadastrarProduto(), no início do arquivo
 document.getElementById('productImages').addEventListener('change', function(e) {
+  verificarPermissaoAdmin();
   const previewsContainer = document.getElementById('imagePreviewsContainer');
   if (!previewsContainer) return;
 
@@ -33,6 +34,16 @@ let produtos = [];
 let currentProductPage = 1;
 const productsPerPage = 10;
 let productSearchQuery = '';
+
+// Verifica se o usuário tem permissão (admin = grupo 1)
+function verificarPermissaoAdmin() {
+  const usuario = verificarAutenticacao();
+  if (usuario && usuario.idGrupo !== 1) {
+      window.location.href = "/dashboard-admin";
+      return false;
+  }
+  return true;
+}
 
 // Função para buscar os produtos do banco de dados e renderizar
 function listarProdutos() {
