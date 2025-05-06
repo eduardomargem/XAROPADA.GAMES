@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link th:href="@{/styles/AcessoNegado.css}" rel="stylesheet" />
+    <title>Acesso Negado</title>
+</head>
+<body>
+    <div class="access-denied-container">
+        <h1>Acesso Negado</h1>
+        <p>Você não tem permissão para acessar esta página.</p>
+        
+        <!-- Botão corrigido: classe unificada e texto ajustado -->
+        <a th:href="@{/dashboard-admin}" class="return-button">Voltar ao Dashboard</a>
+    </div>
+</body>
+</html>
