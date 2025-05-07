@@ -1,0 +1,223 @@
+/* minhaconta.css */
+body {
+    margin: 0;
+    background-color: #1a1a1a;
+    color: #00ff00;
+    font-family: 'Press Start 2P', cursive;
+    overflow-x: hidden;
+}
+
+.container {
+    position: relative;
+    z-index: 1;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.logo {
+    text-align: center;
+    margin-bottom: 30px;
+    filter: drop-shadow(0 0 5px #00ff00);
+}
+
+.logo img {
+    width: 80px;
+    margin-bottom: 10px;
+}
+
+.profile-box {
+    background-color: rgba(0, 0, 0, 0.8);
+    border: 3px solid #00ff00;
+    padding: 20px;
+    box-shadow: 0 0 15px #00ff00;
+    border-radius: 10px;
+}
+
+.profile-box h2 {
+    color: #00ff00;
+    text-align: center;
+    margin-bottom: 30px;
+    text-shadow: 0 0 10px #00ff00;
+}
+
+.info-section, .address-section {
+    border: 2px dashed #00ff00;
+    padding: 15px;
+    margin-bottom: 25px;
+    background-color: rgba(0, 20, 0, 0.3);
+}
+
+h3 {
+    color: #00ff00;
+    margin: 15px 0;
+    font-size: 14px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group p {
+    color: #00ff00;
+    margin-bottom: 8px;
+    font-size: 10px;
+}
+
+input, select {
+    width: 100%;
+    padding: 10px;
+    background: #000;
+    border: 2px solid #00ff00;
+    color: #00ff00;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 10px;
+    margin-bottom: 5px;
+}
+
+input:read-only {
+    border-color: #666;
+    color: #666;
+}
+
+button {
+    background: #000;
+    border: 2px solid #00ff00;
+    color: #00ff00;
+    padding: 12px 24px;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin: 10px 0;
+    text-transform: uppercase;
+}
+
+button:hover {
+    background: #00ff00;
+    color: #000;
+    box-shadow: 0 0 15px #00ff00;
+}
+
+/* ENDEREÇOS */
+#listaEnderecos {
+    margin: 15px 0;
+}
+
+.endereco-item {
+    border: 2px solid #00ff00;
+    padding: 15px;
+    margin-bottom: 15px;
+    background: rgba(0, 30, 0, 0.2);
+    position: relative;
+}
+
+.endereco-item.padrao {
+    border-color: #ff00ff;
+    box-shadow: 0 0 10px #ff00ff;
+}
+
+.endereco-item button {
+    margin-top: 10px;
+    padding: 8px 15px;
+    font-size: 8px;
+}
+
+/* MODAL */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 999;
+}
+
+.modal-content {
+    background: #000;
+    border: 3px solid #00ff00;
+    padding: 20px;
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.close {
+    color: #00ff00;
+    float: right;
+    font-size: 28px;
+    cursor: pointer;
+}
+
+/* LOGOUT */
+.logout-section {
+    text-align: center;
+    margin-top: 30px;
+}
+
+.logout-section button {
+    background: #ff0000;
+    border-color: #ff0000;
+    animation: blink-red 1s infinite;
+}
+
+@keyframes blink-red {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* RESPONSIVO */
+@media (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+
+    input, select, button {
+        font-size: 8px;
+        padding: 8px;
+    }
+
+    .profile-box {
+        padding: 10px;
+    }
+}
+    /* Estilos adicionais para o modal de endereço */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        z-index: 1000;
+    }
+
+    .modal-content {
+        background: #000;
+        border: 3px solid #00ff00;
+        padding: 20px;
+        width: 90%;
+        max-width: 500px;
+        margin: 50px auto;
+        position: relative;
+        border-radius: 10px;
+        color: #00ff00;
+    }
+
+    .modal-content h3 {
+        margin-bottom: 20px;
+    }
+
+    .modal-content .close {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        font-size: 28px;
+        cursor: pointer;
+    }
