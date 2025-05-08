@@ -1,63 +1,16 @@
-// Array de produtos
-const produtos = [
-    {
-        id: 1,
-        nome: "EA Sports FC 2025",
-        descricao: "O mais novo jogo de futebol da EA Sports traz gráficos ultra-realistas, modos de jogo inovadores e todas as ligas e times licenciados.",
-        preco: 249.90,
-        imagens: [
-            "https://republicadg.com.br/wp-content/uploads/2024/07/Design-sem-nome-1-8.jpg",
-            "https://via.placeholder.com/500x300?text=FC2025+Imagem+2",
-            "https://via.placeholder.com/500x300?text=FC2025+Imagem+3"
-        ],
-        avaliacao: 4.5,
-        detalhes: {
-            plataforma: "PS5, Xbox Series X, PC",
-            genero: "Esportes",
-            classificacao: "Livre",
-            lancamento: "27/09/2024",
-            desenvolvedor: "EA Sports"
-        }
-    },
-    {
-        id: 2,
-        nome: "The Last of Us Part II",
-        descricao: "Uma emocionante história de sobrevivência e vingança em um mundo pós-apocalíptico.",
-        preco: 199.90,
-        imagens: [
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRaz8wf6zJ71GBPAXj0CQz81bsAda8yiTcKhA&s",
-            "https://via.placeholder.com/500x300?text=TLOU2+Imagem+2",
-            "https://via.placeholder.com/500x300?text=TLOU2+Imagem+3"
-        ],
-        avaliacao: 4.9,
-        detalhes: {
-            plataforma: "PS5",
-            genero: "Ação e Aventura",
-            classificacao: "18+",
-            lancamento: "19/06/2020",
-            desenvolvedor: "Naughty Dog"
-        }
-    },
-    {
-        id: 3,
-        nome: "RED DEAD REDEMPTION 2",
-        descricao: "Um épico de ação no velho oeste que conta a história de Arthur Morgan e da gangue Van der Linde. Explore um mundo aberto vasto e detalhado, com missões emocionantes e um sistema de honra que afeta o jogo.",
-        preco: 179.90,
-        imagens: [
-            "https://www.outerspace.com.br/wp-content/uploads/2018/04/reddeadredemption2.jpg",
-            "https://platform.polygon.com/wp-content/uploads/sites/2/chorus/uploads/chorus_asset/file/13332151/red_dead_redemption_2_sunset__1_.jpg?quality=90&strip=all&crop=7.8125,0,84.375,100",
-            ""
-        ],
-        avaliacao: 5.0,
-        detalhes: {
-            plataforma: "PS4, Xbox One, PC",
-            genero: "Ação e Aventura",
-            classificacao: "18+",
-            lancamento: "26/10/2018",
-            desenvolvedor: "Rockstar Games"
-        }
-    }
-];
+// Array de produtos carregado do localStorage
+let produtos = [];
+
+// Carregar produtos do localStorage
+function loadProductsFromLocalStorage() {
+  const storedProducts = localStorage.getItem('produtos');
+  if (storedProducts) {
+    produtos = JSON.parse(storedProducts).filter(p => p.status === 'Ativo');
+  }
+}
+
+// Carregar produtos ao iniciar
+loadProductsFromLocalStorage();
 
 // Variáveis globais
 let carrinho = [];
@@ -116,7 +69,44 @@ function validarCEP(cep) {
     return /^[0-9]{8}$/.test(cepLimpo);
 }
 
-// Função para gerar os produtos na página com skeleton loading
+// Função para gerar estrelas de avaliação
+function gerarEstrelas(avaliacao) {
+    const avaliacaoNum = parseFloat(avaliacao) || 0;
+    const estrelasCheias = Math.floor(avaliacaoNum);
+    const temMeiaEstrela = avaliacaoNum % 1 >= 0.5;
+    const estrelasVazias = 5 - estrelasCheias - (temMeiaEstrela ? 1 : 0);
+    
+    let html = '';
+    for (let i = 0; i < estrelasCheias; i++) html += '<i class="fas fa-star"></i>';
+    if (temMeiaEstrela) html += '<i class="fas fa-star-half-alt"></i>';
+    for (let i = 0; i < estrelasVazias; i++) html += '<i class="far fa-star"></i>';
+    return html;
+}
+
+// Funções auxiliares para detalhes do produto
+function getDetailIcon(key) {
+    const icons = {
+        plataforma: 'gamepad',
+        genero: 'tags',
+        classificacao: 'certificate',
+        lancamento: 'calendar-alt',
+        desenvolvedor: 'building'
+    };
+    return icons[key] || 'info-circle';
+}
+
+function formatDetailKey(key) {
+    const names = {
+        plataforma: 'Plataforma',
+        genero: 'Gênero',
+        classificacao: 'Classificação',
+        lancamento: 'Lançamento',
+        desenvolvedor: 'Desenvolvedor'
+    };
+    return names[key] || key;
+}
+
+// Função para gerar os produtos na página
 function gerarProdutos() {
     elements.productsGrid.innerHTML = '';
     
@@ -148,10 +138,12 @@ function gerarProdutos() {
                     <h3>${produto.nome}</h3>
                     <p class="product-description">${produto.descricao}</p>
                     <div class="product-price">
-                        <span class="price">R$ ${produto.preco.toFixed(2)}</span>
-                        <span class="installment">ou 10x de R$ ${(produto.preco/10).toFixed(2)}</span>
+                        <span class="price">R$ ${produto.valor.toFixed(2)}</span>
+                        <span class="installment">ou 10x de R$ ${(produto.valor/10).toFixed(2)}</span>
                     </div>
-                    <button class="add-to-cart" data-id="${produto.id}">
+                    <div class="product-stock">Estoque: ${produto.quantidade}</div>
+                    <div class="product-rating">${gerarEstrelas(produto.avaliacao || 0)}</div>
+                    <button class="add-to-cart" data-id="${produto.codigo}">
                         <i class="fas fa-cart-plus"></i> Adicionar
                     </button>
                 </div>
@@ -164,6 +156,7 @@ function gerarProdutos() {
             });
             
             productCard.addEventListener('click', (e) => {
+                // Verifica se o clique não foi no botão de adicionar ao carrinho
                 if (!e.target.closest('.add-to-cart')) {
                     abrirModalProduto(produto);
                 }
@@ -174,24 +167,7 @@ function gerarProdutos() {
     }, 1000);
 }
 
-// Função para aplicar cupom de desconto
-function aplicarCupom() {
-    const cupom = elements.cupomInput ? elements.cupomInput.value.trim() : '';
-    
-    if (cupom === "XAROPADA10") {
-        desconto = 0.1; // 10% de desconto
-        mostrarNotificacao("Cupom aplicado com sucesso! 10% de desconto.");
-        atualizarCarrinho();
-    } else if (cupom === "XAROPADA20") {
-        desconto = 0.2; // 20% de desconto
-        mostrarNotificacao("Cupom aplicado com sucesso! 20% de desconto.");
-        atualizarCarrinho();
-    } else if (cupom) {
-        mostrarNotificacao("Cupom inválido!", 'erro');
-    }
-}
-
-// Função para abrir o modal de detalhes do produto com carrossel melhorado
+// Função para abrir o modal de detalhes do produto
 function abrirModalProduto(produto) {
     clearInterval(carrosselInterval);
     
@@ -203,7 +179,7 @@ function abrirModalProduto(produto) {
         imagensProduto[0] = 'https://via.placeholder.com/500x300?text=Imagem+Indispon%C3%ADvel';
     }
 
-    // Cria o HTML do modal com controles do carrossel
+    // Cria o HTML do modal
     elements.productModalBody.innerHTML = `
         <div class="product-modal-top">
             <div class="carrossel-container">
@@ -230,15 +206,16 @@ function abrirModalProduto(produto) {
             <div class="product-modal-info">
                 <h2 class="product-modal-title">${produto.nome}</h2>
                 <div class="product-modal-rating">
-                    ${gerarEstrelas(produto.avaliacao)}
-                    <span>(${produto.avaliacao.toFixed(1)})</span>
+                    ${gerarEstrelas(produto.avaliacao || 0)}
+                    <span>(${(produto.avaliacao || 0).toFixed(1)})</span>
                 </div>
-                <div class="product-modal-price">R$ ${produto.preco.toFixed(2)}</div>
+                <div class="product-modal-price">R$ ${produto.valor.toFixed(2)}</div>
+                <div class="product-modal-stock">Estoque: ${produto.quantidade}</div>
                 <p class="product-modal-description">${produto.descricao}</p>
             </div>
         </div>
         <div class="product-details-grid">
-            ${Object.entries(produto.detalhes).map(([key, value]) => `
+            ${Object.entries(produto.detalhes || {}).map(([key, value]) => `
                 <div class="detail-item">
                     <i class="fas fa-${getDetailIcon(key)} detail-icon"></i>
                     <div>
@@ -248,174 +225,112 @@ function abrirModalProduto(produto) {
                 </div>
             `).join('')}
         </div>
-        <button class="modal-add-to-cart" data-id="${produto.id}">
+        <button class="modal-add-to-cart" data-id="${produto.codigo}">
             <i class="fas fa-cart-plus"></i> Adicionar ao Carrinho
         </button>
     `;
 
-    // Elementos do carrossel
+    // Configura o carrossel
     const carrossel = elements.productModalBody.querySelector('.carrossel');
     const slides = elements.productModalBody.querySelectorAll('.carrossel-slide');
     const indicators = elements.productModalBody.querySelectorAll('.carrossel-indicator');
     const prevBtn = elements.productModalBody.querySelector('.carrossel-prev');
     const nextBtn = elements.productModalBody.querySelector('.carrossel-next');
 
-    // Configura o carrossel
-    carrossel.style.width = `${imagensProduto.length * 100}%`;
-    slides.forEach(slide => {
-        slide.style.width = `${100 / imagensProduto.length}%`;
-    });
+    if (carrossel && slides.length > 0) {
+        carrossel.style.width = `${imagensProduto.length * 100}%`;
+        slides.forEach(slide => {
+            slide.style.width = `${100 / imagensProduto.length}%`;
+        });
 
-    // Função para mudar slide
-    const goToSlide = (index) => {
-        // Verifica os limites
-        if (index >= imagensProduto.length) {
-            index = 0;
-        } else if (index < 0) {
-            index = imagensProduto.length - 1;
+        // Função para mudar slide
+        const goToSlide = (index) => {
+            if (index >= imagensProduto.length) index = 0;
+            if (index < 0) index = imagensProduto.length - 1;
+            
+            currentImageIndex = index;
+            const translateValue = -currentImageIndex * (100 / imagensProduto.length);
+            carrossel.style.transform = `translateX(${translateValue}%)`;
+            
+            indicators.forEach((indicator, i) => {
+                indicator.classList.toggle('active', i === currentImageIndex);
+            });
+            
+            slides.forEach((slide, i) => {
+                slide.classList.toggle('active', i === currentImageIndex);
+            });
+        };
+
+        // Event listeners para navegação
+        if (nextBtn) {
+            nextBtn.addEventListener('click', () => {
+                clearInterval(carrosselInterval);
+                goToSlide(currentImageIndex + 1);
+            });
         }
-        
-        currentImageIndex = index;
-        const translateValue = -currentImageIndex * (100 / imagensProduto.length);
-        carrossel.style.transform = `translateX(${translateValue}%)`;
-        
-        // Atualiza indicadores
-        indicators.forEach((indicator, i) => {
-            indicator.classList.toggle('active', i === currentImageIndex);
-        });
-        
-        // Atualiza slides
-        slides.forEach((slide, i) => {
-            slide.classList.toggle('active', i === currentImageIndex);
-        });
-    };
 
-    // Função para próximo slide
-    const nextSlide = () => {
-        goToSlide(currentImageIndex + 1);
-    };
-
-    // Função para slide anterior
-    const prevSlide = () => {
-        goToSlide(currentImageIndex - 1);
-    };
-
-    // Inicia o carrossel automático
-    const startCarrossel = () => {
-        carrosselInterval = setInterval(nextSlide, 5000); // Muda a cada 5 segundos
-    };
-
-    // Event listeners para navegação
-    nextBtn.addEventListener('click', () => {
-        clearInterval(carrosselInterval);
-        nextSlide();
-        startCarrossel();
-    });
-
-    prevBtn.addEventListener('click', () => {
-        clearInterval(carrosselInterval);
-        prevSlide();
-        startCarrossel();
-    });
-
-    // Event listeners para indicadores
-    indicators.forEach(indicator => {
-        indicator.addEventListener('click', (e) => {
-            clearInterval(carrosselInterval);
-            const index = parseInt(e.target.getAttribute('data-index'));
-            goToSlide(index);
-            startCarrossel();
-        });
-    });
-
-    // Event listeners para swipe em dispositivos móveis
-    let touchStartX = 0;
-    let touchEndX = 0;
-    
-    carrossel.addEventListener('touchstart', (e) => {
-        touchStartX = e.changedTouches[0].screenX;
-        clearInterval(carrosselInterval);
-    }, {passive: true});
-
-    carrossel.addEventListener('touchend', (e) => {
-        touchEndX = e.changedTouches[0].screenX;
-        handleSwipe();
-        startCarrossel();
-    }, {passive: true});
-
-    // Função para tratar swipe
-    const handleSwipe = () => {
-        const diff = touchStartX - touchEndX;
-        if (diff > 50) {
-            // Swipe para a esquerda - próxima imagem
-            nextSlide();
-        } else if (diff < -50) {
-            // Swipe para a direita - imagem anterior
-            prevSlide();
+        if (prevBtn) {
+            prevBtn.addEventListener('click', () => {
+                clearInterval(carrosselInterval);
+                goToSlide(currentImageIndex - 1);
+            });
         }
-    };
+
+        // Event listeners para indicadores
+        indicators.forEach(indicator => {
+            indicator.addEventListener('click', (e) => {
+                clearInterval(carrosselInterval);
+                const index = parseInt(e.target.getAttribute('data-index'));
+                goToSlide(index);
+            });
+        });
+
+        // Inicia o carrossel automático
+        carrosselInterval = setInterval(() => {
+            goToSlide(currentImageIndex + 1);
+        }, 5000);
+    }
 
     // Event listener para botão de adicionar ao carrinho
     const addButton = elements.productModalBody.querySelector('.modal-add-to-cart');
-    addButton.addEventListener('click', (e) => {
-        e.stopPropagation();
-        adicionarAoCarrinho(produto);
-        fecharModalProduto();
-    });
-
-    // Inicia o carrossel
-    startCarrossel();
-    goToSlide(0);
+    if (addButton) {
+        addButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            adicionarAoCarrinho(produto);
+            fecharModalProduto();
+        });
+    }
     
     // Mostra o modal
     elements.productModal.style.display = 'block';
     document.body.style.overflow = 'hidden';
 }
 
-// Funções auxiliares para detalhes do produto
-function getDetailIcon(key) {
-    const icons = {
-        plataforma: 'gamepad',
-        genero: 'tags',
-        classificacao: 'certificate',
-        lancamento: 'calendar-alt',
-        desenvolvedor: 'building'
-    };
-    return icons[key] || 'info-circle';
-}
-
-function formatDetailKey(key) {
-    const names = {
-        plataforma: 'Plataforma',
-        genero: 'Gênero',
-        classificacao: 'Classificação',
-        lancamento: 'Lançamento',
-        desenvolvedor: 'Desenvolvedor'
-    };
-    return names[key] || key;
-}
-
-// Função para gerar estrelas de avaliação
-function gerarEstrelas(avaliacao) {
-    const avaliacaoNum = parseFloat(avaliacao) || 0;
-    const estrelasCheias = Math.floor(avaliacaoNum);
-    const temMeiaEstrela = avaliacaoNum % 1 >= 0.5;
-    const estrelasVazias = 5 - estrelasCheias - (temMeiaEstrela ? 1 : 0);
-    
-    let html = '';
-    for (let i = 0; i < estrelasCheias; i++) html += '<i class="fas fa-star"></i>';
-    if (temMeiaEstrela) html += '<i class="fas fa-star-half-alt"></i>';
-    for (let i = 0; i < estrelasVazias; i++) html += '<i class="far fa-star"></i>';
-    return html;
+// Função para fechar o modal de produto
+function fecharModalProduto() {
+    clearInterval(carrosselInterval);
+    elements.productModal.style.display = 'none';
+    document.body.style.overflow = 'auto';
 }
 
 // Função para adicionar produto ao carrinho
 function adicionarAoCarrinho(produto) {
-    if (!produto || !produto.id) return;
+    if (!produto || !produto.codigo) return;
 
-    const itemExistente = carrinho.find(item => item.id === produto.id);
+    // Verifica se há estoque disponível
+    if (produto.quantidade <= 0) {
+        mostrarNotificacao('Produto sem estoque disponível!', 'erro');
+        return;
+    }
+
+    const itemExistente = carrinho.find(item => item.codigo === produto.codigo);
     
     if (itemExistente) {
+        // Verifica se não excede o estoque
+        if (itemExistente.quantidade >= produto.quantidade) {
+            mostrarNotificacao('Quantidade máxima em estoque atingida!', 'erro');
+            return;
+        }
         itemExistente.quantidade = (itemExistente.quantidade || 0) + 1;
     } else {
         carrinho.push({
@@ -426,7 +341,7 @@ function adicionarAoCarrinho(produto) {
     
     atualizarCarrinho();
     
-    // Animação melhorada
+    // Animação do ícone do carrinho
     const cartCount = elements.cartCount;
     cartCount.style.transition = 'all 0.3s ease';
     cartCount.style.transform = 'scale(1.5) rotate(10deg)';
@@ -444,7 +359,7 @@ function atualizarCarrinho() {
     let subtotal = 0;
 
     carrinho.forEach(item => {
-        const preco = typeof item.preco === 'number' ? item.preco : 0;
+        const preco = typeof item.valor === 'number' ? item.valor : 0;
         const quantidade = typeof item.quantidade === 'number' ? item.quantidade : 0;
         subtotal += preco * quantidade;
         
@@ -462,10 +377,10 @@ function atualizarCarrinho() {
                 <div class="cart-item-title">${item.nome || 'Produto sem nome'}</div>
                 <div class="cart-item-price">R$ ${preco.toFixed(2)}</div>
                 <div class="cart-item-actions">
-                    <button class="quantity-btn decrease" data-id="${item.id}">-</button>
+                    <button class="quantity-btn decrease" data-id="${item.codigo}">-</button>
                     <span class="quantity-value">${quantidade}</span>
-                    <button class="quantity-btn increase" data-id="${item.id}">+</button>
-                    <button class="remove-btn" data-id="${item.id}">
+                    <button class="quantity-btn increase" data-id="${item.codigo}">+</button>
+                    <button class="remove-btn" data-id="${item.codigo}">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
@@ -502,22 +417,22 @@ function atualizarCarrinho() {
     // Adiciona eventos aos botões
     document.querySelectorAll('.decrease').forEach(btn => {
         btn.addEventListener('click', (e) => {
-            const id = parseInt(e.currentTarget.getAttribute('data-id'));
-            if (!isNaN(id)) alterarQuantidade(id, -1);
+            const id = e.currentTarget.getAttribute('data-id');
+            if (id) alterarQuantidade(id, -1);
         });
     });
 
     document.querySelectorAll('.increase').forEach(btn => {
         btn.addEventListener('click', (e) => {
-            const id = parseInt(e.currentTarget.getAttribute('data-id'));
-            if (!isNaN(id)) alterarQuantidade(id, 1);
+            const id = e.currentTarget.getAttribute('data-id');
+            if (id) alterarQuantidade(id, 1);
         });
     });
 
     document.querySelectorAll('.remove-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
-            const id = parseInt(e.currentTarget.getAttribute('data-id'));
-            if (!isNaN(id)) removerItem(id);
+            const id = e.currentTarget.getAttribute('data-id');
+            if (id) removerItem(id);
         });
     });
 
@@ -534,12 +449,19 @@ function atualizarCarrinho() {
 
 // Funções auxiliares do carrinho
 function alterarQuantidade(id, alteracao) {
-    const index = carrinho.findIndex(item => item.id === id);
+    const index = carrinho.findIndex(item => item.codigo === id);
     if (index === -1) return;
 
     const novaQuantidade = (carrinho[index].quantidade || 0) + alteracao;
     
     if (novaQuantidade > 0) {
+        // Verifica se não excede o estoque
+        const produtoOriginal = produtos.find(p => p.codigo === id);
+        if (produtoOriginal && novaQuantidade > produtoOriginal.quantidade) {
+            mostrarNotificacao('Quantidade máxima em estoque atingida!', 'erro');
+            return;
+        }
+        
         carrinho[index].quantidade = novaQuantidade;
     } else {
         carrinho.splice(index, 1);
@@ -549,15 +471,15 @@ function alterarQuantidade(id, alteracao) {
 }
 
 function removerItem(id) {
-    const item = carrinho.find(item => item.id === id);
+    const item = carrinho.find(item => item.codigo === id);
     if (item) {
-        carrinho = carrinho.filter(item => item.id !== id);
+        carrinho = carrinho.filter(item => item.codigo !== id);
         mostrarNotificacao(`${item.nome} removido do carrinho!`);
         atualizarCarrinho();
     }
 }
 
-// Funções de modal
+// Funções de modal do carrinho
 function abrirModal() {
     elements.cartModal.style.display = 'flex';
     document.body.style.overflow = 'hidden';
@@ -565,12 +487,6 @@ function abrirModal() {
 
 function fecharModal() {
     elements.cartModal.style.display = 'none';
-    document.body.style.overflow = 'auto';
-}
-
-function fecharModalProduto() {
-    clearInterval(carrosselInterval);
-    elements.productModal.style.display = 'none';
     document.body.style.overflow = 'auto';
 }
 
@@ -622,6 +538,23 @@ function selecionarFrete(valor) {
     atualizarCarrinho();
 }
 
+// Função para aplicar cupom de desconto
+function aplicarCupom() {
+    const cupom = elements.cupomInput ? elements.cupomInput.value.trim() : '';
+    
+    if (cupom === "XAROPADA10") {
+        desconto = 0.1; // 10% de desconto
+        mostrarNotificacao("Cupom aplicado com sucesso! 10% de desconto.");
+        atualizarCarrinho();
+    } else if (cupom === "XAROPADA20") {
+        desconto = 0.2; // 20% de desconto
+        mostrarNotificacao("Cupom aplicado com sucesso! 20% de desconto.");
+        atualizarCarrinho();
+    } else if (cupom) {
+        mostrarNotificacao("Cupom inválido!", 'erro');
+    }
+}
+
 // Função para finalizar compra
 function finalizarCompra() {
     const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
@@ -642,7 +575,22 @@ function finalizarCompra() {
         return;
     }
     
-    const subtotal = carrinho.reduce((sum, item) => sum + ((item.preco || 0) * (item.quantidade || 0)), 0);
+    // Verifica se o usuário tem endereço e forma de pagamento cadastrados
+    const clientes = JSON.parse(localStorage.getItem('usuariosCadastrados')) || [];
+    const cliente = clientes.find(c => c.email === usuarioLogado.email);
+    
+    const enderecos = cliente?.dadosCompletos?.enderecosEntrega || cliente?.enderecosEntrega || [];
+    const enderecoPadrao = enderecos.find(e => e.padrao);
+    
+    const formasPagamento = cliente?.dadosCompletos?.formasPagamento || [];
+    const pagamentoPadrao = formasPagamento.find(p => p.padrao);
+    
+    if (!enderecoPadrao || !pagamentoPadrao) {
+        mostrarNotificacao('Por favor, verifique seu endereço e forma de pagamento padrão!', 'erro');
+        return;
+    }
+    
+    const subtotal = carrinho.reduce((sum, item) => sum + ((item.valor || 0) * (item.quantidade || 0)), 0);
     const valorDesconto = subtotal * desconto;
     const total = subtotal - valorDesconto + freteSelecionado;
     
@@ -677,10 +625,19 @@ function finalizarCompra() {
                 <span>${cepCalculado}</span>
             </div>
             <div class="resumo-item">
+                <span>Endereço:</span>
+                <span>${enderecoPadrao.logradouro}, ${enderecoPadrao.numero}${enderecoPadrao.complemento ? ' - ' + enderecoPadrao.complemento : ''}, ${enderecoPadrao.bairro}, ${enderecoPadrao.cidade} - ${enderecoPadrao.uf}</span>
+            </div>
+            <div class="resumo-item">
+                <span>Forma de pagamento:</span>
+                <span>${pagamentoPadrao.tipo === 'credito' ? 'Cartão de Crédito ****' + pagamentoPadrao.ultimosDigitos + ' (' + pagamentoPadrao.parcelas + 'x)' : 'Boleto Bancário'}</span>
+            </div>
+            <div class="resumo-item">
                 <span>Cliente:</span>
                 <span>${usuarioLogado.nome}</span>
             </div>
             <button id="confirmarCompra">Confirmar Compra</button>
+                <button onclick="window.location.href='perfil.html'">Voltar</button>
         </div>
     `;
     
@@ -767,7 +724,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (carrinhoSalvo) {
             carrinho = JSON.parse(carrinhoSalvo);
-            carrinho = carrinho.filter(item => item && item.id && item.quantidade > 0);
+            carrinho = carrinho.filter(item => item && item.codigo && item.quantidade > 0);
         }
         
         if (freteSalvo) {

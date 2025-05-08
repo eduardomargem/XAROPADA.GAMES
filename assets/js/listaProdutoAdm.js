@@ -18,7 +18,54 @@ function saveProductsToLocalStorage() {
 function loadProductsFromLocalStorage() {
   const storedProducts = localStorage.getItem('produtos');
   if (storedProducts) {
-    produtos = JSON.parse(storedProducts);
+   produtos = JSON.parse(storedProducts);
+  } else {
+    // Inicializa com alguns produtos de exemplo se não houver nada no localStorage
+    produtos = [
+      {
+        codigo: "P001",
+        nome: "EA Sports FC 2025",
+        quantidade: 50,
+        valor: 249.90,
+        status: "Ativo",
+        imagens: [
+          "https://republicadg.com.br/wp-content/uploads/2024/07/Design-sem-nome-1-8.jpg",
+          "https://via.placeholder.com/500x300?text=FC2025+Imagem+2",
+          "https://via.placeholder.com/500x300?text=FC2025+Imagem+3"
+        ],
+        descricao: "O mais novo jogo de futebol da EA Sports traz gráficos ultra-realistas, modos de jogo inovadores e todas as ligas e times licenciados.",
+        avaliacao: 4.5,
+        detalhes: {
+          plataforma: "PS5, Xbox Series X, PC",
+          genero: "Esportes",
+          classificacao: "Livre",
+          lancamento: "27/09/2024",
+          desenvolvedor: "EA Sports"
+        }
+      },
+      {
+        codigo: "P002",
+        nome: "The Last of Us Part II",
+        quantidade: 30,
+        valor: 199.90,
+        status: "Ativo",
+        imagens: [
+          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRaz8wf6zJ71GBPAXj0CQz81bsAda8yiTcKhA&s",
+          "https://via.placeholder.com/500x300?text=TLOU2+Imagem+2",
+          "https://via.placeholder.com/500x300?text=TLOU2+Imagem+3"
+        ],
+        descricao: "Uma emocionante história de sobrevivência e vingança em um mundo pós-apocalíptico.",
+        avaliacao: 4.9,
+        detalhes: {
+          plataforma: "PS5",
+          genero: "Ação e Aventura",
+          classificacao: "18+",
+          lancamento: "19/06/2020",
+          desenvolvedor: "Naughty Dog"
+        }
+      }
+    ];
+    saveProductsToLocalStorage();
   }
 }
 
@@ -40,7 +87,7 @@ function renderProducts() {
       <td>${product.codigo}</td>
       <td>${product.nome}</td>
       <td>${product.quantidade}</td>
-      <td>${product.valor}</td>
+      <td>R$ ${product.valor.toFixed(2)}</td>
       <td>${product.status}</td>
       <td>
         <input type="checkbox" ${product.status === 'Ativo' ? 'checked' : ''} onchange="toggleProductStatus('${product.codigo}')">
@@ -58,10 +105,10 @@ function filterProducts() {
   return produtos.filter(product => {
     const searchQuery = productSearchQuery.toLowerCase();
     return (
-      product.codigo.toLowerCase().includes(searchQuery) || // Pesquisa por ID
-      product.nome.toLowerCase().includes(searchQuery) || // Pesquisa por Nome
-      product.valor.toString().includes(searchQuery) || // Pesquisa por Preço
-      product.quantidade.toString().includes(searchQuery) // Pesquisa por Quantidade
+      product.codigo.toLowerCase().includes(searchQuery) ||
+      product.nome.toLowerCase().includes(searchQuery) ||
+      product.valor.toString().includes(searchQuery) ||
+      product.quantidade.toString().includes(searchQuery)
     );
   });
 }
@@ -83,7 +130,7 @@ function paginateProducts(filteredProducts) {
 function updateProductPagination(filteredProductsCount) {
   const totalPages = Math.ceil(filteredProductsCount / productsPerPage);
   document.getElementById('prevProductPage').disabled = currentProductPage === 1;
-  document.getElementById('nextProductPage').disabled = currentProductPage === totalPages;
+  document.getElementById('nextProductPage').disabled = currentProductPage === totalPages || totalPages === 0;
   document.getElementById('productPageInfo').textContent = `Página ${currentProductPage} de ${totalPages}`;
 }
 
@@ -102,6 +149,7 @@ function openRegisterProductModal() {
 function closeRegisterProductModal() {
   document.getElementById('registerProductModal').style.display = 'none';
   document.getElementById('imagePreviewContainer').style.display = 'none';
+  document.getElementById('imagePreviewContainer').innerHTML = '<p>Pré-visualização da Imagem:</p>';
   document.getElementById('registerProductForm').reset();
 }
 
@@ -117,21 +165,27 @@ function registerProduct(event) {
     quantidade: parseInt(document.getElementById('productQuantity').value),
     valor: parseFloat(document.getElementById('productPrice').value),
     status: "Ativo",
-    imagens: [], // Array para múltiplas imagens
+    imagens: [],
     descricao: document.getElementById('productDescription').value,
-    avaliacao: document.getElementById('productRating').value // Adiciona a avaliação
+    avaliacao: document.getElementById('productRating').value,
+    detalhes: {
+      plataforma: "PS5, Xbox Series X, PC",
+      genero: "Ação",
+      classificacao: "Livre",
+      lancamento: new Date().toLocaleDateString('pt-BR'),
+      desenvolvedor: "Desenvolvedor Padrão"
+    }
   };
 
   const imagePreviewContainer = document.getElementById('imagePreviewContainer');
   const images = imagePreviewContainer.querySelectorAll('img');
 
-  // Adicionar todas as imagens sem limite
   images.forEach((img) => {
     novoProduto.imagens.push(img.src);
   });
 
   produtos.push(novoProduto);
-  saveProductsToLocalStorage(); // Salvar no localStorage
+  saveProductsToLocalStorage();
   closeRegisterProductModal();
   renderProducts();
 }
@@ -156,6 +210,7 @@ function addImage() {
         img.alt = 'Pré-visualização da Imagem';
         img.style.maxWidth = '100%';
         img.style.height = 'auto';
+        img.style.margin = '5px';
         imagePreviewContainer.appendChild(img);
         imagePreviewContainer.style.display = 'block';
       };
@@ -181,6 +236,7 @@ function addImageEdit() {
         const imgContainer = document.createElement('div');
         imgContainer.style.position = 'relative';
         imgContainer.style.display = 'inline-block';
+        imgContainer.style.margin = '5px';
 
         const img = document.createElement('img');
         img.src = e.target.result;
@@ -198,7 +254,7 @@ function addImageEdit() {
         deleteButton.style.border = 'none';
         deleteButton.style.cursor = 'pointer';
         deleteButton.onclick = function() {
-          imgContainer.remove(); // Remove a imagem ao clicar no botão
+          imgContainer.remove();
         };
 
         imgContainer.appendChild(img);
@@ -222,13 +278,14 @@ function openEditProductModal(codigo) {
   document.getElementById('editProductDescription').value = product.descricao;
 
   const imagePreviewContainer = document.getElementById('editProductImagePreviewContainer');
-  imagePreviewContainer.innerHTML = ''; // Limpar imagens anteriores
+  imagePreviewContainer.innerHTML = '<p>Pré-visualização da Imagem</p>';
 
   if (product.imagens && product.imagens.length > 0) {
     product.imagens.forEach((imagem) => {
       const imgContainer = document.createElement('div');
       imgContainer.style.position = 'relative';
       imgContainer.style.display = 'inline-block';
+      imgContainer.style.margin = '5px';
 
       const img = document.createElement('img');
       img.src = imagem;
@@ -246,7 +303,7 @@ function openEditProductModal(codigo) {
       deleteButton.style.border = 'none';
       deleteButton.style.cursor = 'pointer';
       deleteButton.onclick = function() {
-        imgContainer.remove(); // Remove a imagem ao clicar no botão
+        imgContainer.remove();
       };
 
       imgContainer.appendChild(img);
@@ -264,6 +321,7 @@ function openEditProductModal(codigo) {
 function closeEditProductModal() {
   document.getElementById('editProductModal').style.display = 'none';
   document.getElementById('editProductImagePreviewContainer').style.display = 'none';
+  document.getElementById('editProductImagePreviewContainer').innerHTML = '<p>Pré-visualização da Imagem</p>';
 }
 
 // Função para editar produto
@@ -276,20 +334,27 @@ function editProduct() {
     quantidade: parseInt(document.getElementById('editProductQuantity').value),
     valor: parseFloat(document.getElementById('editProductPrice').value),
     status: produtos[productIndex].status,
-    imagens: [], // Array para múltiplas imagens
-    descricao: document.getElementById('editProductDescription').value
+    imagens: [],
+    descricao: document.getElementById('editProductDescription').value,
+    avaliacao: produtos[productIndex].avaliacao || "0",
+    detalhes: produtos[productIndex].detalhes || {
+      plataforma: "PS5, Xbox Series X, PC",
+      genero: "Ação",
+      classificacao: "Livre",
+      lancamento: new Date().toLocaleDateString('pt-BR'),
+      desenvolvedor: "Desenvolvedor Padrão"
+    }
   };
 
   const imagePreviewContainer = document.getElementById('editProductImagePreviewContainer');
   const images = imagePreviewContainer.querySelectorAll('img');
 
-  // Adicionar todas as imagens sem limite
   images.forEach((img) => {
     updatedProduct.imagens.push(img.src);
   });
 
   produtos[productIndex] = updatedProduct;
-  saveProductsToLocalStorage(); // Salvar no localStorage
+  saveProductsToLocalStorage();
   closeEditProductModal();
   renderProducts();
 }
@@ -300,13 +365,13 @@ function openViewProductModal(codigo) {
   document.getElementById('viewProductName').textContent = product.nome;
   document.getElementById('viewProductCodigo').textContent = product.codigo;
   document.getElementById('viewProductQuantity').textContent = product.quantidade;
-  document.getElementById('viewProductPrice').textContent = product.valor;
+  document.getElementById('viewProductPrice').textContent = product.valor.toFixed(2);
   document.getElementById('viewProductDescription').textContent = product.descricao;
+  document.getElementById('viewProductRating').textContent = product.avaliacao;
 
   const carouselImages = document.getElementById('carouselImages');
   carouselImages.innerHTML = '';
 
-  // Exibir todas as imagens sem limite
   product.imagens.forEach((imagem, index) => {
     const img = document.createElement('img');
     img.src = imagem;
@@ -314,8 +379,8 @@ function openViewProductModal(codigo) {
     carouselImages.appendChild(img);
   });
 
-  currentImageIndex = 0; // Reinicia o índice ao abrir o modal
-  updateCarousel(); // Atualiza o carrossel
+  currentImageIndex = 0;
+  updateCarousel();
   document.getElementById('viewProductModal').style.display = 'block';
 }
 
@@ -326,51 +391,22 @@ function closeViewProductModal() {
 // Funções do carrossel
 function updateCarousel() {
   const carouselImages = document.getElementById('carouselImages');
-  const offset = -currentImageIndex * 300; // 300px é a largura de cada imagem
+  const offset = -currentImageIndex * 300;
   carouselImages.style.transform = `translateX(${offset}px)`;
 }
 
 function nextImage() {
   const carouselImages = document.getElementById('carouselImages');
   const totalImages = carouselImages.children.length;
-  currentImageIndex = (currentImageIndex + 1) % totalImages; // Avança para a próxima imagem
+  currentImageIndex = (currentImageIndex + 1) % totalImages;
   updateCarousel();
 }
 
 function prevImage() {
   const carouselImages = document.getElementById('carouselImages');
   const totalImages = carouselImages.children.length;
-  currentImageIndex = (currentImageIndex - 1 + totalImages) % totalImages; // Volta para a imagem anterior
+  currentImageIndex = (currentImageIndex - 1 + totalImages) % totalImages;
   updateCarousel();
-}
-
-// Função para comprar produto
-function buyProduct() {
-  const codigo = document.getElementById('viewProductCodigo').textContent;
-  const quantidadeComprada = 1; // Quantidade padrão (pode ser ajustada)
-
-  // Enviar requisição ao estoquista
-  fetch('/comprar-produto', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ codigo, quantidadeComprada }),
-  })
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        alert('Compra realizada com sucesso!');
-        closeViewProductModal();
-        renderProducts(); // Atualiza a lista de produtos
-      } else {
-        alert('Erro ao realizar a compra: ' + data.message);
-      }
-    })
-    .catch(error => {
-      console.error('Erro:', error);
-      alert('Compra realizada com sucesso.');
-    });
 }
 
 // Confirmação de Status
@@ -389,14 +425,15 @@ function closeProductModal() {
 function toggleProductStatus(codigo) {
   const product = produtos.find(p => p.codigo === codigo);
   product.status = product.status === 'Ativo' ? 'Inativo' : 'Ativo';
-  saveProductsToLocalStorage(); // Salvar no localStorage
+  saveProductsToLocalStorage();
   renderProducts();
+  closeProductModal();
 }
 
 // Ouvir alterações no localStorage
 window.addEventListener('storage', (event) => {
   if (event.key === 'produtos') {
-    loadProductsFromLocalStorage(); // Recarrega os produtos
-    renderProducts(); // Atualiza a tabela
+    loadProductsFromLocalStorage();
+    renderProducts();
   }
 });

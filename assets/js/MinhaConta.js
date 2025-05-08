@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const clientes = JSON.parse(localStorage.getItem('usuariosCadastrados')) || [];
     const cliente = clientes.find(c => c.email === usuario.email);
     
-    // Preenche TODOS os campos do formulário com dados completos do cadastro
+    // Preenche os campos do formulário
     document.getElementById('editNome').value = cliente.dadosCompletos?.nome || cliente.nome || '';
     document.getElementById('editNascimento').value = cliente.dadosCompletos?.nascimento || '';
     document.getElementById('editGenero').value = cliente.dadosCompletos?.genero || '';
@@ -18,6 +18,9 @@ document.addEventListener("DOMContentLoaded", function() {
     
     // Exibe os endereços cadastrados
     exibirEnderecos(cliente.dadosCompletos?.enderecosEntrega || cliente.enderecosEntrega || []);
+    
+    // Exibe as formas de pagamento
+    exibirPagamentos(cliente.dadosCompletos?.formasPagamento || []);
     
     // Configura máscara e busca automática do CEP
     const cepInput = document.getElementById('modalCep');
@@ -32,6 +35,25 @@ document.addEventListener("DOMContentLoaded", function() {
         if (value.length === 9) {
             buscarEnderecoPorCEP(value);
         }
+    });
+    
+    // Configura máscaras para os campos do cartão
+    document.getElementById('modalNumeroCartao').addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        value = value.replace(/(\d{4})(?=\d)/g, '$1 ');
+        e.target.value = value.trim().substring(0, 19);
+    });
+    
+    document.getElementById('modalValidadeCartao').addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length > 2) {
+            value = value.substring(0, 2) + '/' + value.substring(2, 6);
+        }
+        e.target.value = value.substring(0, 7);
+    });
+    
+    document.getElementById('modalCvvCartao').addEventListener('input', function(e) {
+        e.target.value = e.target.value.replace(/\D/g, '').substring(0, 4);
     });
 });
 
@@ -213,12 +235,40 @@ function exibirEnderecos(enderecos) {
                 <p>${endereco.bairro}, ${endereco.cidade} - ${endereco.uf}</p>
                 <p>CEP: ${endereco.cep}</p>
             </div>
-            <button class="btn-default" onclick="definirComoPadrao(${index})">
-                ${endereco.padrao ? '✅ PADRÃO' : 'DEFINIR COMO PADRÃO'}
-            </button>
+            <div class="action-buttons">
+                <button class="btn-default" onclick="definirComoPadrao(${index})">
+                    ${endereco.padrao ? '✅ PADRÃO' : 'DEFINIR PADRÃO'}
+                </button>
+                <button class="btn-default" onclick="removerEndereco(${index})">
+                    <i class="fas fa-trash"></i> REMOVER
+                </button>
+            </div>
         `;
         listaEnderecos.appendChild(enderecoElement);
     });
+}
+
+function removerEndereco(index) {
+    if (!confirm("Tem certeza que deseja remover este endereço?")) {
+        return;
+    }
+    
+    const clientes = JSON.parse(localStorage.getItem('usuariosCadastrados'));
+    const usuario = JSON.parse(localStorage.getItem('usuarioLogado'));
+    
+    const clienteIndex = clientes.findIndex(c => c.email === usuario.email);
+    
+    // Remove o endereço
+    clientes[clienteIndex].dadosCompletos.enderecosEntrega.splice(index, 1);
+    
+    // Se era o único endereço, limpa o array
+    if (clientes[clienteIndex].dadosCompletos.enderecosEntrega.length === 0) {
+        clientes[clienteIndex].dadosCompletos.enderecosEntrega = [];
+    }
+    
+    localStorage.setItem('usuariosCadastrados', JSON.stringify(clientes));
+    exibirEnderecos(clientes[clienteIndex].dadosCompletos.enderecosEntrega);
+    alert("Endereço removido com sucesso!");
 }
 
 function definirComoPadrao(index) {
@@ -227,23 +277,240 @@ function definirComoPadrao(index) {
     
     const clienteIndex = clientes.findIndex(c => c.email === usuario.email);
     
-    // Verifica se os endereços estão em dadosCompletos ou na raiz
-    const enderecos = clientes[clienteIndex].dadosCompletos?.enderecosEntrega || clientes[clienteIndex].enderecosEntrega;
+    // Verifica se os endereços estão em dadosCompletos
+    const enderecos = clientes[clienteIndex].dadosCompletos?.enderecosEntrega;
     
     enderecos.forEach((end, i) => {
         end.padrao = (i === index);
     });
     
-    // Garante que os dados sejam salvos no local correto
-    if (clientes[clienteIndex].dadosCompletos) {
-        clientes[clienteIndex].dadosCompletos.enderecosEntrega = enderecos;
-    } else {
-        clientes[clienteIndex].enderecosEntrega = enderecos;
-    }
-    
+    clientes[clienteIndex].dadosCompletos.enderecosEntrega = enderecos;
     localStorage.setItem('usuariosCadastrados', JSON.stringify(clientes));
     exibirEnderecos(enderecos);
     alert("Endereço padrão atualizado com sucesso!");
+}
+
+// Funções para o modal de pagamento
+function abrirModalPagamento() {
+    document.getElementById('paymentModal').style.display = 'block';
+    document.getElementById('paymentForm').reset();
+    document.getElementById('cartaoFields').style.display = 'none';
+}
+
+function fecharModalPagamento() {
+    document.getElementById('paymentModal').style.display = 'none';
+}
+
+function mostrarCamposCartao() {
+    const tipoPagamento = document.getElementById('modalTipoPagamento').value;
+    const cartaoFields = document.getElementById('cartaoFields');
+    
+    if (tipoPagamento === 'credito') {
+        cartaoFields.style.display = 'block';
+    } else {
+        cartaoFields.style.display = 'none';
+    }
+}
+
+function salvarPagamento() {
+    const tipoPagamento = document.getElementById('modalTipoPagamento').value;
+    
+    if (!tipoPagamento) {
+        alert('Por favor, selecione um tipo de pagamento!');
+        return;
+    }
+    
+    const clientes = JSON.parse(localStorage.getItem('usuariosCadastrados'));
+    const usuario = JSON.parse(localStorage.getItem('usuarioLogado'));
+    
+    const clienteIndex = clientes.findIndex(c => c.email === usuario.email);
+    
+    let novoPagamento;
+    
+    if (tipoPagamento === 'boleto') {
+        novoPagamento = {
+            tipo: 'boleto',
+            padrao: false
+        };
+    } else if (tipoPagamento === 'credito') {
+        const nomeCartao = document.getElementById('modalNomeCartao').value;
+        const numeroCartao = document.getElementById('modalNumeroCartao').value;
+        const validadeCartao = document.getElementById('modalValidadeCartao').value;
+        const cvvCartao = document.getElementById('modalCvvCartao').value;
+        const parcelas = document.getElementById('modalParcelas').value;
+        
+        // Validação dos campos do cartão
+        if (!nomeCartao || !numeroCartao || !validadeCartao || !cvvCartao) {
+            alert('Por favor, preencha todos os campos do cartão!');
+            return;
+        }
+        
+        if (!validarNumeroCartao(numeroCartao)) {
+            alert('Número do cartão inválido!');
+            return;
+        }
+        
+        if (!validarValidade(validadeCartao)) {
+            alert('Data de validade inválida! Use o formato MM/AAAA');
+            return;
+        }
+        
+        if (!validarCVV(cvvCartao)) {
+            alert('CVV inválido! Deve ter 3 ou 4 dígitos');
+            return;
+        }
+        
+        novoPagamento = {
+            tipo: 'credito',
+            nomeCartao,
+            numeroCartao: numeroCartao.replace(/\s/g, ''),
+            ultimosDigitos: numeroCartao.slice(-4),
+            validadeCartao,
+            cvvCartao,
+            parcelas,
+            padrao: false
+        };
+    }
+    
+    // Inicializa o array de pagamentos se não existir
+    if (!clientes[clienteIndex].dadosCompletos) {
+        clientes[clienteIndex].dadosCompletos = {};
+    }
+    
+    if (!clientes[clienteIndex].dadosCompletos.formasPagamento) {
+        clientes[clienteIndex].dadosCompletos.formasPagamento = [];
+        novoPagamento.padrao = true;
+    } else if (clientes[clienteIndex].dadosCompletos.formasPagamento.length === 0) {
+        novoPagamento.padrao = true;
+    }
+    
+    clientes[clienteIndex].dadosCompletos.formasPagamento.push(novoPagamento);
+    localStorage.setItem('usuariosCadastrados', JSON.stringify(clientes));
+    
+    exibirPagamentos(clientes[clienteIndex].dadosCompletos.formasPagamento);
+    fecharModalPagamento();
+    alert('Forma de pagamento cadastrada com sucesso!');
+}
+
+function exibirPagamentos(pagamentos) {
+    const listaPagamentos = document.getElementById('listaPagamentos');
+    listaPagamentos.innerHTML = "";
+    
+    if (!pagamentos || pagamentos.length === 0) {
+        listaPagamentos.innerHTML = '<p class="no-payment">Nenhuma forma de pagamento cadastrada ainda.</p>';
+        return;
+    }
+    
+    pagamentos.forEach((pagamento, index) => {
+        const pagamentoElement = document.createElement('div');
+        pagamentoElement.className = `payment-item ${pagamento.padrao ? 'padrao' : ''}`;
+        
+        if (pagamento.tipo === 'boleto') {
+            pagamentoElement.innerHTML = `
+                <div class="payment-info">
+                    <p><strong>Boleto Bancário</strong></p>
+                </div>
+                <div class="action-buttons">
+                    <button class="btn-default" onclick="definirComoPadraoPagamento(${index})">
+                        ${pagamento.padrao ? '✅ PADRÃO' : 'DEFINIR PADRÃO'}
+                    </button>
+                    <button class="btn-default" onclick="removerPagamento(${index})">
+                        <i class="fas fa-trash"></i> REMOVER
+                    </button>
+                </div>
+            `;
+        } else if (pagamento.tipo === 'credito') {
+            pagamentoElement.innerHTML = `
+                <div class="payment-info">
+                    <p><strong>Cartão de Crédito</strong></p>
+                    <p>${pagamento.nomeCartao}</p>
+                    <p>**** **** **** ${pagamento.ultimosDigitos}</p>
+                    <p>Validade: ${pagamento.validadeCartao} | Parcelas: ${pagamento.parcelas}x</p>
+                </div>
+                <div class="action-buttons">
+                    <button class="btn-default" onclick="definirComoPadraoPagamento(${index})">
+                        ${pagamento.padrao ? '✅ PADRÃO' : 'DEFINIR PADRÃO'}
+                    </button>
+                    <button class="btn-default" onclick="removerPagamento(${index})">
+                        <i class="fas fa-trash"></i> REMOVER
+                    </button>
+                </div>
+            `;
+        }
+        
+        listaPagamentos.appendChild(pagamentoElement);
+    });
+}
+
+function removerPagamento(index) {
+    if (!confirm("Tem certeza que deseja remover esta forma de pagamento?")) {
+        return;
+    }
+    
+    const clientes = JSON.parse(localStorage.getItem('usuariosCadastrados'));
+    const usuario = JSON.parse(localStorage.getItem('usuarioLogado'));
+    
+    const clienteIndex = clientes.findIndex(c => c.email === usuario.email);
+    
+    // Remove a forma de pagamento
+    clientes[clienteIndex].dadosCompletos.formasPagamento.splice(index, 1);
+    
+    // Se era a única forma de pagamento, limpa o array
+    if (clientes[clienteIndex].dadosCompletos.formasPagamento.length === 0) {
+        clientes[clienteIndex].dadosCompletos.formasPagamento = [];
+    }
+    
+    localStorage.setItem('usuariosCadastrados', JSON.stringify(clientes));
+    exibirPagamentos(clientes[clienteIndex].dadosCompletos.formasPagamento);
+    alert("Forma de pagamento removida com sucesso!");
+}
+
+function definirComoPadraoPagamento(index) {
+    const clientes = JSON.parse(localStorage.getItem('usuariosCadastrados'));
+    const usuario = JSON.parse(localStorage.getItem('usuarioLogado'));
+    
+    const clienteIndex = clientes.findIndex(c => c.email === usuario.email);
+    
+    // Verifica se os pagamentos estão em dadosCompletos
+    const pagamentos = clientes[clienteIndex].dadosCompletos?.formasPagamento;
+    
+    pagamentos.forEach((pag, i) => {
+        pag.padrao = (i === index);
+    });
+    
+    clientes[clienteIndex].dadosCompletos.formasPagamento = pagamentos;
+    localStorage.setItem('usuariosCadastrados', JSON.stringify(clientes));
+    exibirPagamentos(pagamentos);
+    alert("Forma de pagamento padrão atualizada com sucesso!");
+}
+
+// Funções de validação
+function validarNumeroCartao(numero) {
+    // Remove espaços e verifica se tem 16 dígitos
+    const numeroLimpo = numero.replace(/\s/g, '');
+    return /^\d{16}$/.test(numeroLimpo);
+}
+
+function validarValidade(validade) {
+    // Verifica o formato MM/AAAA
+    if (!/^\d{2}\/\d{4}$/.test(validade)) return false;
+    
+    const [mes, ano] = validade.split('/').map(Number);
+    const agora = new Date();
+    const anoAtual = agora.getFullYear();
+    const mesAtual = agora.getMonth() + 1;
+    
+    // Verifica se a data é no futuro
+    if (ano < anoAtual) return false;
+    if (ano === anoAtual && mes < mesAtual) return false;
+    if (mes < 1 || mes > 12) return false;
+    
+    return true;
+}
+
+function validarCVV(cvv) {
+    // CVV pode ter 3 ou 4 dígitos
+    return /^\d{3,4}$/.test(cvv);
 }
 
 function logout() {

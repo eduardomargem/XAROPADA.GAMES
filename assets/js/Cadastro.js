@@ -89,7 +89,7 @@ async function salvarNovoCliente(formData) {
     const novoCliente = {
         usuario: gerarUsername(formData.nome),
         email: formData.email,
-        senha: formData.senha, // Em produção, use hash!
+        senha: formData.senha,
         tipo: "Cliente",
         dadosCompletos: formData
     };
@@ -105,7 +105,6 @@ function gerarUsername(nome) {
     let username = base;
     const usuarios = JSON.parse(localStorage.getItem('usuariosCadastrados')) || [];
     
-    // Garantir username único
     let tentativas = 1;
     while (usuarios.some(u => u.usuario === username)) {
         username = `${base}${tentativas}`;
@@ -149,7 +148,6 @@ async function coletarDadosFormulario() {
 async function validarFormulario(formData) {
     const erros = {};
 
-    // Validação básica dos campos
     if (!formData.nome || formData.nome.split(' ').length < 2) {
         erros.nome = 'Nome completo obrigatório';
     }
@@ -195,10 +193,8 @@ async function validarFormulario(formData) {
 
 // Exibir erros no formulário
 function exibirErros(erros) {
-    // Limpar erros anteriores
     document.querySelectorAll('.erro').forEach(el => el.textContent = '');
 
-    // Mapeamento de campos para IDs de erro
     const campos = {
         nome: 'erro-nome',
         email: 'erro-email',
@@ -214,14 +210,12 @@ function exibirErros(erros) {
         enderecoFaturamento_uf: 'erro-uf'
     };
 
-    // Exibir erros principais
     Object.keys(campos).forEach(key => {
         if (erros[key]) {
             document.getElementById(campos[key]).textContent = erros[key];
         }
     });
 
-    // Exibir erros de endereços de entrega
     Object.keys(erros).forEach(key => {
         if (key.startsWith('enderecoEntrega')) {
             const [_, index, campo] = key.match(/enderecoEntrega(\d+)_(\w+)/) || [];
@@ -282,7 +276,6 @@ function adicionarEnderecoEntrega(dados = {}) {
     
     container.insertAdjacentHTML('beforeend', template);
     
-    // Configurar máscara e auto-preenchimento para o novo CEP
     const novoEndereco = container.querySelector(`[data-id="${id}"]`);
     aplicarMascaraCEP(novoEndereco.querySelector('.cep-entrega'));
     
@@ -294,7 +287,6 @@ function adicionarEnderecoEntrega(dados = {}) {
         novoEndereco.querySelector('.numero-entrega').focus();
     });
     
-    // Configurar botão de remoção
     novoEndereco.querySelector('.btn-remover-endereco').addEventListener('click', function() {
         if (document.querySelectorAll('.endereco-entrega').length > 1) {
             novoEndereco.remove();

@@ -269,3 +269,51 @@ button:hover {
     background-color: #00FF85;
     border-radius: 10px;
 }
+
+/* ===== BALÕES DINÂMICOS ===== */
+.notification-bubble {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 25px;
+    border-radius: 5px;
+    color: white;
+    font-family: "Press Start 2P", cursive;
+    font-size: 14px;
+    z-index: 1000;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transform: translateX(100%);
+    opacity: 0;
+    transition: all 0.3s ease-in-out;
+    max-width: 300px;
+    text-align: center;
+    line-height: 1.5;
+}
+
+.notification-bubble.show {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.notification-bubble.hide {
+    transform: translateX(100%);
+    opacity: 0;
+}
+
+.notification-bubble.success {
+    background-color: #00FF85;
+}
+
+.notification-bubble.error {
+    background-color: #FF3D3D;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideOut {
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(100%); opacity: 0; }
+}

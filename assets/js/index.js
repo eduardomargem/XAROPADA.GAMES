@@ -1,21 +1,40 @@
 document.addEventListener("DOMContentLoaded", function () {
     // 1. INICIALIZAÇÃO DOS USUÁRIOS FIXOS (ADM e Estoquista)
-    if (!localStorage.getItem('usuariosCadastrados')) {
-        const usuariosFixos = [
-            { 
-                usuario: "admin", 
-                email: "xaropada@gmail.com", 
-                senha: "Admin@123",  // Senha em texto puro (ou hash, se aplicável)
-                tipo: "ADM" 
-            },
-            { 
-                usuario: "estoquista", 
-                email: "estoquista@gmail.com", 
-                senha: "Estoque@123", 
-                tipo: "Estoquista" 
-            }
-        ];
-        localStorage.setItem('usuariosCadastrados', JSON.stringify(usuariosFixos));
+    const usuariosCadastrados = JSON.parse(localStorage.getItem('usuariosCadastrados')) || [];
+    
+    // Verifica se os usuários fixos já existem
+    const usuariosFixos = [
+        { 
+            usuario: "admin", 
+            email: "xaropada@gmail.com", 
+            senha: "Admin@123",
+            tipo: "ADM" 
+        },
+        { 
+            usuario: "estoquista", 
+            email: "estoquista@gmail.com", 
+            senha: "Estoque@123", 
+            tipo: "Estoquista" 
+        }
+    ];
+    
+    // Adiciona usuários fixos apenas se não existirem
+    let usuariosAtualizados = [...usuariosCadastrados];
+    let precisaAtualizar = false;
+    
+    usuariosFixos.forEach(usuarioFixo => {
+        const existe = usuariosCadastrados.some(
+            u => u.email === usuarioFixo.email || u.usuario === usuarioFixo.usuario
+        );
+        
+        if (!existe) {
+            usuariosAtualizados.push(usuarioFixo);
+            precisaAtualizar = true;
+        }
+    });
+    
+    if (precisaAtualizar) {
+        localStorage.setItem('usuariosCadastrados', JSON.stringify(usuariosAtualizados));
     }
 
     // 2. FUNÇÕES AUXILIARES
@@ -65,7 +84,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const usuarios = JSON.parse(localStorage.getItem('usuariosCadastrados')) || [];
             const usuarioEncontrado = usuarios.find(user =>
                 (user.email.toLowerCase() === login || user.usuario.toLowerCase() === login) &&
-                user.senha === senha  // Comparação direta (ou com hash, se necessário)
+                user.senha === senha
             );
 
             if (usuarioEncontrado) {
@@ -78,10 +97,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 // Redireciona conforme o tipo
                 const tipo = usuarioEncontrado.tipo.toUpperCase();
-                if (tipo === "ADM" || tipo === "ESTOQUISTA") {
-                    window.location.href = "dashboard.html";  // Página de admin/estoquista
+                if (tipo === "ADM") {
+                    window.location.href = "dashboard.html";
+                } else if (tipo === "ESTOQUISTA") {
+                    window.location.href = "dashboard.html";
                 } else {
-                    window.location.href = "Loja.html";      // Página de cliente
+                    window.location.href = "Loja.html";
                 }
             } else {
                 exibirErro(inputLogin, "Usuário ou senha incorretos!");
