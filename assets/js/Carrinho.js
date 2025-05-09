@@ -575,7 +575,7 @@ function finalizarCompra() {
         return;
     }
     
-    // Verifica se o usuário tem endereço e forma de pagamento cadastrados
+    // Verifica dados do usuário
     const clientes = JSON.parse(localStorage.getItem('usuariosCadastrados')) || [];
     const cliente = clientes.find(c => c.email === usuarioLogado.email);
     
@@ -637,7 +637,7 @@ function finalizarCompra() {
                 <span>${usuarioLogado.nome}</span>
             </div>
             <button id="confirmarCompra">Confirmar Compra</button>
-                <button onclick="window.location.href='perfil.html'">Voltar</button>
+            <button onclick="window.location.href='perfil.html'">Voltar</button>
         </div>
     `;
     
@@ -648,6 +648,32 @@ function finalizarCompra() {
     
     // Adiciona evento ao botão de confirmação
     document.getElementById('confirmarCompra')?.addEventListener('click', () => {
+        // Salva no histórico de compras
+        const historicoCompras = JSON.parse(localStorage.getItem('historicoCompras')) || [];
+        
+        const novaCompra = {
+            id: 'PED' + Date.now().toString().slice(-6),
+            usuarioEmail: usuarioLogado.email,
+            data: new Date().toISOString(),
+            status: 'aguardando',
+            produtos: carrinho.map(item => ({
+                codigo: item.codigo,
+                nome: item.nome,
+                preco: item.valor,
+                quantidade: item.quantidade,
+                imagem: item.imagens?.[0] || 'https://via.placeholder.com/50x50?text=Produto'
+            })),
+            subtotal: subtotal,
+            frete: freteSelecionado,
+            desconto: valorDesconto,
+            total: total,
+            endereco: enderecoPadrao,
+            pagamento: pagamentoPadrao
+        };
+        
+        historicoCompras.push(novaCompra);
+        localStorage.setItem('historicoCompras', JSON.stringify(historicoCompras));
+        
         mostrarNotificacao('Compra finalizada com sucesso! Obrigado por comprar conosco.');
         
         // Limpa o carrinho
@@ -668,7 +694,7 @@ function finalizarCompra() {
             fecharModal();
         }, 2000);
         
-        // Limpa localStorage
+        // Limpa localStorage do carrinho
         try {
             localStorage.removeItem('carrinho');
             localStorage.removeItem('frete');

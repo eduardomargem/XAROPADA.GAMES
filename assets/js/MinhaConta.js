@@ -31,7 +31,6 @@ document.addEventListener("DOMContentLoaded", function() {
         }
         e.target.value = value;
         
-        // Quando o CEP estiver completo (8 dígitos + traço), busca os dados
         if (value.length === 9) {
             buscarEnderecoPorCEP(value);
         }
@@ -55,18 +54,47 @@ document.addEventListener("DOMContentLoaded", function() {
     document.getElementById('modalCvvCartao').addEventListener('input', function(e) {
         e.target.value = e.target.value.replace(/\D/g, '').substring(0, 4);
     });
+
+    // Verifica se há compras recentes para mostrar notificação
+    const historicoCompras = JSON.parse(localStorage.getItem('historicoCompras')) || [];
+    const comprasRecentes = historicoCompras.filter(
+        compra => compra.usuarioEmail === usuario.email && 
+                 compra.status === 'aguardando' &&
+                 new Date(compra.data) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+    );
+    
+    if (comprasRecentes.length > 0) {
+        setTimeout(() => {
+            mostrarNotificacao(`Você tem ${comprasRecentes.length} pedido(s) aguardando aprovação!`, 'info');
+        }, 1000);
+    }
 });
+
+// Função para mostrar notificação
+function mostrarNotificacao(mensagem, tipo = 'sucesso') {
+    const notification = document.createElement('div');
+    notification.className = `notification ${tipo}`;
+    notification.innerHTML = `
+        <i class="fas fa-${tipo === 'erro' ? 'exclamation-circle' : tipo === 'info' ? 'info-circle' : 'check-circle'}"></i>
+        ${mensagem}
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.classList.add('fade-out');
+        setTimeout(() => notification.remove(), 500);
+    }, 3000);
+}
 
 // Função para buscar endereço via API ViaCEP
 async function buscarEnderecoPorCEP(cep) {
-    // Remove traço e espaços do CEP
     const cepNumerico = cep.replace(/\D/g, '');
     const loadingElement = document.createElement('div');
     loadingElement.textContent = 'Buscando endereço...';
     loadingElement.style.color = '#00ff00';
     loadingElement.style.margin = '5px 0';
     
-    // Insere mensagem de carregamento
     const cepGroup = document.querySelector('#modalCep').parentNode;
     cepGroup.appendChild(loadingElement);
     
@@ -82,17 +110,14 @@ async function buscarEnderecoPorCEP(cep) {
         loadingElement.remove();
         
         if (data.erro) {
-            alert('CEP não encontrado. Por favor, verifique o número digitado.');
+            mostrarNotificacao('CEP não encontrado. Por favor, verifique o número digitado.', 'erro');
             return;
         }
         
-        // Preenche os campos do formulário com os dados da API
         document.getElementById('modalLogradouro').value = data.logradouro || '';
         document.getElementById('modalBairro').value = data.bairro || '';
         document.getElementById('modalCidade').value = data.localidade || '';
         document.getElementById('modalUf').value = data.uf || '';
-        
-        // Foca no campo número (único que o usuário precisa preencher)
         document.getElementById('modalNumero').focus();
         
     } catch (error) {
@@ -120,9 +145,8 @@ function salvarEndereco() {
     const cidade = document.getElementById('modalCidade').value;
     const uf = document.getElementById('modalUf').value;
     
-    // Validação básica
     if (!cep || !logradouro || !numero || !bairro || !cidade || !uf) {
-        alert('Por favor, preencha todos os campos obrigatórios!');
+        mostrarNotificacao('Por favor, preencha todos os campos obrigatórios!', 'erro');
         return;
     }
     
@@ -142,7 +166,6 @@ function salvarEndereco() {
         padrao: false
     };
     
-    // Inicializa o array de endereços se não existir
     if (!clientes[clienteIndex].dadosCompletos) {
         clientes[clienteIndex].dadosCompletos = {};
     }
@@ -159,7 +182,7 @@ function salvarEndereco() {
     
     exibirEnderecos(clientes[clienteIndex].dadosCompletos.enderecosEntrega);
     fecharModalEndereco();
-    alert('Endereço cadastrado com sucesso!');
+    mostrarNotificacao('Endereço cadastrado com sucesso!');
 }
 
 function atualizarDados() {
@@ -167,9 +190,8 @@ function atualizarDados() {
     const nascimento = document.getElementById('editNascimento').value;
     const genero = document.getElementById('editGenero').value;
     
-    // Validação básica
     if (!nome || !nascimento || !genero) {
-        alert('Por favor, preencha todos os campos obrigatórios!');
+        mostrarNotificacao('Por favor, preencha todos os campos obrigatórios!', 'erro');
         return;
     }
     
@@ -178,7 +200,6 @@ function atualizarDados() {
     
     const clienteIndex = clientes.findIndex(c => c.email === usuario.email);
     
-    // Atualiza os dados pessoais
     if (!clientes[clienteIndex].dadosCompletos) {
         clientes[clienteIndex].dadosCompletos = {};
     }
@@ -186,19 +207,21 @@ function atualizarDados() {
     clientes[clienteIndex].dadosCompletos.nome = nome;
     clientes[clienteIndex].dadosCompletos.nascimento = nascimento;
     clientes[clienteIndex].dadosCompletos.genero = genero;
-    
-    // Mantém a compatibilidade com versões antigas
     clientes[clienteIndex].nome = nome;
     
+    const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
+    usuarioLogado.nome = nome;
+    localStorage.setItem('usuarioLogado', JSON.stringify(usuarioLogado));
+    
     localStorage.setItem('usuariosCadastrados', JSON.stringify(clientes));
-    alert("Dados pessoais atualizados com sucesso!");
+    mostrarNotificacao("Dados pessoais atualizados com sucesso!");
 }
 
 async function alterarSenha() {
     const novaSenha = document.getElementById('novaSenha').value;
     
     if (novaSenha.length < 6) {
-        alert("A senha deve ter no mínimo 6 caracteres!");
+        mostrarNotificacao("A senha deve ter no mínimo 6 caracteres!", 'erro');
         return;
     }
     
@@ -213,7 +236,7 @@ async function alterarSenha() {
     clientes[clienteIndex].senha = await encriptarSenha(novaSenha);
     
     localStorage.setItem('usuariosCadastrados', JSON.stringify(clientes));
-    alert("Senha atualizada com sucesso!");
+    mostrarNotificacao("Senha atualizada com sucesso!");
     document.getElementById('novaSenha').value = '';
 }
 
@@ -257,18 +280,15 @@ function removerEndereco(index) {
     const usuario = JSON.parse(localStorage.getItem('usuarioLogado'));
     
     const clienteIndex = clientes.findIndex(c => c.email === usuario.email);
-    
-    // Remove o endereço
     clientes[clienteIndex].dadosCompletos.enderecosEntrega.splice(index, 1);
     
-    // Se era o único endereço, limpa o array
     if (clientes[clienteIndex].dadosCompletos.enderecosEntrega.length === 0) {
         clientes[clienteIndex].dadosCompletos.enderecosEntrega = [];
     }
     
     localStorage.setItem('usuariosCadastrados', JSON.stringify(clientes));
     exibirEnderecos(clientes[clienteIndex].dadosCompletos.enderecosEntrega);
-    alert("Endereço removido com sucesso!");
+    mostrarNotificacao("Endereço removido com sucesso!");
 }
 
 function definirComoPadrao(index) {
@@ -276,8 +296,6 @@ function definirComoPadrao(index) {
     const usuario = JSON.parse(localStorage.getItem('usuarioLogado'));
     
     const clienteIndex = clientes.findIndex(c => c.email === usuario.email);
-    
-    // Verifica se os endereços estão em dadosCompletos
     const enderecos = clientes[clienteIndex].dadosCompletos?.enderecosEntrega;
     
     enderecos.forEach((end, i) => {
@@ -287,10 +305,9 @@ function definirComoPadrao(index) {
     clientes[clienteIndex].dadosCompletos.enderecosEntrega = enderecos;
     localStorage.setItem('usuariosCadastrados', JSON.stringify(clientes));
     exibirEnderecos(enderecos);
-    alert("Endereço padrão atualizado com sucesso!");
+    mostrarNotificacao("Endereço padrão atualizado com sucesso!");
 }
 
-// Funções para o modal de pagamento
 function abrirModalPagamento() {
     document.getElementById('paymentModal').style.display = 'block';
     document.getElementById('paymentForm').reset();
@@ -316,7 +333,7 @@ function salvarPagamento() {
     const tipoPagamento = document.getElementById('modalTipoPagamento').value;
     
     if (!tipoPagamento) {
-        alert('Por favor, selecione um tipo de pagamento!');
+        mostrarNotificacao('Por favor, selecione um tipo de pagamento!', 'erro');
         return;
     }
     
@@ -339,24 +356,23 @@ function salvarPagamento() {
         const cvvCartao = document.getElementById('modalCvvCartao').value;
         const parcelas = document.getElementById('modalParcelas').value;
         
-        // Validação dos campos do cartão
         if (!nomeCartao || !numeroCartao || !validadeCartao || !cvvCartao) {
-            alert('Por favor, preencha todos os campos do cartão!');
+            mostrarNotificacao('Por favor, preencha todos os campos do cartão!', 'erro');
             return;
         }
         
         if (!validarNumeroCartao(numeroCartao)) {
-            alert('Número do cartão inválido!');
+            mostrarNotificacao('Número do cartão inválido!', 'erro');
             return;
         }
         
         if (!validarValidade(validadeCartao)) {
-            alert('Data de validade inválida! Use o formato MM/AAAA');
+            mostrarNotificacao('Data de validade inválida! Use o formato MM/AAAA', 'erro');
             return;
         }
         
         if (!validarCVV(cvvCartao)) {
-            alert('CVV inválido! Deve ter 3 ou 4 dígitos');
+            mostrarNotificacao('CVV inválido! Deve ter 3 ou 4 dígitos', 'erro');
             return;
         }
         
@@ -372,7 +388,6 @@ function salvarPagamento() {
         };
     }
     
-    // Inicializa o array de pagamentos se não existir
     if (!clientes[clienteIndex].dadosCompletos) {
         clientes[clienteIndex].dadosCompletos = {};
     }
@@ -389,7 +404,7 @@ function salvarPagamento() {
     
     exibirPagamentos(clientes[clienteIndex].dadosCompletos.formasPagamento);
     fecharModalPagamento();
-    alert('Forma de pagamento cadastrada com sucesso!');
+    mostrarNotificacao('Forma de pagamento cadastrada com sucesso!');
 }
 
 function exibirPagamentos(pagamentos) {
@@ -451,18 +466,15 @@ function removerPagamento(index) {
     const usuario = JSON.parse(localStorage.getItem('usuarioLogado'));
     
     const clienteIndex = clientes.findIndex(c => c.email === usuario.email);
-    
-    // Remove a forma de pagamento
     clientes[clienteIndex].dadosCompletos.formasPagamento.splice(index, 1);
     
-    // Se era a única forma de pagamento, limpa o array
     if (clientes[clienteIndex].dadosCompletos.formasPagamento.length === 0) {
         clientes[clienteIndex].dadosCompletos.formasPagamento = [];
     }
     
     localStorage.setItem('usuariosCadastrados', JSON.stringify(clientes));
     exibirPagamentos(clientes[clienteIndex].dadosCompletos.formasPagamento);
-    alert("Forma de pagamento removida com sucesso!");
+    mostrarNotificacao("Forma de pagamento removida com sucesso!");
 }
 
 function definirComoPadraoPagamento(index) {
@@ -470,8 +482,6 @@ function definirComoPadraoPagamento(index) {
     const usuario = JSON.parse(localStorage.getItem('usuarioLogado'));
     
     const clienteIndex = clientes.findIndex(c => c.email === usuario.email);
-    
-    // Verifica se os pagamentos estão em dadosCompletos
     const pagamentos = clientes[clienteIndex].dadosCompletos?.formasPagamento;
     
     pagamentos.forEach((pag, i) => {
@@ -481,18 +491,143 @@ function definirComoPadraoPagamento(index) {
     clientes[clienteIndex].dadosCompletos.formasPagamento = pagamentos;
     localStorage.setItem('usuariosCadastrados', JSON.stringify(clientes));
     exibirPagamentos(pagamentos);
-    alert("Forma de pagamento padrão atualizada com sucesso!");
+    mostrarNotificacao("Forma de pagamento padrão atualizada com sucesso!");
+}
+
+// Funções para o histórico de compras
+function abrirModalHistorico() {
+    document.getElementById('historicoModal').style.display = 'block';
+    carregarHistoricoCompras();
+}
+
+function fecharModalHistorico() {
+    document.getElementById('historicoModal').style.display = 'none';
+}
+
+function carregarHistoricoCompras() {
+    const usuario = JSON.parse(localStorage.getItem('usuarioLogado'));
+    if (!usuario) return;
+
+    const historicoCompras = JSON.parse(localStorage.getItem('historicoCompras')) || [];
+    const usuarioCompras = historicoCompras.filter(compra => compra.usuarioEmail === usuario.email);
+    
+    const container = document.getElementById('historicoCompras');
+    container.innerHTML = '';
+
+    if (usuarioCompras.length === 0) {
+        container.innerHTML = '<p class="no-history">Nenhuma compra realizada ainda.</p>';
+        return;
+    }
+
+    // Ordena por data (mais recente primeiro)
+    usuarioCompras.sort((a, b) => new Date(b.data) - new Date(a.data));
+
+    usuarioCompras.forEach((compra) => {
+        const compraElement = document.createElement('div');
+        compraElement.className = 'compra-item';
+        
+        // Determina o status e progresso
+        let statusClass, statusText, progressWidth;
+        switch(compra.status) {
+            case 'aprovado':
+                statusClass = 'status-aprovado';
+                statusText = 'APROVADO';
+                progressWidth = '50%';
+                break;
+            case 'enviado':
+                statusClass = 'status-enviado';
+                statusText = 'ENVIADO';
+                progressWidth = '75%';
+                break;
+            case 'entregue':
+                statusClass = 'status-entregue';
+                statusText = 'ENTREGUE';
+                progressWidth = '100%';
+                break;
+            default:
+                statusClass = 'status-aguardando';
+                statusText = 'AGUARDANDO APROVAÇÃO';
+                progressWidth = '25%';
+        }
+        
+        // Formata a data
+        const dataCompra = new Date(compra.data);
+        const dataFormatada = dataCompra.toLocaleDateString('pt-BR', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+        
+        // Cria o HTML do item de compra
+        compraElement.innerHTML = `
+            <div class="compra-header">
+                <span class="compra-id">Pedido #${compra.id}</span>
+                <span class="compra-status ${statusClass}">${statusText}</span>
+            </div>
+            
+            <div class="compra-produtos">
+                ${compra.produtos.map(produto => `
+                    <div class="produto-item">
+                        <img src="${produto.imagem}" 
+                             class="produto-img"
+                             onerror="this.onerror=null;this.src='https://via.placeholder.com/50x50?text=Produto'">
+                        <div class="produto-info">
+                            <div class="produto-nome">${produto.nome}</div>
+                            <div class="produto-qtd">${produto.quantidade}x R$ ${produto.preco.toFixed(2)}</div>
+                        </div>
+                        <div>R$ ${(produto.preco * produto.quantidade).toFixed(2)}</div>
+                    </div>
+                `).join('')}
+            </div>
+            
+            <div class="compra-total">
+                Total: R$ ${compra.total.toFixed(2)}
+            </div>
+            
+            <div class="compra-data">
+                Realizado em: ${dataFormatada}
+            </div>
+            
+            <div class="status-timeline">
+                <div class="status-line">
+                    <div class="status-line-progress" style="width: ${progressWidth}"></div>
+                </div>
+                
+                <div class="status-step">
+                    <div class="status-bubble ${compra.status ? 'active' : ''}"></div>
+                    <div class="status-label">Pedido Realizado</div>
+                </div>
+                
+                <div class="status-step">
+                    <div class="status-bubble ${['aprovado', 'enviado', 'entregue'].includes(compra.status) ? 'active' : ''}"></div>
+                    <div class="status-label">Aprovado</div>
+                </div>
+                
+                <div class="status-step">
+                    <div class="status-bubble ${['enviado', 'entregue'].includes(compra.status) ? 'active' : ''}"></div>
+                    <div class="status-label">Enviado</div>
+                </div>
+                
+                <div class="status-step">
+                    <div class="status-bubble ${compra.status === 'entregue' ? 'active' : ''}"></div>
+                    <div class="status-label">Entregue</div>
+                </div>
+            </div>
+        `;
+        
+        container.appendChild(compraElement);
+    });
 }
 
 // Funções de validação
 function validarNumeroCartao(numero) {
-    // Remove espaços e verifica se tem 16 dígitos
     const numeroLimpo = numero.replace(/\s/g, '');
     return /^\d{16}$/.test(numeroLimpo);
 }
 
 function validarValidade(validade) {
-    // Verifica o formato MM/AAAA
     if (!/^\d{2}\/\d{4}$/.test(validade)) return false;
     
     const [mes, ano] = validade.split('/').map(Number);
@@ -500,7 +635,6 @@ function validarValidade(validade) {
     const anoAtual = agora.getFullYear();
     const mesAtual = agora.getMonth() + 1;
     
-    // Verifica se a data é no futuro
     if (ano < anoAtual) return false;
     if (ano === anoAtual && mes < mesAtual) return false;
     if (mes < 1 || mes > 12) return false;
@@ -509,7 +643,6 @@ function validarValidade(validade) {
 }
 
 function validarCVV(cvv) {
-    // CVV pode ter 3 ou 4 dígitos
     return /^\d{3,4}$/.test(cvv);
 }
 
