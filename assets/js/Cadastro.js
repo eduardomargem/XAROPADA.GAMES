@@ -172,6 +172,12 @@ async function validarFormulario(formData) {
         erros.senha = 'Senha deve ter 6+ caracteres';
     }
 
+    // Validação de confirmação de senha
+    const confirmarSenha = document.getElementById('confirmarSenha').value;
+    if (formData.senha !== confirmarSenha) {
+        erros.confirmarSenha = 'As senhas não coincidem';
+    }
+
     // Validação de endereço
     const validaEndereco = (endereco, prefixo = '') => {
         if (!endereco.cep || endereco.cep.length !== 8) erros[`${prefixo}cep`] = 'CEP inválido';
@@ -202,6 +208,7 @@ function exibirErros(erros) {
         nascimento: 'erro-nascimento',
         genero: 'erro-genero',
         senha: 'erro-senha',
+        confirmarSenha: 'erro-confirmarSenha',
         enderecoFaturamento_cep: 'erro-cep',
         enderecoFaturamento_logradouro: 'erro-logradouro',
         enderecoFaturamento_numero: 'erro-numero',

@@ -262,9 +262,6 @@ function exibirEnderecos(enderecos) {
                 <button class="btn-default" onclick="definirComoPadrao(${index})">
                     ${endereco.padrao ? '✅ PADRÃO' : 'DEFINIR PADRÃO'}
                 </button>
-                <button class="btn-default" onclick="removerEndereco(${index})">
-                    <i class="fas fa-trash"></i> REMOVER
-                </button>
             </div>
         `;
         listaEnderecos.appendChild(enderecoElement);
@@ -429,9 +426,6 @@ function exibirPagamentos(pagamentos) {
                     <button class="btn-default" onclick="definirComoPadraoPagamento(${index})">
                         ${pagamento.padrao ? '✅ PADRÃO' : 'DEFINIR PADRÃO'}
                     </button>
-                    <button class="btn-default" onclick="removerPagamento(${index})">
-                        <i class="fas fa-trash"></i> REMOVER
-                    </button>
                 </div>
             `;
         } else if (pagamento.tipo === 'credito') {
@@ -445,9 +439,6 @@ function exibirPagamentos(pagamentos) {
                 <div class="action-buttons">
                     <button class="btn-default" onclick="definirComoPadraoPagamento(${index})">
                         ${pagamento.padrao ? '✅ PADRÃO' : 'DEFINIR PADRÃO'}
-                    </button>
-                    <button class="btn-default" onclick="removerPagamento(${index})">
-                        <i class="fas fa-trash"></i> REMOVER
                     </button>
                 </div>
             `;
@@ -661,3 +652,4 @@ async function encriptarSenha(senha) {
     const hashArray = Array.from(new Uint8Array(hashBuffer));
     return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }
+
