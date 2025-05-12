@@ -54,6 +54,15 @@ document.addEventListener("DOMContentLoaded", () => {
     hideAllModals();
 });
 
+function verificarAutenticacao() {
+    const usuario = JSON.parse(localStorage.getItem('usuarioLogado'));
+    if (!usuario) {
+        window.location.href = "/index";
+        return null;
+    }
+    return usuario;
+}
+
 // Verifica se o usuário tem permissão (admin = grupo 1)
 function verificarPermissaoAdmin() {
     const usuario = verificarAutenticacao();
@@ -89,12 +98,12 @@ function renderUsers() {
     paginatedUsers.forEach(user => {
         const row = tableBody.insertRow();
         row.innerHTML = `
-            <td>${user.ds_nome}</td>
-            <td>${user.ds_email}</td>
-            <td>${user.bo_status === 1 ? 'Ativo' : 'Inativo'}</td>
+            <td>${user.dsNome}</td>
+            <td>${user.dsEmail}</td>
+            <td>${user.boStatus === 1 ? 'Ativo' : 'Inativo'}</td>
             <td>
-                <button onclick="openEditModal('${user.ds_email}')">Editar</button>
-                <button onclick="toggleUserStatus('${user.ds_email}')">${user.bo_status === 1 ? 'Desativar' : 'Ativar'}</button>
+                <button onclick="openEditModal('${user.dsEmail}')">Editar</button>
+                <button onclick="toggleUserStatus('${user.dsEmail}')">${user.boStatus === 1 ? 'Desativar' : 'Ativar'}</button>
             </td>
         `;
     });
@@ -103,7 +112,7 @@ function renderUsers() {
 }
 
 function filterUsers() {
-    return users.filter(user => user.ds_nome.toLowerCase().includes(searchQuery.toLowerCase()));
+    return users.filter(user => user.dsNome.toLowerCase().includes(searchQuery.toLowerCase()));
 }
 
 function applyFilters() {
@@ -154,13 +163,13 @@ function openRegisterModal() {
     document.getElementById('registerModal').style.display = 'block';
 }
 
-function openEditModal(ds_email) {
-    const user = users.find(u => u.ds_email === ds_email);
+function openEditModal(dsEmail) {
+    const user = users.find(u => u.dsEmail === dsEmail);
     if (user) {
-        document.getElementById('editUserName').value = user.ds_nome;
-        document.getElementById('editUserEmail').value = user.ds_email;
-        document.getElementById('editUserCpf').value = user.nr_cpf;
-        document.getElementById('editUserGroup').value = user.id_grupo;
+        document.getElementById('editUserName').value = user.dsNome;
+        document.getElementById('editUserEmail').value = user.dsEmail;
+        document.getElementById('editUserCpf').value = user.nrCpf;
+        document.getElementById('editUserGroup').value = user.idGrupo;
         document.getElementById('editUserId').value = user.id;  // Preenche o ID
         document.getElementById('editUserModal').style.display = 'block';
     }
@@ -184,12 +193,12 @@ async function editUser(event) {
     const id = document.getElementById('editUserId').value;  // Pega o ID do usuário
     const email = document.getElementById('editUserEmail').value;
     const updatedUser = {
-        ds_nome: document.getElementById('editUserName').value,
-        nr_cpf: cpf,
-        ds_email: email,
-        ds_senha: document.getElementById('editUserPassword').value,
-        id_grupo: document.getElementById('editUserGroup').value,
-        bo_status: 1
+        dsNome: document.getElementById('editUserName').value,
+        nrCpf: cpf,
+        dsEmail: email,
+        dsSenha: document.getElementById('editUserPassword').value,
+        idGrupo: document.getElementById('editUserGroup').value,
+        boStatus: 1
     };
 
     console.log('Dados para envio:', updatedUser); // Debug
@@ -231,12 +240,12 @@ document.getElementById('registerForm').addEventListener('submit', async functio
     }
 
     const newUser = {
-        ds_nome: document.getElementById('userName').value,
-        nr_cpf: cpf,
-        ds_email: document.getElementById('userEmail').value,
-        ds_senha: document.getElementById('userPassword').value,
-        id_grupo: document.getElementById('userGroup').value === 'admin' ? 1 : 2,
-        bo_status: 1
+        dsNome: document.getElementById('userName').value,
+        nrCpf: cpf,
+        dsEmail: document.getElementById('userEmail').value,
+        dsSenha: document.getElementById('userPassword').value,
+        idGrupo: document.getElementById('userGroup').value === 'admin' ? 1 : 2,
+        boStatus: 1
     };
 
     try {
@@ -260,16 +269,16 @@ document.getElementById('registerForm').addEventListener('submit', async functio
 });
 
 // Função para alternar o status de ativação/desativação do usuário
-async function toggleUserStatus(ds_email) {
-    const user = users.find(u => u.ds_email === ds_email);
+async function toggleUserStatus(dsEmail) {
+    const user = users.find(u => u.dsEmail === dsEmail);
     if (user) {
-        const newStatus = user.bo_status === 1 ? 0 : 1;
+        const newStatus = user.boStatus === 1 ? 0 : 1;
 
         try {
             const response = await fetch(`${apiUrl}/${user.id}/status`, {  // Chama o endpoint que alterna o status
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ bo_status: newStatus }),  // Passa o novo status no corpo
+                body: JSON.stringify({ boStatus: newStatus }),  // Passa o novo status no corpo
             });
 
             if (response.ok) {
