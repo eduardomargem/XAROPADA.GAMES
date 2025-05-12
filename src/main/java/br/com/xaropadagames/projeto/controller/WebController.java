@@ -11,14 +11,20 @@ public class WebController {
         return "Loja";
     }
 
+    // página de login
     @GetMapping("/index")
     public String index() {
         return "index";
     }
 
-    @GetMapping("/dashboard")
-    public String dashboard() {
-        return "dashboard";
+    @GetMapping("/dashboard-admin")
+    public String dashboardAdmin() {
+        return "dashboard-admin";
+    }
+
+    @GetMapping("/dashboard-estoquista")
+    public String dashboardEstq() {
+        return "dashboard-estoquista";
     }
 
     @GetMapping("/listaUsuario")

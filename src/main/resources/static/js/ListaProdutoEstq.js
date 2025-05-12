@@ -1,9 +1,23 @@
+document.addEventListener("DOMContentLoaded", function() {
+  verificarPermissaoEstoquista();
+});
+
 // Variáveis de controle de produtos e paginação
 let produtos = [];
 let currentProductPage = 1;
 const productsPerPage = 10;
 let productSearchQuery = '';
 let currentEditingProductId = null;
+
+// Verifica se o usuário é estoquista (grupo 2)
+function verificarPermissaoEstoquista() {
+  const usuario = verificarAutenticacao();
+  if (usuario && usuario.idGrupo !== 2) {
+      window.location.href = "/dashboard-estoquista";
+      return false;
+  }
+  return true;
+}
 
 // Função para buscar os produtos do banco de dados e renderizar
 function listarProdutos() {

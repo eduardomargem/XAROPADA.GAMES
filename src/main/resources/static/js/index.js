@@ -24,8 +24,21 @@ document.addEventListener("DOMContentLoaded", function () {
         document.querySelectorAll(".erro").forEach(span => span.textContent = "");
     }
 
-    function redirecionar() {
-        window.location.href = "/";
+    function redirecionarPorTipoUsuario(idGrupo) {
+        if (idGrupo === 1) { // Supondo que 1 seja admin
+            window.location.href = "/dashboard-admin";
+        } else if (idGrupo === 2) { // Supondo que 2 seja estoquista
+            window.location.href = "/dashboard-estoquista";
+        }
+    }
+
+    function verificarAutenticacao() {
+        const usuario = JSON.parse(localStorage.getItem('usuarioLogado'));
+        if (!usuario) {
+            window.location.href = "/index";
+            return null;
+        }
+        return usuario;
     }
 
     const formLogin = document.getElementById("loginForm");
@@ -65,37 +78,26 @@ document.addEventListener("DOMContentLoaded", function () {
 
             fetch('http://localhost:8080/usuarios/login', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    username: valor,
-                    password: senhaValor,
-                })
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: valor, password: senhaValor })
             })
             .then(response => {
                 if (response.ok) {
-                    // Tenta analisar a resposta como texto primeiro
-                    return response.text().then(text => {
-                        try {
-                            return JSON.parse(text); // Tenta converter a resposta em JSON
-                        } catch (e) {
-                            // Se falhar, apenas retorna a resposta como string
-                            return { message: text }; // Tratar como uma mensagem simples
-                        }
-                    });
+                    return response.json();
                 } else {
-                    return response.text().then(data => { throw new Error(data); });
+                    return response.json().then(error => {
+                        throw new Error(error.message || 'Erro no login');
+                    });
                 }
             })
-            .then(data => {
-                console.log('Login bem-sucedido:', data.message);
-                redirecionar();  // Redireciona para o dashboard
+            .then(usuario => {
+                localStorage.setItem('usuarioLogado', JSON.stringify(usuario));
+                redirecionarPorTipoUsuario(usuario.idGrupo);
             })
             .catch(error => {
                 console.error('Erro no login:', error);
+                exibirErro(senha, error.message || "Erro durante o login");
             });
-
         });
     }
 });

@@ -16,22 +16,22 @@ public class Usuario {
     private Integer id;
 
     @Column(name = "ds_nome", columnDefinition = "TEXT", nullable = true)
-    private String ds_nome;
+    private String dsNome;
 
     @Column(name = "nr_cpf", columnDefinition = "TEXT", nullable = true)
-    private String nr_cpf;
+    private String nrCpf;
 
     @Column(name = "ds_email", length = 100, nullable = true)
-    private String ds_email;
+    private String dsEmail;
 
     @Column(name = "ds_senha", columnDefinition = "TEXT", nullable = true)
-    private String ds_senha;
+    private String dsSenha;
 
     @Column(name = "id_grupo", columnDefinition = "INT", nullable = true)
-    private Integer id_grupo;
+    private Integer idGrupo;
 
     @Column(name = "bo_status", columnDefinition = "INT", nullable = true)
-    private Integer bo_status;
+    private Integer boStatus;
 
     public Integer getId() {
         return id;
@@ -41,51 +41,51 @@ public class Usuario {
         this.id = id;
     }
 
-    public String getDs_nome() {
-        return ds_nome;
+    public String getDsNome() {
+        return dsNome;
     }
 
-    public void setDs_nome(String ds_nome) {
-        this.ds_nome = ds_nome;
+    public void setDsNome(String dsNome) {
+        this.dsNome = dsNome;
     }
 
-    public String getNr_cpf() {
-        return nr_cpf;
+    public String getNrCpf() {
+        return nrCpf;
     }
 
-    public void setNr_cpf(String nr_cpf) {
-        this.nr_cpf = nr_cpf;
+    public void setNrCpf(String nrCpf) {
+        this.nrCpf = nrCpf;
     }
 
-    public String getDs_email() {
-        return ds_email;
+    public String getDsEmail() {
+        return dsEmail;
     }
 
-    public void setDs_email(String ds_email) {
-        this.ds_email = ds_email;
+    public void setDsEmail(String dsEmail) {
+        this.dsEmail = dsEmail;
     }
 
-    public String getDs_senha() {
-        return ds_senha;
+    public String getDsSenha() {
+        return dsSenha;
     }
 
-    public void setDs_senha(String ds_senha) {
-        this.ds_senha = ds_senha;
+    public void setDsSenha(String dsSenha) {
+        this.dsSenha = dsSenha;
     }
 
-    public Integer getId_grupo() {
-        return id_grupo;
+    public Integer getIdGrupo() {
+        return idGrupo;
     }
 
-    public void setId_grupo(Integer id_grupo) {
-        this.id_grupo = id_grupo;
+    public void setIdGrupo(Integer idGrupo) {
+        this.idGrupo = idGrupo;
     }
 
-    public Integer getBo_status() {
-        return bo_status;
+    public Integer getBoStatus() {
+        return boStatus;
     }
 
-    public void setBo_status(Integer bo_status) {
-        this.bo_status = bo_status;
+    public void setBoStatus(Integer boStatus) {
+        this.boStatus = boStatus;
     }
 }

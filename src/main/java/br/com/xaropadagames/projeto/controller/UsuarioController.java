@@ -13,6 +13,7 @@ import br.com.xaropadagames.projeto.service.UserService;
 import jakarta.validation.Valid;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,12 +85,29 @@ public class UsuarioController {
     // Método POST para login
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
-        boolean isAuthenticated = userService.authenticateUser(loginRequest.getUsername(), loginRequest.getPassword());
-
-        if (isAuthenticated) {
-            return ResponseEntity.ok().body("{\"message\": \"Login bem-sucedido!\"}");
+        Optional<Usuario> usuarioOpt = dao.findByDsEmail(loginRequest.getUsername());
+        
+        // Verifica se o usuário existe
+        if (!usuarioOpt.isPresent()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("{\"message\": \"Usuário não encontrado.\"}");
+        }
+        
+        Usuario usuario = usuarioOpt.get();
+        
+        // Verifica se o usuário está inativo
+        if (usuario.getBoStatus() != null && usuario.getBoStatus() == 0) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body("{\"message\": \"Usuário inativo. Contate o administrador.\"}");
+        }
+        
+        // Verifica a senha
+        if (userService.authenticateUser(loginRequest.getUsername(), loginRequest.getPassword())) {
+            usuario.setDsSenha(null); // Remove a senha por segurança
+            return ResponseEntity.ok(usuario);
         } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("{\"message\": \"E-mail ou senha incorretos!\"}");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("{\"message\": \"Senha incorreta.\"}");
         }
     }
 
@@ -103,7 +121,7 @@ public class UsuarioController {
             }
 
             // Alterna o status (1 = Ativo, 0 = Inativo)
-            usuarioExistente.setBo_status(usuarioExistente.getBo_status() == 1 ? 0 : 1);
+            usuarioExistente.setBoStatus(usuarioExistente.getBoStatus() == 1 ? 0 : 1);
 
             Usuario usuarioAtualizado = dao.save(usuarioExistente);
             return ResponseEntity.ok(usuarioAtualizado);
