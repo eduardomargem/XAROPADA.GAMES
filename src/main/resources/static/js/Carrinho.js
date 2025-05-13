@@ -1,94 +1,26 @@
-// Array de produtos
-const produtos = [
-    {
-        id: 1,
-        nome: "EA Sports FC 2025",
-        descricao: "O mais novo jogo de futebol da EA Sports traz gráficos ultra-realistas, modos de jogo inovadores e todas as ligas e times licenciados.",
-        preco: 249.90,
-        imagens: [
-            "https://republicadg.com.br/wp-content/uploads/2024/07/Design-sem-nome-1-8.jpg",
-            "https://via.placeholder.com/500x300?text=FC2025+Imagem+2",
-            "https://via.placeholder.com/500x300?text=FC2025+Imagem+3"
-        ],
-        avaliacao: 4.5,
-        detalhes: {
-            plataforma: "PS5, Xbox Series X, PC",
-            genero: "Esportes",
-            classificacao: "Livre",
-            lancamento: "27/09/2024",
-            desenvolvedor: "EA Sports"
-        }
-    },
-    {
-        id: 2,
-        nome: "The Last of Us Part II",
-        descricao: "Uma emocionante história de sobrevivência e vingança em um mundo pós-apocalíptico.",
-        preco: 199.90,
-        imagens: [
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRaz8wf6zJ71GBPAXj0CQz81bsAda8yiTcKhA&s",
-            "https://via.placeholder.com/500x300?text=TLOU2+Imagem+2",
-            "https://via.placeholder.com/500x300?text=TLOU2+Imagem+3"
-        ],
-        avaliacao: 4.9,
-        detalhes: {
-            plataforma: "PS5",
-            genero: "Ação e Aventura",
-            classificacao: "18+",
-            lancamento: "19/06/2020",
-            desenvolvedor: "Naughty Dog"
-        }
-    },
-    {
-        id: 3,
-        nome: "RED DEAD REDEMPTION 2",
-        descricao: "Um épico de ação no velho oeste que conta a história de Arthur Morgan e da gangue Van der Linde. Explore um mundo aberto vasto e detalhado, com missões emocionantes e um sistema de honra que afeta o jogo.",
-        preco: 179.90,
-        imagens: [
-            "https://www.outerspace.com.br/wp-content/uploads/2018/04/reddeadredemption2.jpg",
-            "https://platform.polygon.com/wp-content/uploads/sites/2/chorus/uploads/chorus_asset/file/13332151/red_dead_redemption_2_sunset__1_.jpg?quality=90&strip=all&crop=7.8125,0,84.375,100",
-            ""
-        ],
-        avaliacao: 5.0,
-        detalhes: {
-            plataforma: "PS4, Xbox One, PC",
-            genero: "Ação e Aventura",
-            classificacao: "18+",
-            lancamento: "26/10/2018",
-            desenvolvedor: "Rockstar Games"
-        }
-    }
-];
-
-// Variáveis globais
-let carrinho = [];
-let freteSelecionado = 0;
-let cepCalculado = '';
+const apiUrl = 'http://localhost:8080'; // URL base da sua API
+let produtos = []; // Será preenchido dinamicamente
 let carrosselInterval;
-let desconto = 0;
 
 // Elementos DOM
 const elements = {
-    cartIcon: document.getElementById('cartIcon'),
-    cartModal: document.getElementById('cartModal'),
-    closeModal: document.getElementById('closeModal'),
     productsGrid: document.getElementById('productsGrid'),
-    cartItems: document.getElementById('cartItems'),
-    cepInput: document.getElementById('cepInput'),
-    calcFreteBtn: document.getElementById('calcFreteBtn'),
-    freteOptions: document.getElementById('freteOptions'),
-    continueBtn: document.getElementById('continueBtn'),
-    checkoutBtn: document.getElementById('checkoutBtn'),
-    subtotalValue: document.getElementById('subtotalValue'),
-    freteValue: document.getElementById('freteValue'),
-    totalValue: document.getElementById('totalValue'),
-    cartCount: document.getElementById('cartCount'),
-    cepInfo: document.getElementById('cepInfo'),
     productModal: document.getElementById('productModal'),
     productModalBody: document.getElementById('productModalBody'),
     closeProductModal: document.getElementById('closeProductModal'),
-    cupomInput: document.getElementById('cupomInput'),
-    aplicarCupomBtn: document.getElementById('aplicarCupomBtn'),
-    descontoValue: document.getElementById('descontoValue'),
+    cartModal: document.getElementById('cartModal'),
+    cartItems: document.getElementById('cartItems'),
+    closeModal: document.getElementById('closeModal'),
+    continueBtn: document.getElementById('continueBtn'),
+    checkoutBtn: document.getElementById('checkoutBtn'),
+    cartCount: document.getElementById('cartCount'),
+    subtotalValue: document.getElementById('subtotalValue'),
+    freteValue: document.getElementById('freteValue'),
+    totalValue: document.getElementById('totalValue'),
+    cepInput: document.getElementById('cepInput'),
+    calcFreteBtn: document.getElementById('calcFreteBtn'),
+    cepInfo: document.getElementById('cepInfo'),
+    freteOptions: document.getElementById('freteOptions'),
     notificationContainer: document.createElement('div')
 };
 
@@ -110,289 +42,305 @@ function mostrarNotificacao(mensagem, tipo = 'sucesso') {
     }, 3000);
 }
 
-// Função para validar CEP
-function validarCEP(cep) {
-    const cepLimpo = cep.replace(/\D/g, '');
-    return /^[0-9]{8}$/.test(cepLimpo);
+// Função para buscar produtos da API
+async function fetchProdutos() {
+    try {
+        showLoading(true);
+        const response = await fetch(`${apiUrl}/produtos`);
+        if (!response.ok) {
+            throw new Error('Erro ao buscar produtos');
+        }
+        produtos = await response.json();
+        console.log('Produtos carregados:', produtos);
+        gerarProdutos();
+    } catch (error) {
+        console.error('Erro ao carregar produtos:', error);
+        mostrarNotificacao('Erro ao carregar produtos. Tente novamente.', 'erro');
+        elements.productsGrid.innerHTML = `
+            <div class="error-state">
+                <i class="fas fa-exclamation-triangle"></i>
+                <p>Não foi possível carregar os produtos</p>
+                <button onclick="fetchProdutos()">Tentar novamente</button>
+            </div>
+        `;
+    } finally {
+        showLoading(false);
+    }
 }
 
-// Função para gerar os produtos na página com skeleton loading
+// Função para mostrar skeletons de loading
+function showLoading(show) {
+    if (show) {
+        elements.productsGrid.innerHTML = '';
+        for (let i = 0; i < 6; i++) {
+            const skeleton = document.createElement('div');
+            skeleton.className = 'product-card skeleton';
+            elements.productsGrid.appendChild(skeleton);
+        }
+    }
+}
+
+// Função para gerar os cards de produtos
 function gerarProdutos() {
     elements.productsGrid.innerHTML = '';
     
-    // Mostra skeletons enquanto carrega
-    for (let i = 0; i < 6; i++) {
-        const skeleton = document.createElement('div');
-        skeleton.className = 'product-card skeleton';
-        elements.productsGrid.appendChild(skeleton);
+    if (produtos.length === 0) {
+        elements.productsGrid.innerHTML = `
+            <div class="no-products">
+                <i class="fas fa-box-open"></i>
+                <p>Nenhum produto disponível no momento</p>
+            </div>
+        `;
+        return;
     }
     
-    // Simula carregamento
-    setTimeout(() => {
-        elements.productsGrid.innerHTML = '';
+    // Filtra apenas produtos ativos (bo_status = 1)
+    const produtosAtivos = produtos.filter(produto => produto.bo_status === 1);
+    
+    produtosAtivos.forEach(produto => {
+        const productCard = document.createElement('div');
+        productCard.className = 'product-card';
         
-        produtos.forEach(produto => {
-            const productCard = document.createElement('div');
-            productCard.className = 'product-card';
+        // Obtém a primeira imagem do produto ou usa placeholder
+        const imagemPrincipal = produto.imagens && produto.imagens.length > 0 ? 
+            `${apiUrl}/imagens/${produto.imagens[0].id}` : 
+            'https://static.thenounproject.com/png/1554489-200.png';
+        
+        const preco = produto.preco ? parseFloat(produto.preco) : 0;
+        const nome = produto.nome || 'Produto sem nome';
+        const descricaoResumida = produto.descricao ? 
+            produto.descricao.substring(0, 100) + (produto.descricao.length > 100 ? '...' : '') : 
+            'Descrição não disponível';
             
-            const imageUrl = produto.imagens?.[0] || 'https://via.placeholder.com/300x200?text=Imagem+Indispon%C3%ADvel';
-            
-            productCard.innerHTML = `
-                <div class="product-image">
-                    <img src="${imageUrl}" 
-                         alt="${produto.nome}" 
-                         loading="lazy"
-                         onerror="this.onerror=null;this.src='https://via.placeholder.com/300x200?text=Imagem+Indispon%C3%ADvel'">
+        productCard.innerHTML = `
+            <div class="product-image">
+                <img src="${imagemPrincipal}" 
+                    alt="${nome}" 
+                    loading="lazy"
+                    onerror="this.onerror=null;this.src='https://static.thenounproject.com/png/1554489-200.png'">
+                ${produto.quantidade === 0 ? `<span class="out-of-stock">ESGOTADO</span>` : ''}
+            </div>
+            <div class="product-info">
+                <h3>${nome}</h3>
+                <p class="product-description">${descricaoResumida}</p>
+                <div class="product-price">
+                    <span class="price">R$ ${preco.toFixed(2)}</span>
+                    <span class="installment">ou 10x de R$ ${(preco/10).toFixed(2)}</span>
                 </div>
-                <div class="product-info">
-                    <h3>${produto.nome}</h3>
-                    <p class="product-description">${produto.descricao}</p>
-                    <div class="product-price">
-                        <span class="price">R$ ${produto.preco.toFixed(2)}</span>
-                        <span class="installment">ou 10x de R$ ${(produto.preco/10).toFixed(2)}</span>
-                    </div>
-                    <button class="add-to-cart" data-id="${produto.id}">
-                        <i class="fas fa-cart-plus"></i> Adicionar
+                <div class="product-actions">
+                    <button class="details-btn" data-id="${produto.id}">
+                        <i class="fas fa-eye"></i> Detalhes
+                    </button>
+                    <button class="add-to-cart" data-id="${produto.id}" 
+                        ${produto.quantidade === 0 ? 'disabled' : ''}>
+                        <i class="fas fa-cart-plus"></i>
                     </button>
                 </div>
-            `;
-            
-            const addButton = productCard.querySelector('.add-to-cart');
-            addButton.addEventListener('click', (e) => {
-                e.stopPropagation();
-                adicionarAoCarrinho(produto);
-            });
-            
-            productCard.addEventListener('click', (e) => {
-                if (!e.target.closest('.add-to-cart')) {
-                    abrirModalProduto(produto);
-                }
-            });
-            
-            elements.productsGrid.appendChild(productCard);
+            </div>
+        `;
+        
+        // Evento para o botão de detalhes
+        const detailsBtn = productCard.querySelector('.details-btn');
+        detailsBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            abrirModalProduto(produto.id);
         });
-    }, 1000);
+        
+        // Evento para o botão de adicionar ao carrinho
+        const addButton = productCard.querySelector('.add-to-cart');
+        addButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            adicionarAoCarrinho(produto);
+        });
+        
+        // Evento para clicar no card (abre detalhes)
+        productCard.addEventListener('click', (e) => {
+            if (!e.target.closest('.add-to-cart') && !e.target.closest('.details-btn')) {
+                abrirModalProduto(produto.id);
+            }
+        });
+        
+        elements.productsGrid.appendChild(productCard);
+    });
 }
 
-// Função para aplicar cupom de desconto
-function aplicarCupom() {
-    const cupom = elements.cupomInput ? elements.cupomInput.value.trim() : '';
-    
-    if (cupom === "XAROPADA10") {
-        desconto = 0.1; // 10% de desconto
-        mostrarNotificacao("Cupom aplicado com sucesso! 10% de desconto.");
-        atualizarCarrinho();
-    } else if (cupom === "XAROPADA20") {
-        desconto = 0.2; // 20% de desconto
-        mostrarNotificacao("Cupom aplicado com sucesso! 20% de desconto.");
-        atualizarCarrinho();
-    } else if (cupom) {
-        mostrarNotificacao("Cupom inválido!", 'erro');
+// Função para buscar detalhes completos de um produto
+async function buscarDetalhesProduto(produtoId) {
+    try {
+        const response = await fetch(`${apiUrl}/produtos/${produtoId}`);
+        if (!response.ok) {
+            throw new Error('Produto não encontrado');
+        }
+        return await response.json();
+    } catch (error) {
+        console.error('Erro ao buscar detalhes do produto:', error);
+        mostrarNotificacao('Erro ao carregar detalhes do produto', 'erro');
+        return null;
     }
 }
 
-// Função para abrir o modal de detalhes do produto com carrossel melhorado
-function abrirModalProduto(produto) {
-    clearInterval(carrosselInterval);
-    
-    let currentImageIndex = 0;
-    let imagensProduto = produto.imagens?.length > 0 ? produto.imagens : ['https://via.placeholder.com/500x300?text=Imagem+Indispon%C3%ADvel'];
-    
-    // Garante que a primeira imagem existe
-    if (imagensProduto.length > 0 && !imagensProduto[0]) {
-        imagensProduto[0] = 'https://via.placeholder.com/500x300?text=Imagem+Indispon%C3%ADvel';
-    }
+// Função para abrir o modal de detalhes do produto
+async function abrirModalProduto(produtoId) {
+    try {
+        const produto = await buscarDetalhesProduto(produtoId);
+        if (!produto) return;
+        
+        clearInterval(carrosselInterval);
+        
+        // Organiza as imagens
+        let imagensProduto = produto.imagens || [];
+        if (imagensProduto.length === 0) {
+            imagensProduto = [{ id: 0 }]; // Placeholder será tratado no onerror
+        }
 
-    // Cria o HTML do modal com controles do carrossel
-    elements.productModalBody.innerHTML = `
-        <div class="product-modal-top">
-            <div class="carrossel-container">
-                <div class="carrossel">
-                    ${imagensProduto.map((img, index) => `
-                        <div class="carrossel-slide ${index === 0 ? 'active' : ''}" data-index="${index}">
-                            <img src="${img}" 
-                                 class="carrossel-img"
-                                 alt="${produto.nome} - Imagem ${index + 1}"
-                                 draggable="false"
-                                 onerror="this.onerror=null;this.src='https://via.placeholder.com/500x300?text=Imagem+Indispon%C3%ADvel'">
+        // Formata a avaliação
+        const avaliacao = produto.avaliacao ? parseFloat(produto.avaliacao) : 0;
+        
+        // Cria o HTML do modal
+        elements.productModalBody.innerHTML = `
+            <div class="product-modal-container">
+                <!-- Carrossel de Imagens -->
+                <div class="product-gallery">
+                    <div class="carrossel-container">
+                        <div class="carrossel">
+                            ${imagensProduto.map((img, index) => `
+                                <div class="carrossel-slide ${index === 0 ? 'active' : ''}" data-index="${index}">
+                                    <img src="${apiUrl}/imagens/${img.id}" 
+                                         class="carrossel-img"
+                                         alt="${produto.nome} - Imagem ${index + 1}"
+                                         draggable="false"
+                                         onerror="this.onerror=null;this.src='https://static.thenounproject.com/png/1554489-200.png'">
+                                </div>
+                            `).join('')}
                         </div>
-                    `).join('')}
-                </div>
-                <button class="carrossel-prev" aria-label="Imagem anterior">&lt;</button>
-                <button class="carrossel-next" aria-label="Próxima imagem">&gt;</button>
-                <div class="carrossel-nav">
-                    ${imagensProduto.map((_, index) => `
-                        <div class="carrossel-indicator ${index === 0 ? 'active' : ''}" 
-                             data-index="${index}"></div>
-                    `).join('')}
-                </div>
-            </div>
-            <div class="product-modal-info">
-                <h2 class="product-modal-title">${produto.nome}</h2>
-                <div class="product-modal-rating">
-                    ${gerarEstrelas(produto.avaliacao)}
-                    <span>(${produto.avaliacao.toFixed(1)})</span>
-                </div>
-                <div class="product-modal-price">R$ ${produto.preco.toFixed(2)}</div>
-                <p class="product-modal-description">${produto.descricao}</p>
-            </div>
-        </div>
-        <div class="product-details-grid">
-            ${Object.entries(produto.detalhes).map(([key, value]) => `
-                <div class="detail-item">
-                    <i class="fas fa-${getDetailIcon(key)} detail-icon"></i>
-                    <div>
-                        <strong>${formatDetailKey(key)}:</strong>
-                        <span>${value}</span>
+                        ${imagensProduto.length > 1 ? `
+                        <button class="carrossel-prev" aria-label="Imagem anterior">&lt;</button>
+                        <button class="carrossel-next" aria-label="Próxima imagem">&gt;</button>
+                        <div class="carrossel-nav">
+                            ${imagensProduto.map((_, index) => `
+                                <div class="carrossel-indicator ${index === 0 ? 'active' : ''}" 
+                                     data-index="${index}"></div>
+                            `).join('')}
+                        </div>
+                        ` : ''}
                     </div>
                 </div>
-            `).join('')}
-        </div>
-        <button class="modal-add-to-cart" data-id="${produto.id}">
-            <i class="fas fa-cart-plus"></i> Adicionar ao Carrinho
-        </button>
-    `;
+                
+                <!-- Informações do Produto -->
+                <div class="product-details">
+                    <h1 class="product-title">${produto.nome}</h1>
+                    
+                    <div class="product-meta">
+                        <div class="product-rating">
+                            ${gerarEstrelas(avaliacao)}
+                            <span class="rating-value">${avaliacao.toFixed(1)}</span>
+                        </div>
+                        
+                        <div class="product-stock">
+                            ${produto.quantidade > 0 ? 
+                                `<i class="fas fa-check"></i> Em estoque (${produto.quantidade} unidades)` : 
+                                `<i class="fas fa-times"></i> Esgotado`}
+                        </div>
+                    </div>
+                    
+                    <div class="product-price">
+                        <span class="price">R$ ${parseFloat(produto.preco).toFixed(2)}</span>
+                        <span class="installment">ou 10x de R$ ${(parseFloat(produto.preco)/10).toFixed(2)}</span>
+                    </div>
+                    
+                    <div class="product-description">
+                        <h3>Descrição do Produto</h3>
+                        <p>${produto.descricao || 'Descrição não disponível'}</p>
+                    </div>
+                    
+                    <div class="product-actions">
+                        <button class="add-to-cart-btn" data-id="${produto.id}" 
+                            ${produto.quantidade === 0 ? 'disabled' : ''}>
+                            <i class="fas fa-cart-plus"></i> Adicionar ao Carrinho
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
 
-    // Elementos do carrossel
-    const carrossel = elements.productModalBody.querySelector('.carrossel');
-    const slides = elements.productModalBody.querySelectorAll('.carrossel-slide');
-    const indicators = elements.productModalBody.querySelectorAll('.carrossel-indicator');
-    const prevBtn = elements.productModalBody.querySelector('.carrossel-prev');
-    const nextBtn = elements.productModalBody.querySelector('.carrossel-next');
+        // Configuração do carrossel (apenas se houver mais de uma imagem)
+        if (imagensProduto.length > 1) {
+            const carrossel = elements.productModalBody.querySelector('.carrossel');
+            const slides = elements.productModalBody.querySelectorAll('.carrossel-slide');
+            const indicators = elements.productModalBody.querySelectorAll('.carrossel-indicator');
+            const prevBtn = elements.productModalBody.querySelector('.carrossel-prev');
+            const nextBtn = elements.productModalBody.querySelector('.carrossel-next');
 
-    // Configura o carrossel
-    carrossel.style.width = `${imagensProduto.length * 100}%`;
-    slides.forEach(slide => {
-        slide.style.width = `${100 / imagensProduto.length}%`;
-    });
+            let currentImageIndex = 0;
+            
+            // Configura o carrossel
+            carrossel.style.width = `${imagensProduto.length * 100}%`;
+            slides.forEach(slide => {
+                slide.style.width = `${100 / imagensProduto.length}%`;
+            });
 
-    // Função para mudar slide
-    const goToSlide = (index) => {
-        // Verifica os limites
-        if (index >= imagensProduto.length) {
-            index = 0;
-        } else if (index < 0) {
-            index = imagensProduto.length - 1;
-        }
-        
-        currentImageIndex = index;
-        const translateValue = -currentImageIndex * (100 / imagensProduto.length);
-        carrossel.style.transform = `translateX(${translateValue}%)`;
-        
-        // Atualiza indicadores
-        indicators.forEach((indicator, i) => {
-            indicator.classList.toggle('active', i === currentImageIndex);
-        });
-        
-        // Atualiza slides
-        slides.forEach((slide, i) => {
-            slide.classList.toggle('active', i === currentImageIndex);
-        });
-    };
+            // Função para mudar slide
+            const goToSlide = (index) => {
+                if (index >= imagensProduto.length) index = 0;
+                if (index < 0) index = imagensProduto.length - 1;
+                
+                currentImageIndex = index;
+                const translateValue = -currentImageIndex * (100 / imagensProduto.length);
+                carrossel.style.transform = `translateX(${translateValue}%)`;
+                
+                // Atualiza indicadores
+                indicators.forEach((indicator, i) => {
+                    indicator.classList.toggle('active', i === currentImageIndex);
+                });
+            };
 
-    // Função para próximo slide
-    const nextSlide = () => {
-        goToSlide(currentImageIndex + 1);
-    };
+            // Event listeners para navegação
+            nextBtn.addEventListener('click', () => {
+                clearInterval(carrosselInterval);
+                goToSlide(currentImageIndex + 1);
+                startCarrossel();
+            });
 
-    // Função para slide anterior
-    const prevSlide = () => {
-        goToSlide(currentImageIndex - 1);
-    };
+            prevBtn.addEventListener('click', () => {
+                clearInterval(carrosselInterval);
+                goToSlide(currentImageIndex - 1);
+                startCarrossel();
+            });
 
-    // Inicia o carrossel automático
-    const startCarrossel = () => {
-        carrosselInterval = setInterval(nextSlide, 5000); // Muda a cada 5 segundos
-    };
+            // Event listeners para indicadores
+            indicators.forEach(indicator => {
+                indicator.addEventListener('click', (e) => {
+                    clearInterval(carrosselInterval);
+                    const index = parseInt(e.target.getAttribute('data-index'));
+                    goToSlide(index);
+                    startCarrossel();
+                });
+            });
 
-    // Event listeners para navegação
-    nextBtn.addEventListener('click', () => {
-        clearInterval(carrosselInterval);
-        nextSlide();
-        startCarrossel();
-    });
+            // Inicia o carrossel automático
+            const startCarrossel = () => {
+                carrosselInterval = setInterval(() => {
+                    goToSlide(currentImageIndex + 1);
+                }, 5000);
+            };
 
-    prevBtn.addEventListener('click', () => {
-        clearInterval(carrosselInterval);
-        prevSlide();
-        startCarrossel();
-    });
-
-    // Event listeners para indicadores
-    indicators.forEach(indicator => {
-        indicator.addEventListener('click', (e) => {
-            clearInterval(carrosselInterval);
-            const index = parseInt(e.target.getAttribute('data-index'));
-            goToSlide(index);
             startCarrossel();
-        });
-    });
-
-    // Event listeners para swipe em dispositivos móveis
-    let touchStartX = 0;
-    let touchEndX = 0;
-    
-    carrossel.addEventListener('touchstart', (e) => {
-        touchStartX = e.changedTouches[0].screenX;
-        clearInterval(carrosselInterval);
-    }, {passive: true});
-
-    carrossel.addEventListener('touchend', (e) => {
-        touchEndX = e.changedTouches[0].screenX;
-        handleSwipe();
-        startCarrossel();
-    }, {passive: true});
-
-    // Função para tratar swipe
-    const handleSwipe = () => {
-        const diff = touchStartX - touchEndX;
-        if (diff > 50) {
-            // Swipe para a esquerda - próxima imagem
-            nextSlide();
-        } else if (diff < -50) {
-            // Swipe para a direita - imagem anterior
-            prevSlide();
         }
-    };
 
-    // Event listener para botão de adicionar ao carrinho
-    const addButton = elements.productModalBody.querySelector('.modal-add-to-cart');
-    addButton.addEventListener('click', (e) => {
-        e.stopPropagation();
-        adicionarAoCarrinho(produto);
-        fecharModalProduto();
-    });
+        // Evento para adicionar ao carrinho
+        const addButton = elements.productModalBody.querySelector('.add-to-cart-btn');
+        addButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            adicionarAoCarrinho(produto);
+            mostrarNotificacao(`${produto.nome} adicionado ao carrinho!`);
+        });
 
-    // Inicia o carrossel
-    startCarrossel();
-    goToSlide(0);
-    
-    // Mostra o modal
-    elements.productModal.style.display = 'block';
-    document.body.style.overflow = 'hidden';
-}
-
-// Funções auxiliares para detalhes do produto
-function getDetailIcon(key) {
-    const icons = {
-        plataforma: 'gamepad',
-        genero: 'tags',
-        classificacao: 'certificate',
-        lancamento: 'calendar-alt',
-        desenvolvedor: 'building'
-    };
-    return icons[key] || 'info-circle';
-}
-
-function formatDetailKey(key) {
-    const names = {
-        plataforma: 'Plataforma',
-        genero: 'Gênero',
-        classificacao: 'Classificação',
-        lancamento: 'Lançamento',
-        desenvolvedor: 'Desenvolvedor'
-    };
-    return names[key] || key;
+    } catch (error) {
+        console.error('Erro ao abrir modal de produto:', error);
+    } finally {
+        elements.productModal.style.display = 'block';
+        document.body.style.overflow = 'hidden';
+    }
 }
 
 // Função para gerar estrelas de avaliação
@@ -411,215 +359,222 @@ function gerarEstrelas(avaliacao) {
 
 // Função para adicionar produto ao carrinho
 function adicionarAoCarrinho(produto) {
-    if (!produto || !produto.id) return;
+    if (!produto || !produto.id || produto.quantidade === 0) return;
 
+    // Recupera o carrinho do localStorage ou cria um novo
+    let carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
+    
+    // Verifica se o produto já está no carrinho
     const itemExistente = carrinho.find(item => item.id === produto.id);
     
     if (itemExistente) {
-        itemExistente.quantidade = (itemExistente.quantidade || 0) + 1;
+        // Aumenta a quantidade se ainda houver estoque
+        if (itemExistente.quantidade < produto.quantidade) {
+            itemExistente.quantidade += 1;
+        } else {
+            mostrarNotificacao('Quantidade máxima em estoque atingida!', 'aviso');
+            return;
+        }
     } else {
+        // Adiciona novo item ao carrinho
         carrinho.push({
-            ...produto,
-            quantidade: 1
+            id: produto.id,
+            nome: produto.nome,
+            preco: parseFloat(produto.preco),
+            imagem: produto.imagens && produto.imagens.length > 0 ? 
+                   `${apiUrl}/imagens/${produto.imagens[0].id}` : 
+                   'https://static.thenounproject.com/png/1554489-200.png',
+            quantidade: 1,
+            maxQuantidade: produto.quantidade
         });
     }
     
-    atualizarCarrinho();
-    
-    // Animação melhorada
-    const cartCount = elements.cartCount;
-    cartCount.style.transition = 'all 0.3s ease';
-    cartCount.style.transform = 'scale(1.5) rotate(10deg)';
-    
-    setTimeout(() => {
-        cartCount.style.transform = 'scale(1) rotate(0)';
-    }, 300);
-    
+    // Atualiza o carrinho no localStorage
+    localStorage.setItem('carrinho', JSON.stringify(carrinho));
     mostrarNotificacao(`${produto.nome} adicionado ao carrinho!`);
+    
+    // Atualiza o contador do carrinho
+    atualizarContadorCarrinho();
+    
+    // Animação no ícone do carrinho
+    const cartIcon = document.getElementById('cartIcon');
+    if (cartIcon) {
+        cartIcon.classList.add('animate-bounce');
+        setTimeout(() => {
+            cartIcon.classList.remove('animate-bounce');
+        }, 1000);
+    }
 }
 
-// Função para atualizar o carrinho
-function atualizarCarrinho() {
-    elements.cartItems.innerHTML = '';
-    let subtotal = 0;
+// Função para atualizar o contador de itens no carrinho
+function atualizarContadorCarrinho() {
+    const carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
+    const totalItens = carrinho.reduce((total, item) => total + item.quantidade, 0);
+    
+    if (elements.cartCount) {
+        elements.cartCount.textContent = totalItens;
+        if (totalItens > 0) {
+            elements.cartCount.style.display = 'flex';
+        } else {
+            elements.cartCount.style.display = 'none';
+        }
+    }
+}
 
-    carrinho.forEach(item => {
-        const preco = typeof item.preco === 'number' ? item.preco : 0;
-        const quantidade = typeof item.quantidade === 'number' ? item.quantidade : 0;
-        subtotal += preco * quantidade;
-        
-        const imageUrl = item.imagens?.[0] || 'https://via.placeholder.com/300x200?text=Imagem+Indispon%C3%ADvel';
-        
-        const itemElement = document.createElement('div');
-        itemElement.className = 'cart-item';
-        itemElement.innerHTML = `
-            <div class="cart-item-image">
-                <img src="${imageUrl}" 
-                     alt="${item.nome || 'Produto sem nome'}" 
-                     onerror="this.onerror=null;this.src='https://via.placeholder.com/300x200?text=Imagem+Indispon%C3%ADvel'">
-            </div>
-            <div class="cart-item-details">
-                <div class="cart-item-title">${item.nome || 'Produto sem nome'}</div>
-                <div class="cart-item-price">R$ ${preco.toFixed(2)}</div>
-                <div class="cart-item-actions">
-                    <button class="quantity-btn decrease" data-id="${item.id}">-</button>
-                    <span class="quantity-value">${quantidade}</span>
-                    <button class="quantity-btn increase" data-id="${item.id}">+</button>
-                    <button class="remove-btn" data-id="${item.id}">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </div>
+// Função para abrir o modal do carrinho
+function abrirCarrinho() {
+    const carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
+    
+    // Limpa os itens do carrinho
+    elements.cartItems.innerHTML = '';
+    
+    if (carrinho.length === 0) {
+        elements.cartItems.innerHTML = `
+            <div class="empty-cart">
+                <i class="fas fa-shopping-cart"></i>
+                <p>Seu carrinho está vazio</p>
             </div>
         `;
-        elements.cartItems.appendChild(itemElement);
-    });
-
-    // Calcula totais com desconto
-    const valorDesconto = subtotal * desconto;
-    const total = subtotal - valorDesconto + freteSelecionado;
-
-    // Atualiza totais na interface
-    elements.subtotalValue.textContent = `R$ ${subtotal.toFixed(2)}`;
-    elements.freteValue.textContent = freteSelecionado > 0 ? `R$ ${freteSelecionado.toFixed(2)}` : 'R$ 0,00';
-    
-    if (elements.descontoValue) {
-        elements.descontoValue.textContent = valorDesconto > 0 ? `- R$ ${valorDesconto.toFixed(2)}` : 'R$ 0,00';
-    }
-    
-    elements.totalValue.textContent = `R$ ${total.toFixed(2)}`;
-    elements.cartCount.textContent = carrinho.reduce((total, item) => total + (item.quantidade || 0), 0);
-
-    // Mostra/Esconde seção de frete
-    elements.freteOptions.style.display = carrinho.length > 0 ? 'block' : 'none';
-    if (carrinho.length === 0) {
-        elements.cepInput.value = '';
-        cepCalculado = '';
-        elements.cepInfo.textContent = '';
-        freteSelecionado = 0;
-        desconto = 0;
-    }
-
-    // Adiciona eventos aos botões
-    document.querySelectorAll('.decrease').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const id = parseInt(e.currentTarget.getAttribute('data-id'));
-            if (!isNaN(id)) alterarQuantidade(id, -1);
-        });
-    });
-
-    document.querySelectorAll('.increase').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const id = parseInt(e.currentTarget.getAttribute('data-id'));
-            if (!isNaN(id)) alterarQuantidade(id, 1);
-        });
-    });
-
-    document.querySelectorAll('.remove-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const id = parseInt(e.currentTarget.getAttribute('data-id'));
-            if (!isNaN(id)) removerItem(id);
-        });
-    });
-
-    // Salva no localStorage
-    try {
-        localStorage.setItem('carrinho', JSON.stringify(carrinho));
-        localStorage.setItem('frete', freteSelecionado.toString());
-        localStorage.setItem('desconto', desconto.toString());
-    } catch (e) {
-        console.error('Erro ao salvar no localStorage:', e);
-        mostrarNotificacao("Erro ao salvar carrinho. Seus itens podem não ser mantidos.", 'erro');
-    }
-}
-
-// Funções auxiliares do carrinho
-function alterarQuantidade(id, alteracao) {
-    const index = carrinho.findIndex(item => item.id === id);
-    if (index === -1) return;
-
-    const novaQuantidade = (carrinho[index].quantidade || 0) + alteracao;
-    
-    if (novaQuantidade > 0) {
-        carrinho[index].quantidade = novaQuantidade;
+        elements.freteOptions.style.display = 'none';
     } else {
-        carrinho.splice(index, 1);
+        let subtotal = 0;
+        
+        carrinho.forEach(item => {
+            const itemElement = document.createElement('div');
+            itemElement.className = 'cart-item';
+            itemElement.innerHTML = `
+                <div class="cart-item-image">
+                    <img src="${item.imagem}" 
+                         alt="${item.nome}" 
+                         onerror="this.onerror=null;this.src='https://static.thenounproject.com/png/1554489-200.png'">
+                </div>
+                <div class="cart-item-details">
+                    <div class="cart-item-title">${item.nome}</div>
+                    <div class="cart-item-price">R$ ${item.preco.toFixed(2).replace('.', ',')}</div>
+                    <div class="cart-item-actions">
+                        <button class="quantity-btn decrease" data-id="${item.id}">-</button>
+                        <span class="quantity-value">${item.quantidade}</span>
+                        <button class="quantity-btn increase" data-id="${item.id}" 
+                            ${item.quantidade >= item.maxQuantidade ? 'disabled' : ''}>+</button>
+                        <button class="remove-btn" data-id="${item.id}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            elements.cartItems.appendChild(itemElement);
+            subtotal += item.preco * item.quantidade;
+        });
+        
+        // Atualiza os totais (formatando com vírgula para decimais)
+        elements.subtotalValue.textContent = `R$ ${subtotal.toFixed(2).replace('.', ',')}`;
+        elements.totalValue.textContent = `R$ ${subtotal.toFixed(2).replace('.', ',')}`;
+        elements.freteOptions.style.display = 'block';
     }
     
-    atualizarCarrinho();
-}
-
-function removerItem(id) {
-    const item = carrinho.find(item => item.id === id);
-    if (item) {
-        carrinho = carrinho.filter(item => item.id !== id);
-        mostrarNotificacao(`${item.nome} removido do carrinho!`);
-        atualizarCarrinho();
-    }
-}
-
-// Funções de modal
-function abrirModal() {
+    // Mostra o modal
     elements.cartModal.style.display = 'flex';
     document.body.style.overflow = 'hidden';
 }
 
+// Função para fechar o modal
 function fecharModal() {
     elements.cartModal.style.display = 'none';
     document.body.style.overflow = 'auto';
 }
 
+// Função para fechar o modal de produto
 function fecharModalProduto() {
     clearInterval(carrosselInterval);
     elements.productModal.style.display = 'none';
     document.body.style.overflow = 'auto';
 }
 
-// Funções de frete
+// Função para calcular frete (simulada)
 function calcularFrete() {
-    const cep = elements.cepInput.value.trim();
+    const cep = elements.cepInput.value.replace(/\D/g, '');
     
-    if (!validarCEP(cep)) {
+    if (cep.length !== 8) {
         elements.cepInput.classList.add('error');
         elements.cepInfo.textContent = 'CEP inválido! Digite 8 números.';
-        elements.cepInfo.style.color = 'red';
+        elements.cepInfo.style.color = '#FF4B4B';
         return;
     }
     
     elements.calcFreteBtn.disabled = true;
     elements.calcFreteBtn.textContent = 'Calculando...';
-    elements.cepInput.classList.remove('error');
     
-    // Simula cálculo do frete com API
+    // Simula cálculo do frete
     setTimeout(() => {
-        cepCalculado = cep.replace(/(\d{5})(\d{3})/, '$1-$2');
-        
-        elements.freteOptions.style.display = 'block';
+        elements.cepInput.classList.remove('error');
+        elements.cepInfo.textContent = `Frete para CEP: ${cep.substring(0, 5)}-${cep.substring(5)}`;
+        elements.cepInfo.style.color = '#ffffff';
         elements.calcFreteBtn.disabled = false;
         elements.calcFreteBtn.textContent = 'Calcular';
-        elements.cepInfo.textContent = `Frete para CEP: ${cepCalculado}`;
-        elements.cepInfo.style.color = '';
-        
-        selecionarFrete(15);
+        elements.freteOptions.style.display = 'block';
     }, 1000);
 }
 
+// Função para selecionar opção de frete
 function selecionarFrete(valor) {
-    freteSelecionado = parseFloat(valor) || 0;
+    const frete = parseFloat(valor) || 0;
     
+    // Obtém o subtotal como número
+    const subtotalText = elements.subtotalValue.textContent
+        .replace('R$ ', '')
+        .replace('.', '')
+        .replace(',', '.');
+    const subtotal = parseFloat(subtotalText) || 0;
+    
+    // Formata o frete para exibição (com vírgula para decimais)
+    elements.freteValue.textContent = `R$ ${frete.toFixed(2).replace('.', ',')}`;
+    
+    // Calcula o total (soma números) e formata para exibição
+    const total = subtotal + frete;
+    elements.totalValue.textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
+    
+    // Marca a opção selecionada
     document.querySelectorAll('.frete-option').forEach(option => {
-        const optionValue = parseFloat(option.getAttribute('data-value')) || 0;
-        const radioInput = option.querySelector('input[type="radio"]');
-        
-        if (optionValue === valor) {
+        const optionValue = parseFloat(option.getAttribute('data-value'));
+        if (optionValue === frete) {
             option.classList.add('selected');
-            if (radioInput) radioInput.checked = true;
+            option.querySelector('input').checked = true;
         } else {
             option.classList.remove('selected');
-            if (radioInput) radioInput.checked = false;
+            option.querySelector('input').checked = false;
         }
     });
+}
+
+// Função para alterar quantidade no carrinho
+function alterarQuantidade(id, alteracao) {
+    let carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
+    const index = carrinho.findIndex(item => item.id === id);
     
-    atualizarCarrinho();
+    if (index !== -1) {
+        const novaQuantidade = carrinho[index].quantidade + alteracao;
+        
+        if (novaQuantidade > 0 && novaQuantidade <= carrinho[index].maxQuantidade) {
+            carrinho[index].quantidade = novaQuantidade;
+            localStorage.setItem('carrinho', JSON.stringify(carrinho));
+            abrirCarrinho();
+            atualizarContadorCarrinho();
+        } else if (novaQuantidade > carrinho[index].maxQuantidade) {
+            mostrarNotificacao('Quantidade máxima em estoque atingida!', 'aviso');
+        }
+    }
+}
+
+// Função para remover item do carrinho
+function removerItem(id) {
+    let carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
+    carrinho = carrinho.filter(item => item.id !== id);
+    localStorage.setItem('carrinho', JSON.stringify(carrinho));
+    
+    mostrarNotificacao('Produto removido do carrinho!');
+    abrirCarrinho();
+    atualizarContadorCarrinho();
 }
 
 // Função para finalizar compra
@@ -628,114 +583,43 @@ function finalizarCompra() {
     
     if (!usuarioLogado) {
         mostrarNotificacao('Por favor, faça login para finalizar sua compra!', 'erro');
-        window.location.href = 'index.html';
+        window.location.href = '/index';
         return;
     }
     
+    const carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
     if (carrinho.length === 0) {
         mostrarNotificacao('Seu carrinho está vazio!', 'erro');
         return;
     }
     
-    if (freteSelecionado === 0) {
-        mostrarNotificacao('Por favor, calcule e selecione uma opção de frete.', 'erro');
+    // Verifica se o frete foi selecionado
+    const freteSelecionado = document.querySelector('.frete-option.selected');
+    if (!freteSelecionado) {
+        mostrarNotificacao('Por favor, selecione uma opção de frete!', 'erro');
         return;
     }
     
-    const subtotal = carrinho.reduce((sum, item) => sum + ((item.preco || 0) * (item.quantidade || 0)), 0);
-    const valorDesconto = subtotal * desconto;
-    const total = subtotal - valorDesconto + freteSelecionado;
+    // Simula finalização da compra
+    mostrarNotificacao('Compra finalizada com sucesso! Obrigado por comprar conosco.');
     
-    // Exibe resumo da compra
-    const resumo = `
-        <div class="resumo-compra">
-            <h3>Resumo da Compra</h3>
-            <div class="resumo-item">
-                <span>Itens:</span>
-                <span>${carrinho.reduce((sum, item) => sum + (item.quantidade || 0), 0)}</span>
-            </div>
-            <div class="resumo-item">
-                <span>Subtotal:</span>
-                <span>R$ ${subtotal.toFixed(2)}</span>
-            </div>
-            ${desconto > 0 ? `
-            <div class="resumo-item desconto">
-                <span>Desconto:</span>
-                <span>- R$ ${valorDesconto.toFixed(2)}</span>
-            </div>
-            ` : ''}
-            <div class="resumo-item">
-                <span>Frete:</span>
-                <span>R$ ${freteSelecionado.toFixed(2)}</span>
-            </div>
-            <div class="resumo-item total">
-                <span>Total:</span>
-                <span>R$ ${total.toFixed(2)}</span>
-            </div>
-            <div class="resumo-item">
-                <span>CEP de entrega:</span>
-                <span>${cepCalculado}</span>
-            </div>
-            <div class="resumo-item">
-                <span>Cliente:</span>
-                <span>${usuarioLogado.nome}</span>
-            </div>
-            <button id="confirmarCompra">Confirmar Compra</button>
-        </div>
-    `;
-    
-    // Substitui o conteúdo do modal pelo resumo
-    elements.cartItems.innerHTML = resumo;
-    elements.freteOptions.style.display = 'none';
-    elements.continueBtn.style.display = 'none';
-    
-    // Adiciona evento ao botão de confirmação
-    document.getElementById('confirmarCompra')?.addEventListener('click', () => {
-        mostrarNotificacao('Compra finalizada com sucesso! Obrigado por comprar conosco.');
-        
-        // Limpa o carrinho
-        carrinho = [];
-        freteSelecionado = 0;
-        cepCalculado = '';
-        desconto = 0;
-        elements.cepInput.value = '';
-        elements.freteOptions.style.display = 'none';
-        elements.cepInfo.textContent = '';
-        
-        if (elements.cupomInput) elements.cupomInput.value = '';
-        
-        // Restaura o carrinho vazio
-        setTimeout(() => {
-            atualizarCarrinho();
-            elements.continueBtn.style.display = 'block';
-            fecharModal();
-        }, 2000);
-        
-        // Limpa localStorage
-        try {
-            localStorage.removeItem('carrinho');
-            localStorage.removeItem('frete');
-            localStorage.removeItem('desconto');
-        } catch (e) {
-            console.error('Erro ao limpar localStorage:', e);
-        }
-    });
+    // Limpa o carrinho
+    localStorage.removeItem('carrinho');
+    fecharModal();
+    atualizarContadorCarrinho();
 }
 
 // Inicialização
 document.addEventListener('DOMContentLoaded', () => {
     // Event Listeners
-    elements.cartIcon.addEventListener('click', abrirModal);
+    document.getElementById('cartIcon').addEventListener('click', abrirCarrinho);
     elements.closeModal.addEventListener('click', fecharModal);
     elements.continueBtn.addEventListener('click', fecharModal);
+    elements.closeProductModal.addEventListener('click', fecharModalProduto);
     elements.calcFreteBtn.addEventListener('click', calcularFrete);
     elements.checkoutBtn.addEventListener('click', finalizarCompra);
-    elements.closeProductModal.addEventListener('click', fecharModalProduto);
     
-    if (elements.aplicarCupomBtn) {
-        elements.aplicarCupomBtn.addEventListener('click', aplicarCupom);
-    }
-    
+    // Evento para fechar modais ao clicar fora
     elements.cartModal.addEventListener('click', (e) => {
         if (e.target === elements.cartModal) fecharModal();
     });
@@ -744,48 +628,57 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target === elements.productModal) fecharModalProduto();
     });
     
+    // Evento para selecionar frete
     document.querySelectorAll('.frete-option').forEach(option => {
-        option.addEventListener('click', (e) => {
-            const valor = parseFloat(option.getAttribute('data-value')) || 0;
+        option.addEventListener('click', () => {
+            const valor = option.getAttribute('data-value');
             selecionarFrete(valor);
         });
     });
     
-    elements.cepInput?.addEventListener('input', (e) => {
+    // Evento para formatar CEP
+    elements.cepInput.addEventListener('input', (e) => {
         let value = e.target.value.replace(/\D/g, '');
         if (value.length > 5) {
-            value = value.replace(/^(\d{5})(\d)/, '$1-$2');
+            value = value.substring(0, 5) + '-' + value.substring(5, 8);
         }
         e.target.value = value.substring(0, 9);
     });
-
-    // Carrega dados salvos
-    try {
-        const carrinhoSalvo = localStorage.getItem('carrinho');
-        const freteSalvo = localStorage.getItem('frete');
-        const descontoSalvo = localStorage.getItem('desconto');
-        
-        if (carrinhoSalvo) {
-            carrinho = JSON.parse(carrinhoSalvo);
-            carrinho = carrinho.filter(item => item && item.id && item.quantidade > 0);
+    
+    // Delegation para botões de quantidade e remover
+    elements.cartItems.addEventListener('click', (e) => {
+        if (e.target.classList.contains('decrease') || e.target.closest('.decrease')) {
+            const id = parseInt(e.target.closest('.decrease').getAttribute('data-id'));
+            alterarQuantidade(id, -1);
         }
         
-        if (freteSalvo) {
-            freteSelecionado = parseFloat(freteSalvo);
+        if (e.target.classList.contains('increase') || e.target.closest('.increase')) {
+            const id = parseInt(e.target.closest('.increase').getAttribute('data-id'));
+            alterarQuantidade(id, 1);
         }
         
-        if (descontoSalvo) {
-            desconto = parseFloat(descontoSalvo);
+        if (e.target.classList.contains('remove-btn') || e.target.closest('.remove-btn')) {
+            const id = parseInt(e.target.closest('.remove-btn').getAttribute('data-id'));
+            removerItem(id);
         }
-    } catch (e) {
-        console.error('Erro ao carregar dados:', e);
-        carrinho = [];
-        freteSelecionado = 0;
-        desconto = 0;
-    }
-
-    // Inicializa a interface
-    gerarProdutos();
-    atualizarCarrinho();
-    elements.freteOptions.style.display = 'none';
+    });
+    
+    // Carrega os produtos
+    fetchProdutos();
+    
+    // Atualiza o contador do carrinho
+    atualizarContadorCarrinho();
 });
+
+// Adiciona animação de bounce ao CSS
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+    .animate-bounce {
+        animation: bounce 0.5s ease infinite;
+    }
+`;
+document.head.appendChild(style);
