@@ -1,4 +1,4 @@
--- Active: 1741726533463@@127.0.0.1@3307@xaropadagames
+-- Active: 1747263325913@@127.0.0.1@3307@xaropadagames
 
 CREATE DATABASE xaropadagames;
 
@@ -25,6 +25,9 @@ CREATE TABLE Usuarios (
 
 insert into usuarios (ds_nome, nr_cpf, ds_email, ds_senha, id_grupo, bo_status)
 values ('Eduardo Margem', '14725836912', 'eduardo123@gmail.com', 'xaropada@123', 1, 1)
+
+insert into usuarios (ds_nome, nr_cpf, ds_email, ds_senha, id_grupo, bo_status)
+values ('Eduardo Margem', '42057157814', 'daniel123@gmail.com', 'xaropada@456', 2, 1)
 
 create table Produtos (
     id              int not null AUTO_INCREMENT PRIMARY KEY,
@@ -80,3 +83,5 @@ SELECT * FROM CLIENTES
 select * from imagens_produto
 
 select * from clientes
+
+SELECT * from produtos
