@@ -102,6 +102,30 @@
             background: #ff0000;
             color: #000;
         }
+
+        /* Estilo para os novos links no header */
+        .header-links {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-right: auto;
+            margin-left: 30px;
+        }
+
+        .header-link {
+            color: #fff;
+            text-decoration: none;
+            font-size: 16px;
+            transition: color 0.3s;
+        }
+
+        .header-link:hover {
+            color: #00FF85;
+        }
+
+        .header-link i {
+            margin-right: 5px;
+        }
     </style>
 </head>
 <body>
@@ -109,6 +133,16 @@
         <div class="logo">
             <h1>Xaropada<span>Games</span></h1>
         </div>
+        
+        <div class="header-links">
+            <a href="Pagamento.html" class="header-link">
+                <i class="fas fa-credit-card"></i> Formas de Pagamento
+            </a>
+            <a href="Resumo.htm" class="header-link">
+                <i class="fas fa-clipboard-list"></i> Meus Pedidos
+            </a>
+        </div>
+        
         <div class="user-section" id="userSection">
             <div class="login-option">
                 <div><i class="fas fa-user"></i> <span>ENTRE OU</span></div>
@@ -313,7 +347,7 @@
             // Configura botões do modal de verificação
             if (goToProfileBtn) {
                 goToProfileBtn.addEventListener('click', function() {
-                    window.location.href = 'Perfil.html';
+                    window.location.href = 'DadosEntrega.html';
                 });
             }
 

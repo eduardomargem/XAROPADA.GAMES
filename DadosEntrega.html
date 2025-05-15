@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xaropada Games - Endereço de Entrega</title>
+    <style>
+        /* Estilos gerais no tema Xaropada Games */
+        :root {
+            --primary: #6a1b9a;
+            --secondary: #9c27b0;
+            --accent: #ff9800;
+            --dark: #1a1a2e;
+            --light: #f8f9fa;
+            --success: #4caf50;
+            --warning: #ffc107;
+            --danger: #f44336;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 15px 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo span {
+            color: var(--accent);
+        }
+        
+        /* Estilo do card de endereço */
+        .address-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .address-card h2 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            font-size: 22px;
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 10px;
+        }
+        
+        .address-option {
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+            border: 2px solid var(--primary);
+            border-radius: 6px;
+            margin-bottom: 15px;
+            background-color: rgba(106, 27, 154, 0.05);
+        }
+        
+        .address-option h3 {
+            color: var(--dark);
+            margin-bottom: 10px;
+        }
+        
+        .address-option p {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        
+        .address-option .tag {
+            display: inline-block;
+            background-color: var(--accent);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        
+        .change-address {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            display: inline-block;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+        
+        .change-address:hover {
+            text-decoration: underline;
+        }
+        
+        .divider {
+            height: 1px;
+            background-color: #eee;
+            margin: 20px 0;
+        }
+        
+        .free-shipping {
+            color: var(--success);
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        
+        .summary {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        
+        .summary td {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .summary td:last-child {
+            text-align: right;
+            font-weight: bold;
+        }
+        
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            text-transform: uppercase;
+            transition: background-color 0.3s;
+            width: 100%;
+            max-width: 300px;
+            display: block;
+            margin: 0 auto;
+            text-align: center;
+        }
+        
+        .btn:hover {
+            background-color: var(--secondary);
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+        
+        .btn-outline:hover {
+            background-color: rgba(106, 27, 154, 0.05);
+        }
+        
+        .btn-danger {
+            background-color: transparent;
+            border: 1px solid var(--danger);
+            color: var(--danger);
+        }
+        
+        .btn-danger:hover {
+            background-color: rgba(244, 67, 54, 0.05);
+        }
+        
+        /* Estilo do modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 600px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            animation: modalFadeIn 0.3s;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .modal-header h3 {
+            color: var(--primary);
+            font-size: 20px;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #555;
+        }
+        
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        .form-group input:focus, .form-group select:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
+        }
+        
+        .address-type {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .address-type label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        
+        .address-type input[type="radio"] {
+            margin-right: 8px;
+            accent-color: var(--primary);
+        }
+        
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+        
+        /* Lista de endereços */
+        #listaEnderecos {
+            margin-top: 20px;
+        }
+        
+        .endereco-item {
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .endereco-item.padrao {
+            border-color: var(--primary);
+            background-color: rgba(106, 27, 154, 0.05);
+        }
+        
+        .address-info {
+            flex-grow: 1;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn-default {
+            padding: 8px 12px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .no-address {
+            color: #666;
+            font-style: italic;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+            
+            .endereco-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .action-buttons {
+                margin-top: 10px;
+                width: 100%;
+                justify-content: flex-end;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">XAROPADA<span>GAMES</span></div>
+        </div>
+    </header>
+    
+    <main class="container">
+        <div class="address-card">
+            <h2>Escolha o endereço de entrega</h2>
+            
+            <div id="listaEnderecos">
+                <!-- Endereços serão carregados dinamicamente aqui -->
+                <p class="no-address">Nenhum endereço cadastrado ainda.</p>
+            </div>
+            
+            <button id="btnNovoEndereco" class="btn-outline" style="margin-top: 15px;">+ Adicionar novo endereço</button>
+            
+            <div class="divider"></div>       
+            <button class="btn" id="btnContinuar">Continuar para pagamento</button>
+        </div>
+    </main>
+    
+    <!-- Modal para cadastro de novo endereço -->
+    <div class="modal" id="addressModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Adicionar novo endereço</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            
+            <form id="addressForm">
+                <div class="form-group">
+                    <label for="cep">CEP *</label>
+                    <input type="text" id="cep" placeholder="00000-000" required>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="logradouro">Logradouro *</label>
+                        <input type="text" id="logradouro" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="numero">Número *</label>
+                        <input type="text" id="numero" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="complemento">Complemento (opcional)</label>
+                    <input type="text" id="complemento">
+                </div>
+                
+                <div class="form-group">
+                    <label for="bairro">Bairro *</label>
+                    <input type="text" id="bairro" required>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="cidade">Cidade *</label>
+                        <input type="text" id="cidade" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="uf">Estado *</label>
+                        <select id="uf" required>
+                            <option value="">Selecione...</option>
+                            <option value="AC">Acre</option>
+                            <option value="AL">Alagoas</option>
+                            <option value="AP">Amapá</option>
+                            <option value="AM">Amazonas</option>
+                            <option value="BA">Bahia</option>
+                            <option value="CE">Ceará</option>
+                            <option value="DF">Distrito Federal</option>
+                            <option value="ES">Espírito Santo</option>
+                            <option value="GO">Goiás</option>
+                            <option value="MA">Maranhão</option>
+                            <option value="MT">Mato Grosso</option>
+                            <option value="MS">Mato Grosso do Sul</option>
+                            <option value="MG">Minas Gerais</option>
+                            <option value="PA">Pará</option>
+                            <option value="PB">Paraíba</option>
+                            <option value="PR">Paraná</option>
+                            <option value="PE">Pernambuco</option>
+                            <option value="PI">Piauí</option>
+                            <option value="RJ">Rio de Janeiro</option>
+                            <option value="RN">Rio Grande do Norte</option>
+                            <option value="RS">Rio Grande do Sul</option>
+                            <option value="RO">Rondônia</option>
+                            <option value="RR">Roraima</option>
+                            <option value="SC">Santa Catarina</option>
+                            <option value="SP" selected>São Paulo</option>
+                            <option value="SE">Sergipe</option>
+                            <option value="TO">Tocantins</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Tipo de endereço *</label>
+                    <div class="address-type">
+                        <label>
+                            <input type="radio" name="addressType" value="Residencial" checked>
+                            Residencial
+                        </label>
+                        <label>
+                            <input type="radio" name="addressType" value="Comercial">
+                            Comercial
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline close-modal">Cancelar</button>
+                    <button type="submit" class="btn" id="btnSalvarEndereco">Salvar endereço</button>
+                </div>
+            </form>
+        </div>
+    </div>
+<script src="assets/js/Endereco.js"></script>    
+</body>
+</html>

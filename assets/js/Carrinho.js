@@ -594,115 +594,57 @@ function finalizarCompra() {
     const valorDesconto = subtotal * desconto;
     const total = subtotal - valorDesconto + freteSelecionado;
     
-    // Exibe resumo da compra
-    const resumo = `
-        <div class="resumo-compra">
-            <h3>Resumo da Compra</h3>
-            <div class="resumo-item">
-                <span>Itens:</span>
-                <span>${carrinho.reduce((sum, item) => sum + (item.quantidade || 0), 0)}</span>
-            </div>
-            <div class="resumo-item">
-                <span>Subtotal:</span>
-                <span>R$ ${subtotal.toFixed(2)}</span>
-            </div>
-            ${desconto > 0 ? `
-            <div class="resumo-item desconto">
-                <span>Desconto:</span>
-                <span>- R$ ${valorDesconto.toFixed(2)}</span>
-            </div>
-            ` : ''}
-            <div class="resumo-item">
-                <span>Frete:</span>
-                <span>R$ ${freteSelecionado.toFixed(2)}</span>
-            </div>
-            <div class="resumo-item total">
-                <span>Total:</span>
-                <span>R$ ${total.toFixed(2)}</span>
-            </div>
-            <div class="resumo-item">
-                <span>CEP de entrega:</span>
-                <span>${cepCalculado}</span>
-            </div>
-            <div class="resumo-item">
-                <span>Endereço:</span>
-                <span>${enderecoPadrao.logradouro}, ${enderecoPadrao.numero}${enderecoPadrao.complemento ? ' - ' + enderecoPadrao.complemento : ''}, ${enderecoPadrao.bairro}, ${enderecoPadrao.cidade} - ${enderecoPadrao.uf}</span>
-            </div>
-            <div class="resumo-item">
-                <span>Forma de pagamento:</span>
-                <span>${pagamentoPadrao.tipo === 'credito' ? 'Cartão de Crédito ****' + pagamentoPadrao.ultimosDigitos + ' (' + pagamentoPadrao.parcelas + 'x)' : 'Boleto Bancário'}</span>
-            </div>
-            <div class="resumo-item">
-                <span>Cliente:</span>
-                <span>${usuarioLogado.nome}</span>
-            </div>
-            <button id="confirmarCompra">Confirmar Compra</button>
-            <button onclick="window.location.href='perfil.html'">Voltar</button>
-        </div>
-    `;
+    // Salva no histórico de compras
+    const historicoCompras = JSON.parse(localStorage.getItem('historicoCompras')) || [];
     
-    // Substitui o conteúdo do modal pelo resumo
-    elements.cartItems.innerHTML = resumo;
+    const novaCompra = {
+        id: 'PED' + Date.now().toString().slice(-6),
+        usuarioEmail: usuarioLogado.email,
+        data: new Date().toISOString(),
+        status: 'aguardando',
+        produtos: carrinho.map(item => ({
+            codigo: item.codigo,
+            nome: item.nome,
+            preco: item.valor,
+            quantidade: item.quantidade,
+            imagem: item.imagens?.[0] || 'https://via.placeholder.com/50x50?text=Produto'
+        })),
+        subtotal: subtotal,
+        frete: freteSelecionado,
+        desconto: valorDesconto,
+        total: total,
+        endereco: enderecoPadrao,
+        pagamento: pagamentoPadrao
+    };
+    
+    historicoCompras.push(novaCompra);
+    localStorage.setItem('historicoCompras', JSON.stringify(historicoCompras));
+    
+    mostrarNotificacao('Compra finalizada com sucesso! Obrigado por comprar conosco.');
+    
+    // Limpa o carrinho
+    carrinho = [];
+    freteSelecionado = 0;
+    cepCalculado = '';
+    desconto = 0;
+    elements.cepInput.value = '';
     elements.freteOptions.style.display = 'none';
-    elements.continueBtn.style.display = 'none';
+    elements.cepInfo.textContent = '';
     
-    // Adiciona evento ao botão de confirmação
-    document.getElementById('confirmarCompra')?.addEventListener('click', () => {
-        // Salva no histórico de compras
-        const historicoCompras = JSON.parse(localStorage.getItem('historicoCompras')) || [];
-        
-        const novaCompra = {
-            id: 'PED' + Date.now().toString().slice(-6),
-            usuarioEmail: usuarioLogado.email,
-            data: new Date().toISOString(),
-            status: 'aguardando',
-            produtos: carrinho.map(item => ({
-                codigo: item.codigo,
-                nome: item.nome,
-                preco: item.valor,
-                quantidade: item.quantidade,
-                imagem: item.imagens?.[0] || 'https://via.placeholder.com/50x50?text=Produto'
-            })),
-            subtotal: subtotal,
-            frete: freteSelecionado,
-            desconto: valorDesconto,
-            total: total,
-            endereco: enderecoPadrao,
-            pagamento: pagamentoPadrao
-        };
-        
-        historicoCompras.push(novaCompra);
-        localStorage.setItem('historicoCompras', JSON.stringify(historicoCompras));
-        
-        mostrarNotificacao('Compra finalizada com sucesso! Obrigado por comprar conosco.');
-        
-        // Limpa o carrinho
-        carrinho = [];
-        freteSelecionado = 0;
-        cepCalculado = '';
-        desconto = 0;
-        elements.cepInput.value = '';
-        elements.freteOptions.style.display = 'none';
-        elements.cepInfo.textContent = '';
-        
-        if (elements.cupomInput) elements.cupomInput.value = '';
-        
-        // Restaura o carrinho vazio
-        setTimeout(() => {
-            atualizarCarrinho();
-            elements.continueBtn.style.display = 'block';
-            fecharModal();
-        }, 2000);
-        
-        // Limpa localStorage do carrinho
-        try {
-            localStorage.removeItem('carrinho');
-            localStorage.removeItem('frete');
-            localStorage.removeItem('desconto');
-        } catch (e) {
-            console.error('Erro ao limpar localStorage:', e);
-        }
-    });
+    if (elements.cupomInput) elements.cupomInput.value = '';
+    
+    // Atualiza o carrinho vazio
+    atualizarCarrinho();
+    fecharModal();
+    
+    // Limpa localStorage do carrinho
+    try {
+        localStorage.removeItem('carrinho');
+        localStorage.removeItem('frete');
+        localStorage.removeItem('desconto');
+    } catch (e) {
+        console.error('Erro ao limpar localStorage:', e);
+    }
 }
 
 // Inicialização
