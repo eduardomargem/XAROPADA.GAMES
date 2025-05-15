@@ -245,7 +245,7 @@ function openEditProductModal(id) {
       document.getElementById('newImagesPreviewContainer').innerHTML = '';
       novasImagensEdit = [];
       
-      // Exibe imagens atuais do produto
+      // Exibe imagens atuais do produto usando o endpoint específico
       if (produto.imagens && produto.imagens.length > 0) {
         produto.imagens.forEach(imagem => {
           const imgContainer = document.createElement('div');
@@ -253,38 +253,13 @@ function openEditProductModal(id) {
           imgContainer.style.margin = '5px';
           
           const img = document.createElement('img');
-          img.src = `data:${imagem.tipoImagem};base64,${arrayBufferToBase64(imagem.imagem)}`;
-          img.style.maxWidth = '100px';
-          img.style.maxHeight = '100px';
-          
-          if (imagem.caminho) {
-            // Se a imagem estiver armazenada como arquivo
-            img.src = `http://localhost:8080/imagens/${encodeURIComponent(imagem.caminho)}`;
-          } else if (imagem.imagem) {
-            // Se a imagem estiver armazenada como byte[] no banco
-            const blob = new Blob([new Uint8Array(imagem.imagem)], { type: imagem.tipoImagem });
-            img.src = URL.createObjectURL(blob);
-          }
-          
+          // Usa o endpoint direto para buscar a imagem
+          img.src = `http://localhost:8080/imagens/${imagem.id}`;
           img.style.maxWidth = '100px';
           img.style.maxHeight = '100px';
           img.style.objectFit = 'cover';
 
-          // const removeBtn = document.createElement('button');
-          // removeBtn.innerHTML = '×';
-          // removeBtn.style.position = 'absolute';
-          // removeBtn.style.top = '0';
-          // removeBtn.style.right = '0';
-          // removeBtn.style.background = 'red';
-          // removeBtn.style.color = 'white';
-          // removeBtn.style.border = 'none';
-          // removeBtn.style.borderRadius = '50%';
-          // removeBtn.style.cursor = 'pointer';
-          
-          // removeBtn.onclick = () => removerImagemExistente(produto.id, imagem.id);
-          
           imgContainer.appendChild(img);
-          // imgContainer.appendChild(removeBtn);
           document.getElementById('currentImagesContainer').appendChild(imgContainer);
         });
       }

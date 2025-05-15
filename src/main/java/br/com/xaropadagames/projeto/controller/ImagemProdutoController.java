@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.ResourceNotFoundException;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -41,13 +42,21 @@ public class ImagemProdutoController {
         return ResponseEntity.status(HttpStatus.CREATED).body(imagensSalvas);
     }
 
-    @GetMapping("/{nomeArquivo}")
-    public ResponseEntity<byte[]> getImagem(@PathVariable String nomeArquivo) {
-        ImagemProduto imagem = imagemProdutoRepository.findByCaminho(nomeArquivo)
+    @GetMapping("/produto/{produtoId}")
+    public ResponseEntity<List<ImagemProduto>> getImagensPorProduto(@PathVariable Integer produtoId) {
+        List<ImagemProduto> imagens = imagemProdutoRepository.findByProdutoId(produtoId);
+        return ResponseEntity.ok(imagens);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<byte[]> getImagem(@PathVariable Integer id) {
+        ImagemProduto imagem = imagemProdutoRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Imagem não encontrada"));
         
-        return ResponseEntity.ok()
-            .contentType(MediaType.parseMediaType(imagem.getTipoImagem()))
-            .body(imagem.getImagem());
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.parseMediaType(imagem.getTipoImagem()));
+        headers.setContentLength(imagem.getImagem().length);
+        
+        return new ResponseEntity<>(imagem.getImagem(), headers, HttpStatus.OK);
     }
 }

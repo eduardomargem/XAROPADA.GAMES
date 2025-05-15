@@ -80,3 +80,5 @@ SELECT * FROM CLIENTES
 select * from imagens_produto
 
 select * from clientes
+
+select * from produtos
