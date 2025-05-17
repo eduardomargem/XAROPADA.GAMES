@@ -264,28 +264,24 @@ async function abrirModalProduto(produtoId) {
         `;
 
         // Configuração do carrossel (apenas se houver mais de uma imagem)
-        if (imagensProduto.length > 1) {
+        if (imagensProduto.length > 0) {
             const carrossel = elements.productModalBody.querySelector('.carrossel');
             const slides = elements.productModalBody.querySelectorAll('.carrossel-slide');
             const indicators = elements.productModalBody.querySelectorAll('.carrossel-indicator');
             const prevBtn = elements.productModalBody.querySelector('.carrossel-prev');
             const nextBtn = elements.productModalBody.querySelector('.carrossel-next');
-
+        
             let currentImageIndex = 0;
             
-            // Configura o carrossel
+            // Configurações iniciais
             carrossel.style.width = `${imagensProduto.length * 100}%`;
             slides.forEach(slide => {
                 slide.style.width = `${100 / imagensProduto.length}%`;
             });
-
-            // Função para mudar slide
-            const goToSlide = (index) => {
-                if (index >= imagensProduto.length) index = 0;
-                if (index < 0) index = imagensProduto.length - 1;
-                
-                currentImageIndex = index;
-                const translateValue = -currentImageIndex * (100 / imagensProduto.length);
+        
+            // Função para atualizar o carrossel
+            const updateCarrossel = () => {
+                const translateValue = -currentImageIndex * 100;
                 carrossel.style.transform = `translateX(${translateValue}%)`;
                 
                 // Atualiza indicadores
@@ -293,20 +289,26 @@ async function abrirModalProduto(produtoId) {
                     indicator.classList.toggle('active', i === currentImageIndex);
                 });
             };
-
+        
+            // Navegação
+            const goToSlide = (index) => {
+                currentImageIndex = (index + imagensProduto.length) % imagensProduto.length;
+                updateCarrossel();
+            };
+        
             // Event listeners para navegação
-            nextBtn.addEventListener('click', () => {
+            nextBtn?.addEventListener('click', () => {
                 clearInterval(carrosselInterval);
                 goToSlide(currentImageIndex + 1);
                 startCarrossel();
             });
-
-            prevBtn.addEventListener('click', () => {
+        
+            prevBtn?.addEventListener('click', () => {
                 clearInterval(carrosselInterval);
                 goToSlide(currentImageIndex - 1);
                 startCarrossel();
             });
-
+        
             // Event listeners para indicadores
             indicators.forEach(indicator => {
                 indicator.addEventListener('click', (e) => {
@@ -316,14 +318,22 @@ async function abrirModalProduto(produtoId) {
                     startCarrossel();
                 });
             });
-
-            // Inicia o carrossel automático
+        
+            // Inicia com o primeiro slide ativo
+            if (indicators.length > 0) {
+                indicators[0].classList.add('active');
+            }
+        
+            // Inicia o carrossel automático (se houver mais de uma imagem)
             const startCarrossel = () => {
-                carrosselInterval = setInterval(() => {
-                    goToSlide(currentImageIndex + 1);
-                }, 5000);
+                if (imagensProduto.length > 1) {
+                    carrosselInterval = setInterval(() => {
+                        goToSlide(currentImageIndex + 1);
+                    }, 5000);
+                }
             };
-
+        
+            updateCarrossel();
             startCarrossel();
         }
 
@@ -332,7 +342,7 @@ async function abrirModalProduto(produtoId) {
         addButton.addEventListener('click', (e) => {
             e.stopPropagation();
             adicionarAoCarrinho(produto);
-            mostrarNotificacao(`${produto.nome} adicionado ao carrinho!`);
+            
         });
 
     } catch (error) {

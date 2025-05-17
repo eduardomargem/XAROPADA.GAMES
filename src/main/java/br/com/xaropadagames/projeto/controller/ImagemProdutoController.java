@@ -23,31 +23,38 @@ import br.com.xaropadagames.projeto.service.ImagemProdutoService;
 @RestController
 @RequestMapping("/imagens")
 public class ImagemProdutoController {
-    
+
     @Autowired
     private ImagemProdutoService imagemService;
 
     @Autowired
     private ImagemProdutoRepository imagemProdutoRepository;
-    
+
     @PostMapping
     public ResponseEntity<List<ImagemProduto>> uploadImagens(
             @PathVariable Integer produtoId,
             @RequestParam("imagens") MultipartFile[] arquivos) {
 
-                System.out.println("Número de arquivos recebidos: " + arquivos.length);
-        
+        System.out.println("Número de arquivos recebidos: " + arquivos.length);
+
         List<ImagemProduto> imagensSalvas = imagemService.uploadImagens(produtoId, arquivos);
         return ResponseEntity.status(HttpStatus.CREATED).body(imagensSalvas);
     }
+    // correção para aparecer imagens
+    @GetMapping("/{id}")
+    public ResponseEntity<byte[]> getImagem(@PathVariable Integer id) {
+        ImagemProduto imagem = imagemProdutoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Imagem não encontrada"));
 
-    @GetMapping("/{nomeArquivo}")
-    public ResponseEntity<byte[]> getImagem(@PathVariable String nomeArquivo) {
-        ImagemProduto imagem = imagemProdutoRepository.findByCaminho(nomeArquivo)
-            .orElseThrow(() -> new ResourceNotFoundException("Imagem não encontrada"));
-        
         return ResponseEntity.ok()
-            .contentType(MediaType.parseMediaType(imagem.getTipoImagem()))
-            .body(imagem.getImagem());
+                .contentType(MediaType.parseMediaType(imagem.getTipoImagem()))
+                .body(imagem.getImagem());
     }
+
+    @GetMapping("/produto/{produtoId}")
+    public ResponseEntity<List<ImagemProduto>> getImagensPorProduto(@PathVariable Integer produtoId) {
+        List<ImagemProduto> imagens = imagemProdutoRepository.findByProdutoId(produtoId);
+        return ResponseEntity.ok(imagens);
+    }
+
 }

@@ -1,4 +1,4 @@
--- Active: 1747263325913@@127.0.0.1@3307@xaropadagames
+-- Active: 1743459186615@@127.0.0.1@3307@xaropadagames
 
 CREATE DATABASE xaropadagames;
 
@@ -24,10 +24,10 @@ CREATE TABLE Usuarios (
 );
 
 insert into usuarios (ds_nome, nr_cpf, ds_email, ds_senha, id_grupo, bo_status)
-values ('Eduardo Margem', '14725836912', 'eduardo123@gmail.com', 'xaropada@123', 1, 1)
+values ('Joana Marques', '79360205001', 'joanamarques@gmail.com', 'joana@123', 1, 1)
 
 insert into usuarios (ds_nome, nr_cpf, ds_email, ds_senha, id_grupo, bo_status)
-values ('Eduardo Margem', '42057157814', 'daniel123@gmail.com', 'xaropada@456', 2, 1)
+values ('Joao Marques', '19938857060', 'joaomarques@gmail.com', 'joao@123', 2, 1)
 
 create table Produtos (
     id              int not null AUTO_INCREMENT PRIMARY KEY,
@@ -75,13 +75,15 @@ CREATE TABLE enderecos (
 ) ENGINE=InnoDB;
 
 
-SHOW TABLES;
-DESCRIBE clientes;
+INSERT INTO Produtos (ds_nome, qtd_produto, vl_produto, ds_descricao, nr_avaliacao, bo_status) VALUES
+('Mouse Gamer RGB', 150, 129.90, 'Mouse ergonômico com iluminação RGB e até 7200 DPI.', 4.7, 1),
+('Teclado Mecânico ABNT2', 80, 249.99, 'Teclado mecânico com switches azuis e layout ABNT2.', 4.6, 1),
+('Monitor 24" Full HD', 45, 899.00, 'Monitor LED 24 polegadas com resolução Full HD e HDMI.', 4.5, 1),
+('Headset Surround 7.1', 60, 199.90, 'Headset gamer com som surround 7.1 e microfone removível.', 4.3, 1),
+('Cadeira Gamer Reclinável', 20, 1399.00, 'Cadeira ergonômica com reclinação de até 180 graus.', 4.8, 1),
+('Notebook Ryzen 5', 30, 3499.99, 'Notebook com Ryzen 5, 8GB RAM e SSD de 512GB.', 4.4, 1),
+('Webcam Full HD 1080p', 100, 229.90, 'Webcam com microfone embutido e vídeo em Full HD.', 4.2, 1),
+('Impressora Multifuncional Wi-Fi', 25, 699.00, 'Impressora com scanner e conectividade Wi-Fi.', 4.1, 1),
+('Hub USB 3.0 4 Portas', 200, 59.90, 'Hub USB com 4 portas e alta velocidade de transferência.', 4.0, 1),
+('Controle Bluetooth para PC/Console', 70, 199.00, 'Controle sem fio compatível com PC e consoles.', 4.6, 1);
 
-SELECT * FROM CLIENTES
-
-select * from imagens_produto
-
-select * from clientes
-
-SELECT * from produtos
