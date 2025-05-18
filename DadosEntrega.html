@@ -4,91 +4,140 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Xaropada Games - Endereço de Entrega</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
-        /* Estilos gerais no tema Xaropada Games */
+        /* Estilo Pixel/Retrô Xaropada Games - Página Endereço */
         :root {
-            --primary: #6a1b9a;
-            --secondary: #9c27b0;
-            --accent: #ff9800;
+            --primary: #00ff85;
+            --secondary: #00cc66;
+            --accent: #ff00aa;
             --dark: #1a1a2e;
+            --dark-secondary: #2a2a4a;
             --light: #f8f9fa;
-            --success: #4caf50;
-            --warning: #ffc107;
-            --danger: #f44336;
+            --success: #00ff85;
+            --error: #ff3333;
+            --info: #00aaff;
         }
         
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Press Start 2P', cursive;
+            image-rendering: pixelated;
         }
         
         body {
-            background-color: #f5f5f5;
-            color: #333;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        
-        header {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            padding: 15px 0;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        
-        .logo {
-            font-size: 28px;
-            font-weight: bold;
+            background-color: var(--dark);
+            color: var(--primary);
+            min-height: 100vh;
             display: flex;
+            flex-direction: column;
             align-items: center;
         }
         
-        .logo span {
+        header {
+            width: 100%;
+            background-color: var(--dark-secondary);
+            padding: 20px 0;
+            border-bottom: 4px solid var(--secondary);
+            box-shadow: 0 4px 0 #000;
+            margin-bottom: 30px;
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 800px;
+            margin-bottom: 40px;
+        }
+        
+        /* Estilo do logo com imagem */
+        .logo-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .logo-img {
+            height: 50px;
+            image-rendering: pixelated;
+        }
+        
+        .logo-text {
+            font-size: 1.8rem;
+            text-shadow: 3px 3px 0 #000;
+            animation: pulse 2s infinite;
+        }
+        
+        .logo-text span {
             color: var(--accent);
         }
         
-        /* Estilo do card de endereço */
+        /* Card de Endereço Estilo Pixel */
         .address-card {
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            background-color: var(--dark-secondary);
+            border: 4px solid var(--secondary);
+            border-radius: 0;
             padding: 20px;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
+            box-shadow: 8px 8px 0 #000;
+            position: relative;
+        }
+        
+        .address-card::before {
+            content: "";
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            right: -5px;
+            bottom: -5px;
+            border: 2px solid var(--accent);
+            z-index: -1;
         }
         
         .address-card h2 {
             color: var(--primary);
-            margin-bottom: 20px;
-            font-size: 22px;
-            border-bottom: 2px solid var(--accent);
+            margin-bottom: 25px;
+            font-size: 1.3rem;
+            text-shadow: 2px 2px 0 #000;
+            border-bottom: 3px solid var(--accent);
             padding-bottom: 10px;
         }
         
+        /* Opções de Endereço */
         .address-option {
             display: flex;
             flex-direction: column;
             padding: 15px;
-            border: 2px solid var(--primary);
-            border-radius: 6px;
+            border: 3px solid #3a3a5a;
             margin-bottom: 15px;
-            background-color: rgba(106, 27, 154, 0.05);
+            background-color: #2a2a4a;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+        
+        .address-option:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 4px 4px 0 #000;
+            border-color: var(--secondary);
         }
         
         .address-option h3 {
-            color: var(--dark);
+            color: var(--primary);
             margin-bottom: 10px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
         }
         
         .address-option p {
-            color: #666;
-            font-size: 14px;
+            color: #aaa;
+            font-size: 0.7rem;
             margin-bottom: 5px;
+            margin-left: 35px;
+            line-height: 1.5;
         }
         
         .address-option .tag {
@@ -96,45 +145,53 @@
             background-color: var(--accent);
             color: white;
             padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 12px;
+            border-radius: 0;
+            font-size: 0.6rem;
             margin-top: 5px;
+            box-shadow: 2px 2px 0 #000;
         }
         
         .change-address {
             color: var(--primary);
             text-decoration: none;
-            font-weight: 500;
+            font-weight: normal;
             display: inline-block;
             margin-top: 10px;
             cursor: pointer;
+            font-size: 0.7rem;
         }
         
         .change-address:hover {
-            text-decoration: underline;
+            color: var(--accent);
+            text-decoration: none;
         }
         
         .divider {
-            height: 1px;
-            background-color: #eee;
+            height: 3px;
+            background-color: #3a3a5a;
             margin: 20px 0;
+            box-shadow: 2px 2px 0 #000;
         }
         
         .free-shipping {
             color: var(--success);
             font-weight: bold;
             margin-bottom: 20px;
+            font-size: 0.8rem;
+            text-shadow: 1px 1px 0 #000;
         }
         
         .summary {
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 20px;
+            font-size: 0.8rem;
         }
         
         .summary td {
             padding: 8px 0;
-            border-bottom: 1px solid #eee;
+            border-bottom: 3px solid #3a3a5a;
+            color: var(--primary);
         }
         
         .summary td:last-child {
@@ -142,45 +199,44 @@
             font-weight: bold;
         }
         
+        /* Botões */
         .btn {
             background-color: var(--primary);
-            color: white;
+            color: #000;
             border: none;
-            padding: 12px 24px;
-            border-radius: 6px;
+            padding: 15px 25px;
+            border-radius: 0;
             cursor: pointer;
-            font-weight: bold;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            box-shadow: 4px 4px 0 #000;
             text-transform: uppercase;
-            transition: background-color 0.3s;
-            width: 100%;
-            max-width: 300px;
-            display: block;
-            margin: 0 auto;
-            text-align: center;
         }
         
         .btn:hover {
             background-color: var(--secondary);
+            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0 #000;
         }
         
         .btn-outline {
             background-color: transparent;
-            border: 1px solid var(--primary);
+            border: 3px solid var(--primary);
             color: var(--primary);
         }
         
         .btn-outline:hover {
-            background-color: rgba(106, 27, 154, 0.05);
+            background-color: rgba(0, 255, 133, 0.1);
         }
         
         .btn-danger {
             background-color: transparent;
-            border: 1px solid var(--danger);
-            color: var(--danger);
+            border: 3px solid var(--error);
+            color: var(--error);
         }
         
         .btn-danger:hover {
-            background-color: rgba(244, 67, 54, 0.05);
+            background-color: rgba(255, 51, 51, 0.1);
         }
         
         /* Estilo do modal */
@@ -191,22 +247,35 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
+            background-color: rgba(0, 0, 0, 0.8);
             z-index: 1000;
             justify-content: center;
             align-items: center;
         }
         
         .modal-content {
-            background-color: white;
-            border-radius: 10px;
+            background-color: var(--dark-secondary);
+            border: 4px solid var(--primary);
+            border-radius: 0;
             width: 90%;
             max-width: 600px;
             padding: 25px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            box-shadow: 8px 8px 0 #000;
             animation: modalFadeIn 0.3s;
             max-height: 90vh;
             overflow-y: auto;
+            position: relative;
+        }
+        
+        .modal-content::before {
+            content: "";
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            right: -5px;
+            bottom: -5px;
+            border: 2px solid var(--accent);
+            z-index: -1;
         }
         
         @keyframes modalFadeIn {
@@ -226,44 +295,52 @@
             align-items: center;
             margin-bottom: 20px;
             padding-bottom: 10px;
-            border-bottom: 1px solid #eee;
+            border-bottom: 3px solid var(--accent);
         }
         
         .modal-header h3 {
             color: var(--primary);
-            font-size: 20px;
+            font-size: 1.2rem;
+            text-shadow: 2px 2px 0 #000;
         }
         
         .close-modal {
             background: none;
             border: none;
-            font-size: 24px;
+            font-size: 1.5rem;
             cursor: pointer;
-            color: #666;
+            color: var(--primary);
+            transition: transform 0.2s;
+        }
+        
+        .close-modal:hover {
+            transform: rotate(90deg);
         }
         
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
         
         .form-group label {
             display: block;
-            margin-bottom: 5px;
-            font-weight: 500;
-            color: #555;
+            margin-bottom: 10px;
+            color: var(--primary);
+            font-size: 0.8rem;
         }
         
         .form-group input, .form-group select {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 16px;
+            padding: 12px;
+            border: 3px solid #3a3a5a;
+            background-color: #1a1a2e;
+            color: var(--primary);
+            font-size: 0.9rem;
         }
         
         .form-group input:focus, .form-group select:focus {
             border-color: var(--primary);
             outline: none;
+            box-shadow: 0 0 0 2px var(--accent);
         }
         
         .form-row {
@@ -285,11 +362,32 @@
             display: flex;
             align-items: center;
             cursor: pointer;
+            font-size: 0.8rem;
         }
         
         .address-type input[type="radio"] {
             margin-right: 8px;
-            accent-color: var(--primary);
+            width: 20px;
+            height: 20px;
+            appearance: none;
+            border: 3px solid #3a3a5a;
+            background-color: #1a1a2e;
+            position: relative;
+        }
+        
+        .address-type input[type="radio"]:checked {
+            background-color: var(--primary);
+            border-color: var(--primary);
+        }
+        
+        .address-type input[type="radio"]:checked::after {
+            content: "✓";
+            position: absolute;
+            color: #000;
+            font-size: 12px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
         }
         
         .modal-footer {
@@ -298,7 +396,7 @@
             gap: 10px;
             margin-top: 20px;
             padding-top: 15px;
-            border-top: 1px solid #eee;
+            border-top: 3px solid var(--accent);
         }
         
         /* Lista de endereços */
@@ -307,22 +405,42 @@
         }
         
         .endereco-item {
-            border: 1px solid #ddd;
-            border-radius: 6px;
+            border: 3px solid #3a3a5a;
+            border-radius: 0;
             padding: 15px;
             margin-bottom: 15px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            background-color: #2a2a4a;
+            transition: all 0.2s ease;
+        }
+        
+        .endereco-item:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 4px 4px 0 #000;
         }
         
         .endereco-item.padrao {
             border-color: var(--primary);
-            background-color: rgba(106, 27, 154, 0.05);
+            background-color: rgba(0, 255, 133, 0.1);
+            box-shadow: 4px 4px 0 #000;
         }
         
         .address-info {
             flex-grow: 1;
+        }
+        
+        .address-info h3 {
+            color: var(--primary);
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+        
+        .address-info p {
+            color: #aaa;
+            font-size: 0.7rem;
+            margin-bottom: 3px;
         }
         
         .action-buttons {
@@ -333,22 +451,106 @@
         .btn-default {
             padding: 8px 12px;
             background-color: var(--primary);
-            color: white;
+            color: #000;
             border: none;
-            border-radius: 4px;
+            border-radius: 0;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 0.7rem;
+            box-shadow: 2px 2px 0 #000;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-default:hover {
+            transform: translate(-1px, -1px);
+            box-shadow: 3px 3px 0 #000;
         }
         
         .no-address {
-            color: #666;
-            font-style: italic;
+            color: #aaa;
+            font-style: normal;
             text-align: center;
             padding: 20px;
+            font-size: 0.8rem;
+            border: 3px dashed #3a3a5a;
+        }
+        
+        /* Botões de Navegação */
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .btn-back {
+            background-color: var(--dark-secondary);
+            color: var(--primary);
+            border: 3px solid var(--primary);
+            padding: 15px 25px;
+            border-radius: 0;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            box-shadow: 4px 4px 0 #000;
+            text-transform: uppercase;
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        .btn-back:hover {
+            background-color: var(--primary);
+            color: #000;
+            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0 #000;
+        }
+        
+        .btn-next {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 0;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            box-shadow: 4px 4px 0 #000;
+            text-transform: uppercase;
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        .btn-next:hover {
+            background-color: #ff00cc;
+            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0 #000;
+        }
+        
+        /* Animação */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
         }
         
         /* Responsividade */
         @media (max-width: 768px) {
+            .logo-text {
+                font-size: 1.4rem;
+            }
+            
+            .logo-img {
+                height: 40px;
+            }
+            
+            .address-card h2 {
+                font-size: 1.1rem;
+            }
+            
+            .address-option h3 {
+                font-size: 0.8rem;
+            }
+            
             .form-row {
                 flex-direction: column;
                 gap: 0;
@@ -364,13 +566,26 @@
                 width: 100%;
                 justify-content: flex-end;
             }
+            
+            .btn, .btn-back, .btn-next {
+                padding: 12px 20px;
+                font-size: 0.8rem;
+                min-width: 100%;
+            }
+            
+            .navigation-buttons {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
 <body>
     <header>
         <div class="container">
-            <div class="logo">XAROPADA<span>GAMES</span></div>
+            <div class="logo-container">
+                <img src="assets/img/spaceinvader2.png" alt="Invader Pixel" class="logo-img">
+                <div class="logo-text">XAROPADA<span>GAMES</span></div>
+            </div>
         </div>
     </header>
     
@@ -385,8 +600,14 @@
             
             <button id="btnNovoEndereco" class="btn-outline" style="margin-top: 15px;">+ Adicionar novo endereço</button>
             
-            <div class="divider"></div>       
-            <button class="btn" id="btnContinuar">Continuar para pagamento</button>
+            <div class="divider"></div>
+            
+            <div class="navigation-buttons">
+                <button class="btn-back" onclick="window.location.href='Loja.html'">
+                    <i class="fas fa-arrow-left"></i> VOLTAR
+                </button>
+                <button class="btn" id="btnContinuar">CONTINUAR</button>
+            </div>
         </div>
     </main>
     
@@ -488,6 +709,7 @@
             </form>
         </div>
     </div>
-<script src="assets/js/Endereco.js"></script>    
+    
+    <script src="assets/js/Endereco.js"></script>    
 </body>
 </html>

@@ -748,3 +748,97 @@ button:hover {
                 padding: 10px;
             }
         }
+
+/* Estilos para a área de navegação */
+.back-to-store {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 30px;
+    gap: 15px;
+}
+
+/* Estilo base para ambos os botões */
+.back-to-store a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-family: 'Press Start 2P', cursive;
+    text-align: center;
+    flex: 1;
+    box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.3);
+    position: relative;
+    overflow: hidden;
+    border: 2px solid transparent;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.back-to-store a:hover {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.3);
+}
+
+.back-to-store a i {
+    margin-right: 10px;
+}
+
+/* Botão VOLTAR específico */
+.btn-voltar {
+    background-color: #ff5252;
+    border-color: #d32f2f;
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.3);
+}
+
+.btn-voltar:hover {
+    background-color: #d32f2f;
+}
+
+/* Botão MARKETPLACE específico */
+.btn-marketplace {
+    background-color: #4caf50;
+    border-color: #388e3c;
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.3);
+}
+
+.btn-marketplace:hover {
+    background-color: #388e3c;
+}
+
+/* Efeitos de pixel nos cantos */
+.back-to-store a::before,
+.back-to-store a::after {
+    content: '';
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background-color: #fff;
+}
+
+.back-to-store a::before {
+    top: -2px;
+    left: -2px;
+    clip-path: polygon(0 0, 0% 100%, 100% 0);
+}
+
+.back-to-store a::after {
+    bottom: -2px;
+    right: -2px;
+    clip-path: polygon(100% 0, 0% 100%, 100% 100%);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .back-to-store {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .back-to-store a {
+        font-size: 12px;
+        padding: 10px 15px;
+    }
+}
