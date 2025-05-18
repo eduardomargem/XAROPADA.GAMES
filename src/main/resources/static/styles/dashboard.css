@@ -52,7 +52,7 @@ body {
     width: 100px;
     height: 100px;
     
-    margin-bottom: -110px;
+    margin-bottom: -100px;
     animation: arcade-vibration-horizontal 8s ease-in-out infinite;
 }
 
@@ -80,14 +80,14 @@ body {
 
 /* Estilos do texto mantidos conforme seu original */
 .logo-bg h2 {
-    font-size: 150px;
+    font-size: 120px;
     margin-bottom: -20px;
     color: white;
     text-shadow: 3px 3px 10px rgba(255, 255, 255, 0.5), -2px -2px 5px rgba(0, 0, 0, 0.7);
 }
 
 .logo-bg h1 {
-    font-size: 300px;
+    font-size: 230px;
     color: white;
     margin-top: 20px;
     text-shadow: 4px 4px 15px rgba(255, 255, 255, 0.5), -3px -3px 5px rgba(0, 0, 0, 0.7);
