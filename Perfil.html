@@ -1,491 +1,491 @@
-    <!DOCTYPE html>
-    <html lang="pt-BR">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Minha Conta - XaropadaGames</title>
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-        <link rel="stylesheet" href="assets/css/minhaconta.css">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-        <style>
-            /* Estilos adicionais para integração com a loja */
-            .back-to-store {
-                margin-bottom: 20px;
-            }
-            
-            .back-to-store a {
-                color: #00ff00;
-                text-decoration: none;
-                font-size: 12px;
-                display: inline-flex;
-                align-items: center;
-                gap: 8px;
-            }
-            
-            .back-to-store a:hover {
-                color: #00ff85;
-                text-shadow: 0 0 5px #00ff00;
-            }
-            
-            /* Estilo para botões de ação */
-            .action-buttons {
-                display: flex;
-                gap: 10px;
-                margin-top: 10px;
-            }
-            
-            .action-btn {
-                flex: 1;
-                padding: 8px;
-                font-size: 10px;
-            }
-            
-            /* Estilo para itens de pagamento */
-            .payment-method {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-            }
-            
-            /* Estilos para o modal de histórico */
-            .historico-container {
-                max-height: 70vh;
-                overflow-y: auto;
-                padding: 10px;
-            }
-            
-            .compra-item {
-                border: 1px solid #00ff85;
-                border-radius: 5px;
-                padding: 15px;
-                margin-bottom: 15px;
-                background-color: rgba(0, 0, 0, 0.5);
-            }
-            
-            .compra-header {
-                display: flex;
-                justify-content: space-between;
-                margin-bottom: 10px;
-                padding-bottom: 5px;
-                border-bottom: 1px solid #00ff85;
-            }
-            
-            .compra-id {
-                font-weight: bold;
-                color: #00ff85;
-            }
-            
-            .compra-status {
-                padding: 3px 8px;
-                border-radius: 3px;
-                font-size: 12px;
-            }
-            
-            .status-aguardando {
-                background-color: #ffcc00;
-                color: #000;
-            }
-            
-            .status-aprovado {
-                background-color: #00cc00;
-                color: #fff;
-            }
-            
-            .status-enviado {
-                background-color: #0066cc;
-                color: #fff;
-            }
-            
-            .status-entregue {
-                background-color: #00ff85;
-                color: #000;
-            }
-            
-            .compra-produtos {
-                margin-top: 10px;
-            }
-            
-            .produto-item {
-                display: flex;
-                align-items: center;
-                margin-bottom: 8px;
-                padding-bottom: 8px;
-                border-bottom: 1px dashed #444;
-            }
-            
-            .produto-img {
-                width: 50px;
-                height: 50px;
-                object-fit: cover;
-                margin-right: 10px;
-            }
-            
-            .produto-info {
-                flex: 1;
-            }
-            
-            .produto-nome {
-                font-weight: bold;
-            }
-            
-            .produto-qtd {
-                color: #aaa;
-                font-size: 12px;
-            }
-            
-            .compra-total {
-                margin-top: 10px;
-                text-align: right;
-                font-weight: bold;
-            }
-            
-            .compra-data {
-                font-size: 12px;
-                color: #aaa;
-                margin-top: 5px;
-            }
-            
-            .status-timeline {
-                display: flex;
-                justify-content: space-between;
-                margin-top: 15px;
-                position: relative;
-                height: 30px;
-            }
-            
-            .status-step {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                z-index: 1;
-            }
-            
-            .status-bubble {
-                width: 20px;
-                height: 20px;
-                border-radius: 50%;
-                background-color: #444;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                margin-bottom: 5px;
-            }
-            
-            .status-bubble.active {
-                background-color: #00ff85;
-            }
-            
-            .status-label {
-                font-size: 10px;
-                text-align: center;
-                max-width: 60px;
-            }
-            
-            .status-line {
-                position: absolute;
-                top: 10px;
-                left: 10%;
-                right: 10%;
-                height: 2px;
-                background-color: #444;
-                z-index: 0;
-            }
-            
-            .status-line-progress {
-                position: absolute;
-                top: 0;
-                left: 0;
-                height: 100%;
-                background-color: #00ff85;
-                transition: width 0.5s;
-            }
-
-            /* Notificações */
-            .notification {
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                padding: 15px;
-                border-radius: 5px;
-                color: white;
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                z-index: 1000;
-                opacity: 1;
-                transition: opacity 0.5s;
-                max-width: 300px;
-            }
-            
-            .notification.sucesso {
-                background-color: #00aa00;
-                border-left: 5px solid #00ff85;
-            }
-            
-            .notification.erro {
-                background-color: #aa0000;
-                border-left: 5px solid #ff0000;
-            }
-            
-            .notification.info {
-                background-color: #0066cc;
-                border-left: 5px solid #00aaff;
-            }
-            
-            .notification.fade-out {
-                opacity: 0;
-            }
-
-            /* Responsividade */
-            @media (max-width: 600px) {
-                .form-row {
-                    flex-direction: column;
+        <!DOCTYPE html>
+        <html lang="pt-BR">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Minha Conta - XaropadaGames</title>
+            <link rel="preconnect" href="https://fonts.googleapis.com">
+            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+            <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+            <link rel="stylesheet" href="assets/css/minhaconta.css">
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+            <style>
+                /* Estilos adicionais para integração com a loja */
+                .back-to-store {
+                    margin-bottom: 20px;
                 }
                 
-                .half-width {
-                    width: 100%;
+                .back-to-store a {
+                    color: #00ff00;
+                    text-decoration: none;
+                    font-size: 12px;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 8px;
                 }
                 
+                .back-to-store a:hover {
+                    color: #00ff85;
+                    text-shadow: 0 0 5px #00ff00;
+                }
+                
+                /* Estilo para botões de ação */
                 .action-buttons {
-                    flex-direction: column;
+                    display: flex;
+                    gap: 10px;
+                    margin-top: 10px;
+                }
+                
+                .action-btn {
+                    flex: 1;
+                    padding: 8px;
+                    font-size: 10px;
+                }
+                
+                /* Estilo para itens de pagamento */
+                .payment-method {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                }
+                
+                /* Estilos para o modal de histórico */
+                .historico-container {
+                    max-height: 70vh;
+                    overflow-y: auto;
+                    padding: 10px;
+                }
+                
+                .compra-item {
+                    border: 1px solid #00ff85;
+                    border-radius: 5px;
+                    padding: 15px;
+                    margin-bottom: 15px;
+                    background-color: rgba(0, 0, 0, 0.5);
+                }
+                
+                .compra-header {
+                    display: flex;
+                    justify-content: space-between;
+                    margin-bottom: 10px;
+                    padding-bottom: 5px;
+                    border-bottom: 1px solid #00ff85;
+                }
+                
+                .compra-id {
+                    font-weight: bold;
+                    color: #00ff85;
+                }
+                
+                .compra-status {
+                    padding: 3px 8px;
+                    border-radius: 3px;
+                    font-size: 12px;
+                }
+                
+                .status-aguardando {
+                    background-color: #ffcc00;
+                    color: #000;
+                }
+                
+                .status-aprovado {
+                    background-color: #00cc00;
+                    color: #fff;
+                }
+                
+                .status-enviado {
+                    background-color: #0066cc;
+                    color: #fff;
+                }
+                
+                .status-entregue {
+                    background-color: #00ff85;
+                    color: #000;
+                }
+                
+                .compra-produtos {
+                    margin-top: 10px;
                 }
                 
                 .produto-item {
-                    flex-direction: column;
-                    align-items: flex-start;
+                    display: flex;
+                    align-items: center;
+                    margin-bottom: 8px;
+                    padding-bottom: 8px;
+                    border-bottom: 1px dashed #444;
+                }
+                
+                .produto-img {
+                    width: 50px;
+                    height: 50px;
+                    object-fit: cover;
+                    margin-right: 10px;
+                }
+                
+                .produto-info {
+                    flex: 1;
+                }
+                
+                .produto-nome {
+                    font-weight: bold;
+                }
+                
+                .produto-qtd {
+                    color: #aaa;
+                    font-size: 12px;
+                }
+                
+                .compra-total {
+                    margin-top: 10px;
+                    text-align: right;
+                    font-weight: bold;
+                }
+                
+                .compra-data {
+                    font-size: 12px;
+                    color: #aaa;
+                    margin-top: 5px;
                 }
                 
                 .status-timeline {
-                    height: 60px;
+                    display: flex;
+                    justify-content: space-between;
+                    margin-top: 15px;
+                    position: relative;
+                    height: 30px;
+                }
+                
+                .status-step {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    z-index: 1;
+                }
+                
+                .status-bubble {
+                    width: 20px;
+                    height: 20px;
+                    border-radius: 50%;
+                    background-color: #444;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin-bottom: 5px;
+                }
+                
+                .status-bubble.active {
+                    background-color: #00ff85;
                 }
                 
                 .status-label {
-                    font-size: 8px;
+                    font-size: 10px;
+                    text-align: center;
+                    max-width: 60px;
                 }
-            }
-        </style>
-    </head>
-    <body> 
-        <div class="container">
-            <div class="back-to-store">
-                <a href="loja.html"><i class="fas fa-arrow-left"></i> Voltar para a Loja</a>
-            </div>
-            <div class="profile-box">
-                <h2>🕹️ MINHA CONTA</h2>
                 
-                <!-- Seção de Informações Pessoais -->
-                <div class="info-section">
-                    <h3><i class="fas fa-user-astronaut"></i> INFORMAÇÕES PESSOAIS</h3>
-                    <form id="profileForm">
-                        <div class="form-group">
-                            <label>Nome Completo*</label>
-                            <input type="text" id="editNome" placeholder="Mario Bros" required>
-                            <span class="erro" id="erro-nome"></span>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label>Data de Nascimento*</label>
-                            <input type="date" id="editNascimento" required>
-                            <span class="erro" id="erro-nascimento"></span>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label>Gênero*</label>
-                            <select id="editGenero" required>
-                                <option value="">Selecione</option>
-                                <option value="masculino">Masculino</option>
-                                <option value="feminino">Feminino</option>
-                                <option value="outro">Outro</option>
-                                <option value="nao_informar">Prefiro não informar</option>
-                            </select>
-                            <span class="erro" id="erro-genero"></span>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label>E-mail*</label>
-                            <input type="email" id="editEmail" readonly>
-                        </div>
-                        
-                        <button type="button" onclick="atualizarDados()" class="action-btn">
-                            <i class="fas fa-save"></i> SALVAR ALTERAÇÕES
-                        </button>
-                    </form>
+                .status-line {
+                    position: absolute;
+                    top: 10px;
+                    left: 10%;
+                    right: 10%;
+                    height: 2px;
+                    background-color: #444;
+                    z-index: 0;
+                }
+                
+                .status-line-progress {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    height: 100%;
+                    background-color: #00ff85;
+                    transition: width 0.5s;
+                }
+
+                /* Notificações */
+                .notification {
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    padding: 15px;
+                    border-radius: 5px;
+                    color: white;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    z-index: 1000;
+                    opacity: 1;
+                    transition: opacity 0.5s;
+                    max-width: 300px;
+                }
+                
+                .notification.sucesso {
+                    background-color: #00aa00;
+                    border-left: 5px solid #00ff85;
+                }
+                
+                .notification.erro {
+                    background-color: #aa0000;
+                    border-left: 5px solid #ff0000;
+                }
+                
+                .notification.info {
+                    background-color: #0066cc;
+                    border-left: 5px solid #00aaff;
+                }
+                
+                .notification.fade-out {
+                    opacity: 0;
+                }
+
+                /* Responsividade */
+                @media (max-width: 600px) {
+                    .form-row {
+                        flex-direction: column;
+                    }
                     
-                    <!-- Seção de Senha -->
-                    <div class="password-section">
-                        <h3><i class="fas fa-lock"></i> ALTERAR SENHA</h3>
-                        <div class="form-group">
-                            <label>Nova Senha*</label>
-                            <input type="password" id="novaSenha" placeholder="••••••" minlength="6">
-                            <span class="erro" id="erro-senha"></span>
+                    .half-width {
+                        width: 100%;
+                    }
+                    
+                    .action-buttons {
+                        flex-direction: column;
+                    }
+                    
+                    .produto-item {
+                        flex-direction: column;
+                        align-items: flex-start;
+                    }
+                    
+                    .status-timeline {
+                        height: 60px;
+                    }
+                    
+                    .status-label {
+                        font-size: 8px;
+                    }
+                }
+            </style>
+        </head>
+        <body> 
+            <div class="container">
+                <div class="back-to-store">
+                    <a href="loja.html"><i class="fas fa-arrow-left"></i> Voltar para a Loja</a>
+                </div>
+                <div class="profile-box">
+                    <h2>🕹️ MINHA CONTA</h2>
+                    
+                    <!-- Seção de Informações Pessoais -->
+                    <div class="info-section">
+                        <h3><i class="fas fa-user-astronaut"></i> INFORMAÇÕES PESSOAIS</h3>
+                        <form id="profileForm">
+                            <div class="form-group">
+                                <label>Nome Completo*</label>
+                                <input type="text" id="editNome" placeholder="Mario Bros" required>
+                                <span class="erro" id="erro-nome"></span>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Data de Nascimento*</label>
+                                <input type="date" id="editNascimento" required>
+                                <span class="erro" id="erro-nascimento"></span>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Gênero*</label>
+                                <select id="editGenero" required>
+                                    <option value="">Selecione</option>
+                                    <option value="masculino">Masculino</option>
+                                    <option value="feminino">Feminino</option>
+                                    <option value="outro">Outro</option>
+                                    <option value="nao_informar">Prefiro não informar</option>
+                                </select>
+                                <span class="erro" id="erro-genero"></span>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>E-mail*</label>
+                                <input type="email" id="editEmail" readonly>
+                            </div>
+                            
+                            <button type="button" onclick="atualizarDados()" class="action-btn">
+                                <i class="fas fa-save"></i> SALVAR ALTERAÇÕES
+                            </button>
+                        </form>
+                        
+                        <!-- Seção de Senha -->
+                        <div class="password-section">
+                            <h3><i class="fas fa-lock"></i> ALTERAR SENHA</h3>
+                            <div class="form-group">
+                                <label>Nova Senha*</label>
+                                <input type="password" id="novaSenha" placeholder="••••••" minlength="6">
+                                <span class="erro" id="erro-senha"></span>
+                            </div>
+                            <button type="button" onclick="alterarSenha()" class="action-btn">
+                                <i class="fas fa-key"></i> ATUALIZAR SENHA
+                            </button>
                         </div>
-                        <button type="button" onclick="alterarSenha()" class="action-btn">
-                            <i class="fas fa-key"></i> ATUALIZAR SENHA
+                    </div>
+
+                    <!-- Seção de Endereços -->
+                    <div class="address-section">
+                        <h3><i class="fas fa-map-marker-alt"></i> ENDEREÇOS DE ENTREGA</h3>
+                        <div id="listaEnderecos" class="address-list"></div>
                         </button>
                     </div>
-                </div>
 
-                <!-- Seção de Endereços -->
-                <div class="address-section">
-                    <h3><i class="fas fa-map-marker-alt"></i> ENDEREÇOS DE ENTREGA</h3>
-                    <div id="listaEnderecos" class="address-list"></div>
-                    </button>
-                </div>
+                    <!-- Seção de Formas de Pagamento -->
+                    <div class="payment-section">
+                        <h3><i class="fas fa-credit-card"></i> FORMAS DE PAGAMENTO</h3>
+                        <div id="listaPagamentos" class="payment-list"></div>
+                        </button>
+                    </div>
 
-                <!-- Seção de Formas de Pagamento -->
-                <div class="payment-section">
-                    <h3><i class="fas fa-credit-card"></i> FORMAS DE PAGAMENTO</h3>
-                    <div id="listaPagamentos" class="payment-list"></div>
-                    </button>
-                </div>
+                    <!-- Seção de Histórico de Compras -->
+                    <div class="history-section">
+                        <h3><i class="fas fa-history"></i> HISTÓRICO DE COMPRAS</h3>
+                        <button onclick="abrirModalHistorico()" class="action-btn">
+                            <i class="fas fa-receipt"></i> VER MEUS PEDIDOS
+                        </button>
+                    </div>
 
-                <!-- Seção de Histórico de Compras -->
-                <div class="history-section">
-                    <h3><i class="fas fa-history"></i> HISTÓRICO DE COMPRAS</h3>
-                    <button onclick="abrirModalHistorico()" class="action-btn">
-                        <i class="fas fa-receipt"></i> VER MEUS PEDIDOS
-                    </button>
-                </div>
-
-                <!-- Logout -->
-                <div class="logout-section">
-                    <button onclick="logout()" class="btn-logout">
-                        <i class="fas fa-sign-out-alt"></i> SAIR DA CONTA
-                    </button>
+                    <!-- Logout -->
+                    <div class="logout-section">
+                        <button onclick="logout()" class="btn-logout">
+                            <i class="fas fa-sign-out-alt"></i> SAIR DA CONTA
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Modal de Endereço -->
-        <div id="addressModal" class="modal">
-            <div class="modal-content">
-                <span class="close" onclick="fecharModalEndereco()">&times;</span>
-                <h3><i class="fas fa-map-pin"></i> NOVO ENDEREÇO</h3>
-                <form id="addressForm">
-                    <div class="form-group">
-                        <label>CEP*</label>
-                        <input type="text" id="modalCep" class="cep-input" maxlength="9" required>
-                        <span class="erro" id="erro-cep"></span>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Logradouro*</label>
-                        <input type="text" id="modalLogradouro" required>
-                        <span class="erro" id="erro-logradouro"></span>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group half-width">
-                            <label>Número*</label>
-                            <input type="text" id="modalNumero" required>
-                            <span class="erro" id="erro-numero"></span>
-                        </div>
-                        <div class="form-group half-width">
-                            <label>Complemento</label>
-                            <input type="text" id="modalComplemento">
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Bairro*</label>
-                        <input type="text" id="modalBairro" required>
-                        <span class="erro" id="erro-bairro"></span>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group half-width">
-                            <label>Cidade*</label>
-                            <input type="text" id="modalCidade" required>
-                            <span class="erro" id="erro-cidade"></span>
-                        </div>
-                        <div class="form-group half-width">
-                            <label>UF*</label>
-                            <input type="text" id="modalUf" maxlength="2" required>
-                            <span class="erro" id="erro-uf"></span>
-                        </div>
-                    </div>
-                    
-                    <button type="button" onclick="salvarEndereco()" class="action-btn">
-                        <i class="fas fa-save"></i> SALVAR ENDEREÇO
-                    </button>
-                </form>
-            </div>
-        </div>
-
-        <!-- Modal de Forma de Pagamento -->
-        <div id="paymentModal" class="modal">
-            <div class="modal-content">
-                <span class="close" onclick="fecharModalPagamento()">&times;</span>
-                <h3><i class="fas fa-credit-card"></i> ADICIONAR FORMA DE PAGAMENTO</h3>
-                <form id="paymentForm">
-                    <div class="form-group">
-                        <label>Tipo de Pagamento*</label>
-                        <select id="modalTipoPagamento" required onchange="mostrarCamposCartao()">
-                            <option value="">Selecione</option>
-                            <option value="boleto">Boleto Bancário</option>
-                            <option value="credito">Cartão de Crédito</option>
-                        </select>
-                    </div>
-                    
-                    <div id="cartaoFields" style="display: none;">
+            <!-- Modal de Endereço -->
+            <div id="addressModal" class="modal">
+                <div class="modal-content">
+                    <span class="close" onclick="fecharModalEndereco()">&times;</span>
+                    <h3><i class="fas fa-map-pin"></i> NOVO ENDEREÇO</h3>
+                    <form id="addressForm">
                         <div class="form-group">
-                            <label>Nome no Cartão*</label>
-                            <input type="text" id="modalNomeCartao" placeholder="Nome como no cartão">
+                            <label>CEP*</label>
+                            <input type="text" id="modalCep" class="cep-input" maxlength="9" required>
+                            <span class="erro" id="erro-cep"></span>
                         </div>
                         
                         <div class="form-group">
-                            <label>Número do Cartão*</label>
-                            <input type="text" id="modalNumeroCartao" maxlength="19" placeholder="0000 0000 0000 0000">
+                            <label>Logradouro*</label>
+                            <input type="text" id="modalLogradouro" required>
+                            <span class="erro" id="erro-logradouro"></span>
                         </div>
                         
                         <div class="form-row">
                             <div class="form-group half-width">
-                                <label>Validade*</label>
-                                <input type="text" id="modalValidadeCartao" maxlength="7" placeholder="MM/AAAA">
+                                <label>Número*</label>
+                                <input type="text" id="modalNumero" required>
+                                <span class="erro" id="erro-numero"></span>
                             </div>
                             <div class="form-group half-width">
-                                <label>CVV*</label>
-                                <input type="text" id="modalCvvCartao" maxlength="4" placeholder="000">
+                                <label>Complemento</label>
+                                <input type="text" id="modalComplemento">
                             </div>
                         </div>
                         
                         <div class="form-group">
-                            <label>Parcelamento*</label>
-                            <select id="modalParcelas">
-                                <option value="1">1x</option>
-                                <option value="2">2x</option>
-                                <option value="3">3x</option>
-                                <option value="4">4x</option>
-                                <option value="5">5x</option>
-                                <option value="6">6x</option>
-                                <option value="7">7x</option>
-                                <option value="8">8x</option>
-                                <option value="9">9x</option>
-                                <option value="10">10x</option>
-                                <option value="11">11x</option>
-                                <option value="12">12x</option>
+                            <label>Bairro*</label>
+                            <input type="text" id="modalBairro" required>
+                            <span class="erro" id="erro-bairro"></span>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group half-width">
+                                <label>Cidade*</label>
+                                <input type="text" id="modalCidade" required>
+                                <span class="erro" id="erro-cidade"></span>
+                            </div>
+                            <div class="form-group half-width">
+                                <label>UF*</label>
+                                <input type="text" id="modalUf" maxlength="2" required>
+                                <span class="erro" id="erro-uf"></span>
+                            </div>
+                        </div>
+                        
+                        <button type="button" onclick="salvarEndereco()" class="action-btn">
+                            <i class="fas fa-save"></i> SALVAR ENDEREÇO
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Modal de Forma de Pagamento -->
+            <div id="paymentModal" class="modal">
+                <div class="modal-content">
+                    <span class="close" onclick="fecharModalPagamento()">&times;</span>
+                    <h3><i class="fas fa-credit-card"></i> ADICIONAR FORMA DE PAGAMENTO</h3>
+                    <form id="paymentForm">
+                        <div class="form-group">
+                            <label>Tipo de Pagamento*</label>
+                            <select id="modalTipoPagamento" required onchange="mostrarCamposCartao()">
+                                <option value="">Selecione</option>
+                                <option value="boleto">Boleto Bancário</option>
+                                <option value="credito">Cartão de Crédito</option>
                             </select>
                         </div>
-                    </div>
-                    
-                    <button type="button" onclick="salvarPagamento()" class="action-btn">
-                        <i class="fas fa-save"></i> SALVAR FORMA DE PAGAMENTO
-                    </button>
-                </form>
+                        
+                        <div id="cartaoFields" style="display: none;">
+                            <div class="form-group">
+                                <label>Nome no Cartão*</label>
+                                <input type="text" id="modalNomeCartao" placeholder="Nome como no cartão">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Número do Cartão*</label>
+                                <input type="text" id="modalNumeroCartao" maxlength="19" placeholder="0000 0000 0000 0000">
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group half-width">
+                                    <label>Validade*</label>
+                                    <input type="text" id="modalValidadeCartao" maxlength="7" placeholder="MM/AAAA">
+                                </div>
+                                <div class="form-group half-width">
+                                    <label>CVV*</label>
+                                    <input type="text" id="modalCvvCartao" maxlength="4" placeholder="000">
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Parcelamento*</label>
+                                <select id="modalParcelas">
+                                    <option value="1">1x</option>
+                                    <option value="2">2x</option>
+                                    <option value="3">3x</option>
+                                    <option value="4">4x</option>
+                                    <option value="5">5x</option>
+                                    <option value="6">6x</option>
+                                    <option value="7">7x</option>
+                                    <option value="8">8x</option>
+                                    <option value="9">9x</option>
+                                    <option value="10">10x</option>
+                                    <option value="11">11x</option>
+                                    <option value="12">12x</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <button type="button" onclick="salvarPagamento()" class="action-btn">
+                            <i class="fas fa-save"></i> SALVAR FORMA DE PAGAMENTO
+                        </button>
+                    </form>
+                </div>
             </div>
-        </div>
 
-        <!-- Modal de Histórico de Compras -->
-        <div id="historicoModal" class="modal">
-            <div class="modal-content">
-                <span class="close" onclick="fecharModalHistorico()">&times;</span>
-                <h3><i class="fas fa-history"></i> HISTÓRICO DE COMPRAS</h3>
-                <div id="historicoCompras" class="historico-container"></div>
+            <!-- Modal de Histórico de Compras -->
+            <div id="historicoModal" class="modal">
+                <div class="modal-content">
+                    <span class="close" onclick="fecharModalHistorico()">&times;</span>
+                    <h3><i class="fas fa-history"></i> HISTÓRICO DE COMPRAS</h3>
+                    <div id="historicoCompras" class="historico-container"></div>
+                </div>
             </div>
-        </div>
 
-        <script src="assets/js/MinhaConta.js"></script>
-    </body>
-    </html> 
+            <script src="assets/js/MinhaConta.js"></script>
+        </body>
+        </html> 
