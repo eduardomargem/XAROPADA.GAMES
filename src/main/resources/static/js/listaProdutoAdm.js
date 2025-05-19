@@ -32,7 +32,7 @@ document.getElementById('productImages').addEventListener('change', function(e) 
 // Variáveis de controle de produtos e paginação
 let produtos = [];
 let currentProductPage = 1;
-const productsPerPage = 10;
+const productsPerPage = 4;
 let productSearchQuery = '';
 
 // Verifica se o usuário tem permissão (admin = grupo 1)
@@ -105,17 +105,26 @@ function paginateProducts(filteredProducts) {
 
 // Atualizar navegação da paginação de produtos
 function updateProductPagination(filteredProductsCount) {
-  const totalPages = Math.ceil(filteredProductsCount / productsPerPage);
+  const totalPages = Math.ceil(filteredProductsCount / productsPerPage) || 1;
+  
   document.getElementById('prevProductPage').disabled = currentProductPage === 1;
-  document.getElementById('nextProductPage').disabled = currentProductPage === totalPages;
+  document.getElementById('nextProductPage').disabled = currentProductPage === totalPages || totalPages === 0;
   document.getElementById('productPageInfo').textContent = `Página ${currentProductPage} de ${totalPages}`;
 }
 
+
 // Alterar página de produtos
 function changeProductPage(direction) {
-  const totalPages = Math.ceil(produtos.length / productsPerPage);
-  if (direction === 'prev' && currentProductPage > 1) currentProductPage--;
-  if (direction === 'next' && currentProductPage < totalPages) currentProductPage++;
+  const filteredProducts = filterProducts();
+  const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
+  
+  if (direction === 'prev' && currentProductPage > 1) {
+    currentProductPage--;
+  }
+  if (direction === 'next' && currentProductPage < totalPages) {
+    currentProductPage++;
+  }
+  
   renderProducts();
 }
 

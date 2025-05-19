@@ -11,11 +11,14 @@
   <link href="https://cdn.jsdelivr.net/npm/font-awesome/css/font-awesome.min.css" rel="stylesheet">
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>Lista de Produtos - Administrador</h1>
-    </header>
 
+  <div class="logo-bg">
+    <div class="logo-content">
+        <img th:src="@{images/spaceinvader2.png}" alt="Invader Pixel">
+    </div>
+
+  <div class="container">
+    
     <!-- Modal de Cadastro de Produto -->
     <div id="registerProductModal" class="modal" style="display: none;">
       <div class="modal-content">
@@ -121,10 +124,11 @@
 
     <!-- Filtros e Tabela -->
     <section>
+      <h2>Lista de Produtos - Administrador</h2>
       <div class="filters">
         <input type="text" id="productSearch" placeholder="Pesquisar por nome...">
         <button onclick="applyProductFilters()">Pesquisar</button>
-        <button onclick="openRegisterProductModal()">+ Novo Produto</button>
+        <button onclick="openRegisterProductModal()">+</button>
       </div>
 
       <table id="productsTable">
@@ -147,11 +151,12 @@
         <button id="prevProductPage" onclick="changeProductPage('prev')" disabled>Anterior</button>
         <span id="productPageInfo"></span>
         <button id="nextProductPage" onclick="changeProductPage('next')">Próximo</button>
+        <a th:href="@{/dashboard-admin}" class="back">Voltar</a>
       </div>
     </section>
   </div>
 
-  <a th:href="@{/dashboard-admin}" class="back">Voltar</a>
+  
 
   <script th:src="@{/js/listaProdutoAdm.js}"></script>
 
