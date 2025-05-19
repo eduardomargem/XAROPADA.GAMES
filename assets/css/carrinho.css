@@ -990,3 +990,249 @@ body {
     0% { transform: translateX(-100%); }
     100% { transform: translateX(100%); }
 }
+
+
+
+
+/* Estilo para o header */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 30px;
+    background-color: #1a1a2e;
+    color: white;
+    position: relative;
+    z-index: 1000;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.logo img {
+    height: 40px;
+}
+
+.logo h1 {
+    font-size: 24px;
+    margin: 0;
+}
+
+.logo span {
+    color: #00FF85;
+}
+
+/* Estilo para os links do header */
+.header-links {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-right: auto;
+    margin-left: 30px;
+}
+
+.header-link {
+    color: #fff;
+    text-decoration: none;
+    font-size: 16px;
+    transition: color 0.3s;
+}
+
+.header-link:hover {
+    color: #00FF85;
+}
+
+.header-link i {
+    margin-right: 5px;
+}
+
+/* Estilo para a seção do usuário */
+.user-section {
+    position: relative;
+    cursor: pointer;
+}
+
+.login-option {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.login-option div:first-child {
+    font-size: 12px;
+}
+
+.login-option div:last-child {
+    font-weight: bold;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: relative;
+}
+
+.user-info i {
+    font-size: 18px;
+}
+
+.user-actions {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: #2c2a64;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    display: none;
+    z-index: 100;
+}
+
+.user-info:hover .user-actions {
+    display: block;
+}
+
+.account-link {
+    color: #00FF85;
+    text-decoration: none;
+    display: block;
+    padding: 8px 12px;
+    white-space: nowrap;
+    transition: all 0.3s;
+}
+
+.account-link:hover {
+    background: rgba(0, 255, 133, 0.1);
+}
+
+.logout-btn {
+    color: #ff0000;
+    text-decoration: none;
+    display: block;
+    padding: 8px 12px;
+    white-space: nowrap;
+    transition: all 0.3s;
+    cursor: pointer;
+    background: none;
+    border: none;
+    width: 100%;
+    text-align: left;
+    font-family: inherit;
+    font-size: inherit;
+}
+
+.logout-btn:hover {
+    background: rgba(255, 0, 0, 0.1);
+}
+
+/* Novo estilo para o botão Sair ao lado do ícone */
+.logout-side {
+    color: #ff0000;
+    margin-left: 15px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.logout-side:hover {
+    opacity: 0.8;
+}
+
+/* Estilo para o carrinho */
+.cart-info {
+    margin-left: 20px;
+}
+
+.cart-icon {
+    position: relative;
+    cursor: pointer;
+}
+
+.cart-icon i {
+    font-size: 20px;
+}
+
+.cart-icon span {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #00FF85;
+    color: #000;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+/* Estilo para o modal de verificação */
+.verification-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.8);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.verification-content {
+    background: #000;
+    border: 3px solid #00ff00;
+    padding: 20px;
+    width: 90%;
+    max-width: 500px;
+    color: #00ff00;
+    font-family: 'Press Start 2P', cursive;
+    text-align: center;
+}
+
+.verification-content h2 {
+    margin-bottom: 20px;
+}
+
+.verification-content p {
+    margin-bottom: 20px;
+    font-size: 12px;
+}
+
+.verification-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.verification-btn {
+    background: #000;
+    border: 2px solid #00ff00;
+    color: #00ff00;
+    padding: 10px 20px;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.verification-btn:hover {
+    background: #00ff00;
+    color: #000;
+}
+
+.verification-btn.cancel {
+    border-color: #ff0000;
+    color: #ff0000;
+}
+
+.verification-btn.cancel:hover {
+    background: #ff0000;
+    color: #000;
+}

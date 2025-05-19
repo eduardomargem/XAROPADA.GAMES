@@ -1,0 +1,570 @@
+     /* Estilo Pixel/Retrô Xaropada Games - Página Endereço */
+        :root {
+            --primary: #00ff85;
+            --secondary: #00cc66;
+            --accent: #ff00aa;
+            --dark: #1a1a2e;
+            --dark-secondary: #2a2a4a;
+            --light: #f8f9fa;
+            --success: #00ff85;
+            --error: #ff3333;
+            --info: #00aaff;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Press Start 2P', cursive;
+            image-rendering: pixelated;
+        }
+        
+        body {
+            background-color: var(--dark);
+            color: var(--primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        header {
+            width: 100%;
+            background-color: var(--dark-secondary);
+            padding: 20px 0;
+            border-bottom: 4px solid var(--secondary);
+            box-shadow: 0 4px 0 #000;
+            margin-bottom: 30px;
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 800px;
+            margin-bottom: 40px;
+        }
+        
+        /* Estilo do logo com imagem */
+        .logo-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .logo-img {
+            height: 50px;
+            image-rendering: pixelated;
+        }
+        
+        .logo-text {
+            font-size: 1.8rem;
+            text-shadow: 3px 3px 0 #000;
+            animation: pulse 2s infinite;
+        }
+        
+        .logo-text span {
+            color: var(--accent);
+        }
+        
+        /* Card de Endereço Estilo Pixel */
+        .address-card {
+            background-color: var(--dark-secondary);
+            border: 4px solid var(--secondary);
+            border-radius: 0;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 8px 8px 0 #000;
+            position: relative;
+        }
+        
+        .address-card::before {
+            content: "";
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            right: -5px;
+            bottom: -5px;
+            border: 2px solid var(--accent);
+            z-index: -1;
+        }
+        
+        .address-card h2 {
+            color: var(--primary);
+            margin-bottom: 25px;
+            font-size: 1.3rem;
+            text-shadow: 2px 2px 0 #000;
+            border-bottom: 3px solid var(--accent);
+            padding-bottom: 10px;
+        }
+        
+        /* Opções de Endereço */
+        .address-option {
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+            border: 3px solid #3a3a5a;
+            margin-bottom: 15px;
+            background-color: #2a2a4a;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+        
+        .address-option:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 4px 4px 0 #000;
+            border-color: var(--secondary);
+        }
+        
+        .address-option h3 {
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .address-option p {
+            color: #aaa;
+            font-size: 0.7rem;
+            margin-bottom: 5px;
+            margin-left: 35px;
+            line-height: 1.5;
+        }
+        
+        .address-option .tag {
+            display: inline-block;
+            background-color: var(--accent);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 0;
+            font-size: 0.6rem;
+            margin-top: 5px;
+            box-shadow: 2px 2px 0 #000;
+        }
+        
+        .change-address {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: normal;
+            display: inline-block;
+            margin-top: 10px;
+            cursor: pointer;
+            font-size: 0.7rem;
+        }
+        
+        .change-address:hover {
+            color: var(--accent);
+            text-decoration: none;
+        }
+        
+        .divider {
+            height: 3px;
+            background-color: #3a3a5a;
+            margin: 20px 0;
+            box-shadow: 2px 2px 0 #000;
+        }
+        
+        .free-shipping {
+            color: var(--success);
+            font-weight: bold;
+            margin-bottom: 20px;
+            font-size: 0.8rem;
+            text-shadow: 1px 1px 0 #000;
+        }
+        
+        .summary {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            font-size: 0.8rem;
+        }
+        
+        .summary td {
+            padding: 8px 0;
+            border-bottom: 3px solid #3a3a5a;
+            color: var(--primary);
+        }
+        
+        .summary td:last-child {
+            text-align: right;
+            font-weight: bold;
+        }
+        
+        /* Botões */
+        .btn {
+            background-color: var(--primary);
+            color: #000;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 0;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            box-shadow: 4px 4px 0 #000;
+            text-transform: uppercase;
+        }
+        
+        .btn:hover {
+            background-color: var(--secondary);
+            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0 #000;
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            border: 3px solid var(--primary);
+            color: var(--primary);
+        }
+        
+        .btn-outline:hover {
+            background-color: rgba(0, 255, 133, 0.1);
+        }
+        
+        .btn-danger {
+            background-color: transparent;
+            border: 3px solid var(--error);
+            color: var(--error);
+        }
+        
+        .btn-danger:hover {
+            background-color: rgba(255, 51, 51, 0.1);
+        }
+        
+        /* Estilo do modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: var(--dark-secondary);
+            border: 4px solid var(--primary);
+            border-radius: 0;
+            width: 90%;
+            max-width: 600px;
+            padding: 25px;
+            box-shadow: 8px 8px 0 #000;
+            animation: modalFadeIn 0.3s;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        .modal-content::before {
+            content: "";
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            right: -5px;
+            bottom: -5px;
+            border: 2px solid var(--accent);
+            z-index: -1;
+        }
+        
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid var(--accent);
+        }
+        
+        .modal-header h3 {
+            color: var(--primary);
+            font-size: 1.2rem;
+            text-shadow: 2px 2px 0 #000;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--primary);
+            transition: transform 0.2s;
+        }
+        
+        .close-modal:hover {
+            transform: rotate(90deg);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            color: var(--primary);
+            font-size: 0.8rem;
+        }
+        
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 3px solid #3a3a5a;
+            background-color: #1a1a2e;
+            color: var(--primary);
+            font-size: 0.9rem;
+        }
+        
+        .form-group input:focus, .form-group select:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 2px var(--accent);
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
+        }
+        
+        .address-type {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .address-type label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+        
+        .address-type input[type="radio"] {
+            margin-right: 8px;
+            width: 20px;
+            height: 20px;
+            appearance: none;
+            border: 3px solid #3a3a5a;
+            background-color: #1a1a2e;
+            position: relative;
+        }
+        
+        .address-type input[type="radio"]:checked {
+            background-color: var(--primary);
+            border-color: var(--primary);
+        }
+        
+        .address-type input[type="radio"]:checked::after {
+            content: "✓";
+            position: absolute;
+            color: #000;
+            font-size: 12px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 3px solid var(--accent);
+        }
+        
+        /* Lista de endereços */
+        #listaEnderecos {
+            margin-top: 20px;
+        }
+        
+        .endereco-item {
+            border: 3px solid #3a3a5a;
+            border-radius: 0;
+            padding: 15px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #2a2a4a;
+            transition: all 0.2s ease;
+        }
+        
+        .endereco-item:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 4px 4px 0 #000;
+        }
+        
+        .endereco-item.padrao {
+            border-color: var(--primary);
+            background-color: rgba(0, 255, 133, 0.1);
+            box-shadow: 4px 4px 0 #000;
+        }
+        
+        .address-info {
+            flex-grow: 1;
+        }
+        
+        .address-info h3 {
+            color: var(--primary);
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+        
+        .address-info p {
+            color: #aaa;
+            font-size: 0.7rem;
+            margin-bottom: 3px;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn-default {
+            padding: 8px 12px;
+            background-color: var(--primary);
+            color: #000;
+            border: none;
+            border-radius: 0;
+            cursor: pointer;
+            font-size: 0.7rem;
+            box-shadow: 2px 2px 0 #000;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-default:hover {
+            transform: translate(-1px, -1px);
+            box-shadow: 3px 3px 0 #000;
+        }
+        
+        .no-address {
+            color: #aaa;
+            font-style: normal;
+            text-align: center;
+            padding: 20px;
+            font-size: 0.8rem;
+            border: 3px dashed #3a3a5a;
+        }
+        
+        /* Botões de Navegação */
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .btn-back {
+            background-color: var(--dark-secondary);
+            color: var(--primary);
+            border: 3px solid var(--primary);
+            padding: 15px 25px;
+            border-radius: 0;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            box-shadow: 4px 4px 0 #000;
+            text-transform: uppercase;
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        .btn-back:hover {
+            background-color: var(--primary);
+            color: #000;
+            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0 #000;
+        }
+        
+        .btn-next {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 0;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            box-shadow: 4px 4px 0 #000;
+            text-transform: uppercase;
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        .btn-next:hover {
+            background-color: #ff00cc;
+            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0 #000;
+        }
+        
+        /* Animação */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .logo-text {
+                font-size: 1.4rem;
+            }
+            
+            .logo-img {
+                height: 40px;
+            }
+            
+            .address-card h2 {
+                font-size: 1.1rem;
+            }
+            
+            .address-option h3 {
+                font-size: 0.8rem;
+            }
+            
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+            
+            .endereco-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .action-buttons {
+                margin-top: 10px;
+                width: 100%;
+                justify-content: flex-end;
+            }
+            
+            .btn, .btn-back, .btn-next {
+                padding: 12px 20px;
+                font-size: 0.8rem;
+                min-width: 100%;
+            }
+            
+            .navigation-buttons {
+                flex-direction: column;
+            }
+        }
