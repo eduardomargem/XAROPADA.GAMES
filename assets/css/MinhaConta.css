@@ -1,7 +1,7 @@
 body {
     margin: 0;
-    background-color: #1a1a1a;
-    color: #00ff00;
+    background-color: #20202d;
+    color: #00cc66;
     font-family: 'Press Start 2P', cursive;
     overflow-x: hidden;
 }
@@ -19,7 +19,7 @@ body {
 }
 
 .back-to-store a {
-    color: #00ff00;
+    color: #00cc66  ;
     text-decoration: none;
     font-size: 10px;
 }
@@ -27,7 +27,7 @@ body {
 .logo {
     text-align: center;
     margin-bottom: 30px;
-    filter: drop-shadow(0 0 5px #00ff00);
+    filter: drop-shadow(0 0 5px #00cc66);
 }
 
 .logo img {
@@ -49,29 +49,29 @@ body {
 
 .profile-box {
     background-color: rgba(0, 0, 0, 0.8);
-    border: 3px solid #00ff00;
+    border: 3px solid #00cc66;
     padding: 20px;
-    box-shadow: 0 0 15px #00ff00;
+    box-shadow: 0 0 15px #00cc66;
     border-radius: 10px;
 }
 
 .profile-box h2 {
-    color: #00ff00;
+    color: #00cc66;
     text-align: center;
     margin-bottom: 30px;
-    text-shadow: 0 0 10px #00ff00;
+    text-shadow: 0 0 10px #00cc66;
     font-size: 18px;
 }
 
 .info-section, .address-section, .payment-section {
-    border: 2px dashed #00ff00;
+    border: 2px dashed #00cc66;
     padding: 15px;
     margin-bottom: 25px;
     background-color: rgba(0, 20, 0, 0.3);
 }
 
 h3 {
-    color: #00ff00;
+    color: #00cc66  ;
     margin: 15px 0;
     font-size: 14px;
 }
@@ -81,7 +81,7 @@ h3 {
 }
 
 .form-group label {
-    color: #00ff00;
+    color: #00cc66 ;
     margin-bottom: 8px;
     font-size: 10px;
     display: block;
@@ -91,8 +91,8 @@ input, select {
     width: 100%;
     padding: 10px;
     background: #000;
-    border: 2px solid #00ff00;
-    color: #00ff00;
+    border: 2px solid #00cc66;
+    color: #00cc66;
     font-family: 'Press Start 2P', cursive;
     font-size: 10px;
     margin-bottom: 5px;
@@ -105,8 +105,8 @@ input:read-only {
 
 button {
     background: #000;
-    border: 2px solid #00ff00;
-    color: #00ff00;
+    border: 2px solid #00cc66;
+    color: #00cc66;
     padding: 12px 24px;
     font-family: 'Press Start 2P', cursive;
     font-size: 10px;
@@ -252,9 +252,6 @@ button:hover {
         width: 100%;
     }
 }
-
-
-
 
 
  /* Estilos para o modal de histórico */
