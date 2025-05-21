@@ -1,4 +1,4 @@
-// dashboard.js - Versão atualizada para o HTML fornecido
+// dashboard.js - Versão atualizada para o estoquista com Listar Pedidos
 
 document.addEventListener("DOMContentLoaded", function() {
     // Recupera os dados do usuário logado do localStorage
@@ -36,6 +36,10 @@ document.addEventListener("DOMContentLoaded", function() {
             <a href="ListaProdutoEstq.html" class="dashboard-link">
                 <i class="fas fa-boxes"></i>
                 <span>Listar Produtos</span>
+            </a>
+            <a href="listaPedidos.html" class="dashboard-link">
+                <i class="fas fa-clipboard-list"></i>
+                <span>Listar Pedidos</span>
             </a>
         `;
     } else {

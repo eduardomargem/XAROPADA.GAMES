@@ -1,0 +1,130 @@
+    /* Adição única: Estilo para o link Minha Conta */
+            .user-actions {
+                position: absolute;
+                top: 100%;
+                right: 0;
+                background: #2c2a64;
+                padding: 10px;
+                border-radius: 5px;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+                display: none;
+                z-index: 100;
+            }
+
+            .user-info:hover .user-actions {
+                display: block;
+            }
+
+            .account-link {
+                color: #00FF85;
+                text-decoration: none;
+                display: block;
+                padding: 8px 12px;
+                white-space: nowrap;
+                transition: all 0.3s;
+            }
+
+            .account-link:hover {
+                background: rgba(0, 255, 133, 0.1);
+            }
+
+            /* Estilo para o modal de verificação */
+            .verification-modal {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.8);
+                z-index: 1000;
+                justify-content: center;
+                align-items: center;
+            }
+
+            .verification-content {
+                background: #000;
+                border: 3px solid #00ff00;
+                padding: 20px;
+                width: 90%;
+                max-width: 500px;
+                color: #00ff00;
+                font-family: 'Press Start 2P', cursive;
+                text-align: center;
+            }
+
+            .verification-content h2 {
+                margin-bottom: 20px;
+            }
+
+            .verification-content p {
+                margin-bottom: 20px;
+                font-size: 12px;
+            }
+
+            .verification-buttons {
+                display: flex;
+                justify-content: center;
+                gap: 15px;
+            }
+
+            .verification-btn {
+                background: #000;
+                border: 2px solid #00ff00;
+                color: #00ff00;
+                padding: 10px 20px;
+                font-family: 'Press Start 2P', cursive;
+                font-size: 10px;
+                cursor: pointer;
+                transition: all 0.3s;
+            }
+
+            .verification-btn:hover {
+                background: #00ff00;
+                color: #000;
+            }
+
+            .verification-btn.cancel {
+                border-color: #ff0000;
+                color: #ff0000;
+            }
+
+            .verification-btn.cancel:hover {
+                background: #ff0000;
+                color: #000;
+            }
+
+            /* Estilo para os novos links no header */
+            .header-links {
+                display: flex;
+                align-items: center;
+                gap: 20px;
+                margin-right: auto;
+                margin-left: 30px;
+            }
+
+            .header-link {
+                color: #fff;
+                text-decoration: none;
+                font-size: 16px;
+                transition: color 0.3s;
+            }
+
+            .header-link:hover {
+                color: #00FF85;
+            }
+
+            .header-link i {
+                margin-right: 5px;
+            }
+            
+            /* Ajustes para o logo */
+            .logo {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+            
+            .logo img {
+                height: 40px; /* Ajuste conforme necessário */
+            }
