@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <title>Lista de Usuários - Backoffice</title>
+  <link rel="stylesheet" href="/assets/css/listaUsuario.css">
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Lista de Usuários</h1>
+    </header>
+
+    <!-- Formulário de Cadastro de Usuário (Modal) -->
+    <div id="registerModal" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="closeRegisterModal()">&times;</span>
+        <h2><i class="fas fa-user-plus"></i> Cadastrar Usuário</h2>
+        <form id="registerForm">
+          <div class="form-group">
+            <label for="userName">Nome</label>
+            <input type="text" id="userName" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="userCpf">CPF</label>
+            <input type="text" id="userCpf" placeholder="CPF" required maxlength="14">
+            <small class="error-message" id="cpfError"></small>
+          </div>
+          
+          <div class="form-group">
+            <label for="userEmail">Email</label>
+            <input type="email" id="userEmail" required>
+            <small class="error-message" id="emailError"></small>
+          </div>
+          
+          <div class="form-group">
+            <label for="userPassword">Senha</label>
+            <input type="password" id="userPassword" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="userConfirmPassword">Confirmar Senha</label>
+            <input type="password" id="userConfirmPassword" required>
+            <small class="error-message" id="passwordError"></small>
+          </div>
+          
+          <div class="form-group">
+            <label for="userGroup">Grupo</label>
+            <select id="userGroup" required>
+              <option value="">Selecione...</option>
+              <option value="admin">Administrador</option>
+              <option value="estoquista">Estoquista</option>
+            </select>
+          </div>
+
+          <button type="submit" class="submit-btn">
+            <i class="fas fa-save"></i> Cadastrar
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modal de Edição de Usuário -->
+    <div id="editUserModal" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="closeEditModal()">&times;</span>
+        <h2><i class="fas fa-user-edit"></i> Editar Usuário</h2>
+        <form id="editUserForm">
+          <div class="form-group">
+            <label for="editUserName">Nome</label>
+            <input type="text" id="editUserName" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="editUserCpf">CPF</label>
+            <input type="text" id="editUserCpf" placeholder="CPF" required maxlength="14">
+            <small class="error-message" id="editCpfError"></small>
+          </div>
+          
+          <div class="form-group">
+            <label for="editUserEmail">Email</label>
+            <input type="email" id="editUserEmail" disabled required>
+          </div>
+          
+          <div class="form-group">
+            <label for="editUserPassword">Nova Senha (opcional)</label>
+            <input type="password" id="editUserPassword" placeholder="Deixe em branco para manter atual">
+          </div>
+          
+          <div class="form-group">
+            <label for="editUserConfirmPassword">Confirmar Nova Senha</label>
+            <input type="password" id="editUserConfirmPassword">
+            <small class="error-message" id="editPasswordError"></small>
+          </div>
+          
+          <div class="form-group">
+            <label for="editUserGroup">Grupo</label>
+            <select id="editUserGroup" required>
+              <option value="admin">Administrador</option>
+              <option value="estoquista">Estoquista</option>
+            </select>
+          </div>
+
+          <button type="submit" class="submit-btn">
+            <i class="fas fa-save"></i> Salvar Alterações
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Filtros e Tabela -->
+    <section>
+      <div class="filters">
+        <div class="search-container">
+          <i class="fas fa-search"></i>
+          <input type="text" id="search" placeholder="Pesquisar por nome...">
+        </div>
+        <button class="search-btn" onclick="applyFilters()">Pesquisar</button>
+        <button class="add-btn" onclick="openRegisterModal()">
+          <i class="fas fa-plus"></i> Novo Usuário
+        </button>
+      </div>
+
+      <div class="table-container">
+        <table id="usersTable">
+          <thead>
+            <tr>
+              <th onclick="sortTable('name')">Nome <i class="fa fa-sort"></i></th>
+              <th>Email</th>
+              <th>CPF</th>
+              <th onclick="sortTable('status')">Status <i class="fa fa-sort"></i></th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Lista de usuários será gerada dinamicamente -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Paginação -->
+      <div class="pagination">
+        <button id="prevPage" onclick="changePage('prev')" disabled>
+          <i class="fas fa-chevron-left"></i> Anterior
+        </button>
+        <span id="pageInfo">Página 1 de 1</span>
+        <button id="nextPage" onclick="changePage('next')">
+          Próximo <i class="fas fa-chevron-right"></i>
+        </button>
+      </div>
+    </section>
+  </div>
+
+  <a href="/Templates/dashboard.html" class="back">
+    <i class="fas fa-arrow-left"></i> Voltar
+  </a>
+
+  <!-- Modal de Confirmação para Inativar/Ativar Usuário -->
+  <div id="confirmationModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal()">&times;</span>
+      <h2><i class="fas fa-exclamation-triangle"></i> Confirmação</h2>
+      <p id="modalMessage"></p>
+      <div class="modal-buttons">
+        <button id="confirmBtn" class="confirm-btn" onclick="confirmAction()">
+          <i class="fas fa-check"></i> Confirmar
+        </button>
+        <button class="cancel-btn" onclick="closeModal()">
+          <i class="fas fa-times"></i> Cancelar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/assets/js/listaUsuario.js"></script>
+
+  <script>
+    // Verificar se há usuário logado
+    const loggedUser = JSON.parse(localStorage.getItem('usuarioLogado'));
+    
+    // Se não estiver logado, redirecionar para login
+    if (!loggedUser) {
+        window.location.href = 'index.html';
+    }
+    
+    // Se for estoquista, esconder o botão de cadastro
+    if (loggedUser && loggedUser.tipo === 'Estoquista') {
+        document.addEventListener('DOMContentLoaded', function() {
+            const cadastroBtn = document.querySelector('.add-btn');
+            if (cadastroBtn) cadastroBtn.style.display = 'none';
+        });
+    }
+
+    // Abrir modal de edição do primeiro usuário ao carregar a página
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(() => {
+            if (users.length > 0) {
+                openEditModal(users[0].id);
+            }
+        }, 500);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,217 @@
+        <!DOCTYPE html>
+        <html lang="pt-BR">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Minha Conta - XaropadaGames</title>
+            <link rel="preconnect" href="https://fonts.googleapis.com">
+            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+            <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+            <link rel="stylesheet" href="/assets/css/MinhaConta.css">
+            <link rel="stylesheet" href="/assets/css/MinhaConta2.css">
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        </head>
+        <body> 
+            <div class="container">
+                <div class="back-to-store">
+                    <a href="/Templates/Loja.html"><i class="fas fa-arrow-left"></i> Voltar para a Loja</a>
+                </div>
+                <div class="profile-box">
+                    <h2>MINHA CONTA</h2>
+                    
+                    <!-- Seção de Informações Pessoais -->
+                    <div class="info-section">
+                        <h3><i class="fas fa-user-astronaut"></i> INFORMAÇÕES PESSOAIS</h3>
+                        <form id="profileForm">
+                            <div class="form-group">
+                                <label>Nome Completo*</label>
+                                <input type="text" id="editNome" placeholder="Mario Bros" required>
+                                <span class="erro" id="erro-nome"></span>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Data de Nascimento*</label>
+                                <input type="date" id="editNascimento" required>
+                                <span class="erro" id="erro-nascimento"></span>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Gênero*</label>
+                                <select id="editGenero" required>
+                                    <option value="">Selecione</option>
+                                    <option value="masculino">Masculino</option>
+                                    <option value="feminino">Feminino</option>
+                                    <option value="outro">Outro</option>
+                                    <option value="nao_informar">Prefiro não informar</option>
+                                </select>
+                                <span class="erro" id="erro-genero"></span>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>E-mail*</label>
+                                <input type="email" id="editEmail" readonly>
+                            </div>
+                            
+                            <button type="button" onclick="atualizarDados()" class="action-btn">
+                                <i class="fas fa-save"></i> SALVAR ALTERAÇÕES
+                            </button>
+                        </form>
+                        
+                        <!-- Seção de Senha -->
+                        <div class="password-section">
+                            <h3><i class="fas fa-lock"></i> ALTERAR SENHA</h3>
+                            <div class="form-group">
+                                <label>Nova Senha*</label>
+                                <input type="password" id="novaSenha" placeholder="••••••" minlength="6">
+                                <span class="erro" id="erro-senha"></span>
+                            </div>
+                            <button type="button" onclick="alterarSenha()" class="action-btn">
+                                <i class="fas fa-key"></i> ATUALIZAR SENHA
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Seção de Endereços -->
+                    <div class="address-section">
+                        <h3><i class="fas fa-map-marker-alt"></i> ENDEREÇOS DE ENTREGA</h3>
+                        <div id="listaEnderecos" class="address-list"></div>
+                        </button>
+                    </div>
+
+                    <!-- Seção de Formas de Pagamento -->
+                    <div class="payment-section">
+                        <h3><i class="fas fa-credit-card"></i> FORMAS DE PAGAMENTO</h3>
+                        <div id="listaPagamentos" class="payment-list"></div>
+                        </button>
+                    </div>
+
+                    <!-- Logout -->
+                    <div class="logout-section">
+                        <button onclick="logout()" class="btn-logout">
+                            <i class="fas fa-sign-out-alt"></i> SAIR DA CONTA
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal de Endereço -->
+            <div id="addressModal" class="modal">
+                <div class="modal-content">
+                    <span class="close" onclick="fecharModalEndereco()">&times;</span>
+                    <h3><i class="fas fa-map-pin"></i> NOVO ENDEREÇO</h3>
+                    <form id="addressForm">
+                        <div class="form-group">
+                            <label>CEP*</label>
+                            <input type="text" id="modalCep" class="cep-input" maxlength="9" required>
+                            <span class="erro" id="erro-cep"></span>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Logradouro*</label>
+                            <input type="text" id="modalLogradouro" required>
+                            <span class="erro" id="erro-logradouro"></span>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group half-width">
+                                <label>Número*</label>
+                                <input type="text" id="modalNumero" required>
+                                <span class="erro" id="erro-numero"></span>
+                            </div>
+                            <div class="form-group half-width">
+                                <label>Complemento</label>
+                                <input type="text" id="modalComplemento">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Bairro*</label>
+                            <input type="text" id="modalBairro" required>
+                            <span class="erro" id="erro-bairro"></span>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group half-width">
+                                <label>Cidade*</label>
+                                <input type="text" id="modalCidade" required>
+                                <span class="erro" id="erro-cidade"></span>
+                            </div>
+                            <div class="form-group half-width">
+                                <label>UF*</label>
+                                <input type="text" id="modalUf" maxlength="2" required>
+                                <span class="erro" id="erro-uf"></span>
+                            </div>
+                        </div>
+                        
+                        <button type="button" onclick="salvarEndereco()" class="action-btn">
+                            <i class="fas fa-save"></i> SALVAR ENDEREÇO
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Modal de Forma de Pagamento -->
+            <div id="paymentModal" class="modal">
+                <div class="modal-content">
+                    <span class="close" onclick="fecharModalPagamento()">&times;</span>
+                    <h3><i class="fas fa-credit-card"></i> ADICIONAR FORMA DE PAGAMENTO</h3>
+                    <form id="paymentForm">
+                        <div class="form-group">
+                            <label>Tipo de Pagamento*</label>
+                            <select id="modalTipoPagamento" required onchange="mostrarCamposCartao()">
+                                <option value="">Selecione</option>
+                                <option value="boleto">Boleto Bancário</option>
+                                <option value="credito">Cartão de Crédito</option>
+                            </select>
+                        </div>
+                        
+                        <div id="cartaoFields" style="display: none;">
+                            <div class="form-group">
+                                <label>Nome no Cartão*</label>
+                                <input type="text" id="modalNomeCartao" placeholder="Nome como no cartão">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Número do Cartão*</label>
+                                <input type="text" id="modalNumeroCartao" maxlength="19" placeholder="0000 0000 0000 0000">
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group half-width">
+                                    <label>Validade*</label>
+                                    <input type="text" id="modalValidadeCartao" maxlength="7" placeholder="MM/AAAA">
+                                </div>
+                                <div class="form-group half-width">
+                                    <label>CVV*</label>
+                                    <input type="text" id="modalCvvCartao" maxlength="4" placeholder="000">
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Parcelamento*</label>
+                                <select id="modalParcelas">
+                                    <option value="1">1x</option>
+                                    <option value="2">2x</option>
+                                    <option value="3">3x</option>
+                                    <option value="4">4x</option>
+                                    <option value="5">5x</option>
+                                    <option value="6">6x</option>
+                                    <option value="7">7x</option>
+                                    <option value="8">8x</option>
+                                    <option value="9">9x</option>
+                                    <option value="10">10x</option>
+                                    <option value="11">11x</option>
+                                    <option value="12">12x</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <button type="button" onclick="salvarPagamento()" class="action-btn">
+                            <i class="fas fa-save"></i> SALVAR FORMA DE PAGAMENTO
+                        </button>
+                    </form>
+                </div>
+            </div>
+            <script src="/assets/js/MinhaConta.js"></script>
+        </body>
+        </html> 

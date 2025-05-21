@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+    <html lang="pt-BR">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>XaropadaGames - MarketPlace</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <link rel="stylesheet" href="/assets/css/carrinho.css">
+         <link rel="stylesheet" href="/assets/css/LojaCliente.css">
+        </style>
+    </head>
+    <body>
+        <header class="header">
+            <div class="logo">
+                <img src="/assets/img/spaceinvader2.png" alt="Invader Pixel">
+                <h1>Xaropada<span>Games</span></h1>
+            </div>
+            
+            <div class="header-links">
+                <a href="/Templates/Pagamento.html" class="header-link">
+                    <i class="fas fa-credit-card"></i> Formas de Pagamento
+                </a>
+                <a href="/Templates/Resumo.htm" class="header-link">
+                    <i class="fas fa-clipboard-list"></i> Meus Pedidos
+                </a>
+                <a href="/Templates/DadosEntrega.html" class="header-link">
+                    <i class="fas fa-map-marker-alt"></i> Endereço de Entrega
+                </a>
+            </div>
+            
+            <div class="user-section" id="userSection">
+                <div class="login-option">
+                    <div><i class="fas fa-user"></i> <span>ENTRE OU</span></div>
+                    <div>CADASTRE-SE</div>
+                </div>
+            </div>
+            <div class="cart-info">
+                <div class="cart-icon" id="cartIcon">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span id="cartCount">0</span>
+                </div>
+            </div>
+        </header>
+
+        <main class="container">
+            <section class="products-grid" id="productsGrid">
+                <!-- Produtos serão gerados dinamicamente via JavaScript -->
+            </section>
+        </main>
+
+        <!-- Modal do Carrinho -->
+        <div class="cart-modal" id="cartModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Seu Carrinho</h2>
+                    <span class="close-modal" id="closeModal">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <div class="cart-items" id="cartItems"></div>
+                    <div class="frete-section">
+                        <h3>Calcular Frete</h3>
+                        <div class="cep-input">
+                            <input type="text" id="cepInput" placeholder="Digite seu CEP" maxlength="9">
+                            <button id="calcFreteBtn">Calcular</button>
+                        </div>
+                        <div id="cepInfo" class="cep-info"></div>
+                        <div class="frete-options" id="freteOptions">
+                            <div class="frete-option" data-value="15">
+                                <input type="radio" name="frete" id="frete1">
+                                <label for="frete1">Economia - R$ 15,00 (5-7 dias)</label>
+                            </div>
+                            <div class="frete-option" data-value="25">
+                                <input type="radio" name="frete" id="frete2">
+                                <label for="frete2">Padrão - R$ 25,00 (3-5 dias)</label>
+                            </div>
+                            <div class="frete-option" data-value="40">
+                                <input type="radio" name="frete" id="frete3">
+                                <label for="frete3">Expresso - R$ 40,00 (1-2 dias)</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="cart-summary">
+                        <div class="summary-row">
+                            <span>Subtotal:</span>
+                            <span id="subtotalValue">R$ 0,00</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Frete:</span>
+                            <span id="freteValue">R$ 0,00</span>
+                        </div>
+                        <div class="summary-row total">
+                            <span>Total:</span>
+                            <span id="totalValue">R$ 0,00</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="continue-btn" id="continueBtn">Continuar Comprando</button>
+                    <button class="checkout-btn" id="checkoutBtn">Finalizar Compra</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de Detalhes do Produto -->
+        <div class="product-modal" id="productModal">
+            <div class="modal-product-content">
+                <span class="close-product-modal" id="closeProductModal">&times;</span>
+                <div class="product-modal-body" id="productModalBody"></div>
+            </div>
+        </div>
+
+        <!-- Modal de Verificação de Dados -->
+        <div class="verification-modal" id="verificationModal">
+            <div class="verification-content">
+                <h2>VERIFICAÇÃO NECESSÁRIA</h2>
+                <p id="verificationMessage">Você precisa cadastrar um endereço e uma forma de pagamento antes de finalizar a compra.</p>
+                <div class="verification-buttons">
+                    <button class="verification-btn" id="goToProfileBtn">Ir para Minha Conta</button>
+                    <button class="verification-btn cancel" id="cancelCheckoutBtn">Cancelar</button>
+                </div>
+            </div>
+        </div>
+
+        <script src="/assets/js/Carrinho.js"></script>
+         <script src="/assets/js/LojaCliente.js"></script>  
+    </body>
+    </html> 

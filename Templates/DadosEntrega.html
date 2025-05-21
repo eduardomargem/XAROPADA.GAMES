@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xaropada Games - Endereço de Entrega</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+   <link rel="stylesheet" href="/assets/css/DadosEntrega.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo-container">
+                <img src="/assets/img/spaceinvader2.png" alt="Invader Pixel" class="logo-img">
+                <div class="logo-text">XAROPADA<span>GAMES</span></div>
+            </div>
+        </div>
+    </header>
+    
+    <main class="container">
+        <div class="address-card">
+            <h2>Escolha o endereço de entrega</h2>
+            
+            <div id="listaEnderecos">
+                <!-- Endereços serão carregados dinamicamente aqui -->
+                <p class="no-address">Nenhum endereço cadastrado ainda.</p>
+            </div>
+            
+            <button id="btnNovoEndereco" class="btn-outline" style="margin-top: 15px;">+ Adicionar novo endereço</button>
+            
+            <div class="divider"></div>
+            
+            <div class="navigation-buttons">
+                <button class="btn-back" onclick="window.location.href='Loja.html'">
+                    <i class="fas fa-arrow-left"></i> VOLTAR
+                </button>
+                <button class="btn" id="btnContinuar">CONTINUAR</button>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Modal para cadastro de novo endereço -->
+    <div class="modal" id="addressModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Adicionar novo endereço</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            
+            <form id="addressForm">
+                <div class="form-group">
+                    <label for="cep">CEP *</label>
+                    <input type="text" id="cep" placeholder="00000-000" required>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="logradouro">Logradouro *</label>
+                        <input type="text" id="logradouro" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="numero">Número *</label>
+                        <input type="text" id="numero" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="complemento">Complemento (opcional)</label>
+                    <input type="text" id="complemento">
+                </div>
+                
+                <div class="form-group">
+                    <label for="bairro">Bairro *</label>
+                    <input type="text" id="bairro" required>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="cidade">Cidade *</label>
+                        <input type="text" id="cidade" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="uf">Estado *</label>
+                        <select id="uf" required>
+                            <option value="">Selecione...</option>
+                            <option value="AC">Acre</option>
+                            <option value="AL">Alagoas</option>
+                            <option value="AP">Amapá</option>
+                            <option value="AM">Amazonas</option>
+                            <option value="BA">Bahia</option>
+                            <option value="CE">Ceará</option>
+                            <option value="DF">Distrito Federal</option>
+                            <option value="ES">Espírito Santo</option>
+                            <option value="GO">Goiás</option>
+                            <option value="MA">Maranhão</option>
+                            <option value="MT">Mato Grosso</option>
+                            <option value="MS">Mato Grosso do Sul</option>
+                            <option value="MG">Minas Gerais</option>
+                            <option value="PA">Pará</option>
+                            <option value="PB">Paraíba</option>
+                            <option value="PR">Paraná</option>
+                            <option value="PE">Pernambuco</option>
+                            <option value="PI">Piauí</option>
+                            <option value="RJ">Rio de Janeiro</option>
+                            <option value="RN">Rio Grande do Norte</option>
+                            <option value="RS">Rio Grande do Sul</option>
+                            <option value="RO">Rondônia</option>
+                            <option value="RR">Roraima</option>
+                            <option value="SC">Santa Catarina</option>
+                            <option value="SP" selected>São Paulo</option>
+                            <option value="SE">Sergipe</option>
+                            <option value="TO">Tocantins</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Tipo de endereço *</label>
+                    <div class="address-type">
+                        <label>
+                            <input type="radio" name="addressType" value="Residencial" checked>
+                            Residencial
+                        </label>
+                        <label>
+                            <input type="radio" name="addressType" value="Comercial">
+                            Comercial
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline close-modal">Cancelar</button>
+                    <button type="submit" class="btn" id="btnSalvarEndereco">Salvar endereço</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script src="/assets/js/Endereco.js"></script>    
+</body>
+</html>
