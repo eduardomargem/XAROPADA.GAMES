@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/styles/index.css">
+    <title>Login - XaropadaGames</title>
+    <style>
+        .link-cadastro {
+            color: #00ff00;
+            text-decoration: none;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 12px;
+            margin-top: 20px;
+            display: block;
+            text-align: center;
+            text-shadow: 0 0 5px #00ff00;
+            animation: blink 1.5s infinite;
+            cursor: pointer;
+        }
+        
+        @keyframes blink {
+            0%, 49% { opacity: 1; }
+            50%, 100% { opacity: 0.7; }
+        }
+        
+        .link-cadastro:hover {
+            color: #00ff00;
+            text-shadow: 0 0 10px #022d02;
+        }
+    </style>
+</head>
+<body>
+    <section class="section">
+        <div class="container">
+            <video autoplay loop muted class="video" width="100%" height="100%">
+                <source src="/assets/img/arcade.mp4">
+            </video>
+        </div>
+    </section>
+    <div class="container">
+        <div class="logo">
+            <img src="/assets/img/spaceinvader2.png" alt="Invader Pixel">
+            <h2>XAROPADA</h2>
+            <h1>GAMES</h1>
+        </div>
+        <div class="login-box">
+            <h2>Seja Bem-Vindo ao <br>BackOffice!</h2>
+            <form id="loginForm">
+                <p>E-mail</p>
+                <input type="text" placeholder="E-mail" required>
+                <span class="erro"></span>
+                <p>Senha</p>
+                <input type="password" placeholder="Senha" required>
+                <span class="erro"></span>
+                <button type="submit">ENTRAR</button>
+            </form>
+            <a href="/Templates/Cadastro.html" class="link-cadastro">Não possui conta? Crie uma e vire um xaropada!</a>
+        </div>
+    </div>
+    <script src="/assets/js/index.js"></script>    
+</body>
+</html>
