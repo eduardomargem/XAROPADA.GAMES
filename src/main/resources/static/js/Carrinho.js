@@ -272,49 +272,68 @@ async function abrirModalProduto(produtoId) {
             const nextBtn = elements.productModalBody.querySelector('.carrossel-next');
         
             let currentImageIndex = 0;
+            const totalImages = imagensProduto.length;
             
-            // Configurações iniciais
-            carrossel.style.width = `${imagensProduto.length * 100}%`;
+
+            // Configura o carrossel
+            carrossel.style.width = `${totalImages * 100}%`;
+
             slides.forEach(slide => {
-                slide.style.width = `${100 / imagensProduto.length}%`;
+                slide.style.width = `${100 / totalImages}%`;
             });
-        
-            // Função para atualizar o carrossel
+
+
+            // Função para atualizar a exibição
             const updateCarrossel = () => {
-                const translateValue = -currentImageIndex * 100;
-                carrossel.style.transform = `translateX(${translateValue}%)`;
+                // Esconde todos os slides
+                slides.forEach(slide => {
+                    slide.classList.remove('active');
+                });
+                
+                // Mostra apenas o slide atual
+                slides[currentImageIndex].classList.add('active');
+                
+                // Atualiza a posição do carrossel
+                carrossel.style.transform = `translateX(-${currentImageIndex * (100 / totalImages)}%)`;
+
                 
                 // Atualiza indicadores
                 indicators.forEach((indicator, i) => {
                     indicator.classList.toggle('active', i === currentImageIndex);
                 });
             };
-        
-            // Navegação
-            const goToSlide = (index) => {
-                currentImageIndex = (index + imagensProduto.length) % imagensProduto.length;
+
+            // Função para ir para o próximo slide
+            const nextSlide = () => {
+                currentImageIndex = (currentImageIndex + 1) % totalImages;
                 updateCarrossel();
             };
-        
+
+            // Função para ir para o slide anterior
+            const prevSlide = () => {
+                currentImageIndex = (currentImageIndex - 1 + totalImages) % totalImages;
+                updateCarrossel();
+            };
+
             // Event listeners para navegação
             nextBtn?.addEventListener('click', () => {
                 clearInterval(carrosselInterval);
-                goToSlide(currentImageIndex + 1);
+                nextSlide();
                 startCarrossel();
             });
         
             prevBtn?.addEventListener('click', () => {
                 clearInterval(carrosselInterval);
-                goToSlide(currentImageIndex - 1);
+                prevSlide();
                 startCarrossel();
             });
         
             // Event listeners para indicadores
             indicators.forEach(indicator => {
-                indicator.addEventListener('click', (e) => {
+                indicator.addEventListener('click', () => {
                     clearInterval(carrosselInterval);
-                    const index = parseInt(e.target.getAttribute('data-index'));
-                    goToSlide(index);
+                    currentImageIndex = parseInt(indicator.getAttribute('data-index'));
+                    updateCarrossel();
                     startCarrossel();
                 });
             });
@@ -326,15 +345,24 @@ async function abrirModalProduto(produtoId) {
         
             // Inicia o carrossel automático (se houver mais de uma imagem)
             const startCarrossel = () => {
-                if (imagensProduto.length > 1) {
-                    carrosselInterval = setInterval(() => {
-                        goToSlide(currentImageIndex + 1);
-                    }, 5000);
-                }
+
+                carrosselInterval = setInterval(nextSlide, 5000);
             };
-        
+
+            // Inicializa o carrossel
+          
             updateCarrossel();
             startCarrossel();
+
+            // Pausa o carrossel quando o mouse está sobre ele
+            carrossel.addEventListener('mouseenter', () => {
+                clearInterval(carrosselInterval);
+            });
+
+            // Retoma o carrossel quando o mouse sai
+            carrossel.addEventListener('mouseleave', () => {
+                startCarrossel();
+            });
         }
 
         // Evento para adicionar ao carrinho
@@ -347,6 +375,7 @@ async function abrirModalProduto(produtoId) {
 
     } catch (error) {
         console.error('Erro ao abrir modal de produto:', error);
+        mostrarNotificacao('Erro ao carregar detalhes do produto', 'erro');
     } finally {
         elements.productModal.style.display = 'block';
         document.body.style.overflow = 'hidden';

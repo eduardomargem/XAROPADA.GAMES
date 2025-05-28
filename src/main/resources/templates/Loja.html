@@ -105,50 +105,56 @@
 
     <script th:src="@{/js/Carrinho.js}"></script>
     <script>
-        // Verificação de login e exibição do usuário
-        document.addEventListener("DOMContentLoaded", function() {
-            const userSection = document.getElementById('userSection');
-            const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
+    // Verificação de login e exibição do usuário
+    document.addEventListener("DOMContentLoaded", function() {
+        const userSection = document.getElementById('userSection');
+        const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
+        
+        if (usuarioLogado) {
+            // Acessa o campo dsNome que corresponde à entidade Java
+            const nomeUsuario = usuarioLogado.dsNome || 
+                               usuarioLogado.nome ||  // Mantém como fallback
+                               usuarioLogado.dsEmail || 
+                               'Usuário';
             
-            if (usuarioLogado) {
-                userSection.innerHTML = `
-                    <div class="user-info">
-                        <i class="fas fa-user"></i>
-                        <span>Olá, ${usuarioLogado.nome}!</span>
-                        <button id="logoutBtn" class="logout-btn">Sair</button>
-                    </div>
-                `;
-                
-                document.getElementById('logoutBtn').addEventListener('click', function() {
-                    localStorage.removeItem('usuarioLogado');
-                    window.location.reload();
-                });
-            } else {
-                userSection.innerHTML = `
-                    <div class="login-option">
-                        <div><i class="fas fa-user"></i> <span>ENTRE OU</span></div>
-                        <div>CADASTRE-SE</div>
-                    </div>
-                `;
-                
-                userSection.addEventListener('click', function() {
+            userSection.innerHTML = `
+                <div class="user-info">
+                    <i class="fas fa-user"></i>
+                    <span>Olá, ${nomeUsuario.split(' ')[0]}!</span>
+                    <button id="logoutBtn" class="logout-btn">Sair</button>
+                </div>
+            `;
+            
+            document.getElementById('logoutBtn').addEventListener('click', function() {
+                localStorage.removeItem('usuarioLogado');
+                window.location.reload();
+            });
+        } else {
+            userSection.innerHTML = `
+                <div class="login-option">
+                    <div><i class="fas fa-user"></i> <span>ENTRE OU</span></div>
+                    <div>CADASTRE-SE</div>
+                </div>
+            `;
+            
+            userSection.addEventListener('click', function() {
+                window.location.href = '/index';
+            });
+        }
+        
+        // Bloqueia finalização de compra se não estiver logado
+        const checkoutBtn = document.getElementById('checkoutBtn');
+        if (checkoutBtn) {
+            checkoutBtn.addEventListener('click', function(e) {
+                const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
+                if (!usuarioLogado) {
+                    e.preventDefault();
+                    alert('Por favor, faça login para finalizar sua compra!');
                     window.location.href = '/index';
-                });
-            }
-            
-            // Bloqueia finalização de compra se não estiver logado
-            const checkoutBtn = document.getElementById('checkoutBtn');
-            if (checkoutBtn) {
-                checkoutBtn.addEventListener('click', function(e) {
-                    const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
-                    if (!usuarioLogado) {
-                        e.preventDefault();
-                        alert('Por favor, faça login para finalizar sua compra!');
-                        window.location.href = '/index';
-                    }
-                });
-            }
-        });
-    </script>
+                }
+            });
+        }
+    });
+</script>
 </body>
 </html>

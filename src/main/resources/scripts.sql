@@ -24,10 +24,7 @@ CREATE TABLE Usuarios (
 );
 
 insert into usuarios (ds_nome, nr_cpf, ds_email, ds_senha, id_grupo, bo_status)
-values ('Joana Marques', '79360205001', 'joanamarques@gmail.com', 'joana@123', 1, 1)
-
-insert into usuarios (ds_nome, nr_cpf, ds_email, ds_senha, id_grupo, bo_status)
-values ('Joao Marques', '19938857060', 'joaomarques@gmail.com', 'joao@123', 2, 1)
+values ('Eduardo Margem', '14725836912', 'eduardo123@gmail.com', 'xaropada@123', 1, 1)
 
 create table Produtos (
     id              int not null AUTO_INCREMENT PRIMARY KEY,
@@ -86,4 +83,3 @@ INSERT INTO Produtos (ds_nome, qtd_produto, vl_produto, ds_descricao, nr_avaliac
 ('Impressora Multifuncional Wi-Fi', 25, 699.00, 'Impressora com scanner e conectividade Wi-Fi.', 4.1, 1),
 ('Hub USB 3.0 4 Portas', 200, 59.90, 'Hub USB com 4 portas e alta velocidade de transferência.', 4.0, 1),
 ('Controle Bluetooth para PC/Console', 70, 199.00, 'Controle sem fio compatível com PC e consoles.', 4.6, 1);
-
