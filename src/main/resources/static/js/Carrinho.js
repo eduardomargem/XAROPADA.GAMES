@@ -264,21 +264,24 @@ async function abrirModalProduto(produtoId) {
         `;
 
         // Configuração do carrossel (apenas se houver mais de uma imagem)
-        if (imagensProduto.length > 1) {
+        if (imagensProduto.length > 0) {
             const carrossel = elements.productModalBody.querySelector('.carrossel');
             const slides = elements.productModalBody.querySelectorAll('.carrossel-slide');
             const indicators = elements.productModalBody.querySelectorAll('.carrossel-indicator');
             const prevBtn = elements.productModalBody.querySelector('.carrossel-prev');
             const nextBtn = elements.productModalBody.querySelector('.carrossel-next');
-
+        
             let currentImageIndex = 0;
             const totalImages = imagensProduto.length;
             
+
             // Configura o carrossel
             carrossel.style.width = `${totalImages * 100}%`;
+
             slides.forEach(slide => {
                 slide.style.width = `${100 / totalImages}%`;
             });
+
 
             // Função para atualizar a exibição
             const updateCarrossel = () => {
@@ -292,6 +295,7 @@ async function abrirModalProduto(produtoId) {
                 
                 // Atualiza a posição do carrossel
                 carrossel.style.transform = `translateX(-${currentImageIndex * (100 / totalImages)}%)`;
+
                 
                 // Atualiza indicadores
                 indicators.forEach((indicator, i) => {
@@ -312,18 +316,18 @@ async function abrirModalProduto(produtoId) {
             };
 
             // Event listeners para navegação
-            nextBtn.addEventListener('click', () => {
+            nextBtn?.addEventListener('click', () => {
                 clearInterval(carrosselInterval);
                 nextSlide();
                 startCarrossel();
             });
-
-            prevBtn.addEventListener('click', () => {
+        
+            prevBtn?.addEventListener('click', () => {
                 clearInterval(carrosselInterval);
                 prevSlide();
                 startCarrossel();
             });
-
+        
             // Event listeners para indicadores
             indicators.forEach(indicator => {
                 indicator.addEventListener('click', () => {
@@ -333,13 +337,20 @@ async function abrirModalProduto(produtoId) {
                     startCarrossel();
                 });
             });
-
-            // Inicia o carrossel automático
+        
+            // Inicia com o primeiro slide ativo
+            if (indicators.length > 0) {
+                indicators[0].classList.add('active');
+            }
+        
+            // Inicia o carrossel automático (se houver mais de uma imagem)
             const startCarrossel = () => {
+
                 carrosselInterval = setInterval(nextSlide, 5000);
             };
 
             // Inicializa o carrossel
+          
             updateCarrossel();
             startCarrossel();
 
@@ -359,7 +370,7 @@ async function abrirModalProduto(produtoId) {
         addButton.addEventListener('click', (e) => {
             e.stopPropagation();
             adicionarAoCarrinho(produto);
-            mostrarNotificacao(`${produto.nome} adicionado ao carrinho!`);
+            
         });
 
     } catch (error) {

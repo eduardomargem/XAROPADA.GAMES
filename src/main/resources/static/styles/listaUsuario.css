@@ -11,20 +11,23 @@
 }
 
 html, body {
+  font-family: 'Press Start 2P', cursive;
   height: 100%; 
   width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #1d1b1b;
+  background-color: #0e0e1a;
   font-family: Arial, sans-serif;
   color: white;
+  text-align: center;
+  flex-direction: column;
 }
 
 .container {
   width: 90%;
   max-width: 1200px;
-  padding: 30px;
+  padding: 20px;
 }
 
 section {
@@ -32,13 +35,14 @@ section {
   background-color: rgba(44, 42, 100, 0.8);
   flex-direction: column;
   width: 100%;
-  height: fit-content;
+  min-height: 500px;
   border-radius: 5px;
-  padding: 40px;
+  padding: 30px;
   box-sizing: border-box;
   position: relative;
   overflow-y: auto;
-  max-height: 80vh;
+  border: 2px solid #00ff85;
+  box-shadow: 0 0 20px rgba(0, 255, 133, 0.3);
 }
 
 header {
@@ -46,10 +50,10 @@ header {
   margin-bottom: 30px;
 }
 
-h1 {
+h2 {
   font-family: "Press Start 2P", serif;
-  font-size: 50px;
   color: white;
+  margin-bottom: 20px;
 }
 
 a.back {
@@ -90,26 +94,35 @@ a.back:hover {
 
 /* Botões */
 button {
-  background-color: #00FF85;
-  font-family: "Press Start 2P", serif;
-  color: white;
-  padding: 15px;
-  margin: 10px 0;
-  border: none;
-  border-radius: 5px;
-  box-sizing: border-box;
-  transition: transform 0.1s ease, box-shadow 0.3s ease, background-color 0.3s ease;
-  cursor: pointer;
+    background-color: #00FF85;
+    font-family: "Press Start 2P", serif;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+    
+    font-size: 24px;
+    padding: 35px;
+    border: none;
+    border-radius: 5px;
+    box-sizing: border-box;
+    box-shadow: 6px 6px 0 #1d1d1dab;
+    transition: transform 0.1s ease, box-shadow 0.3s ease, background-color 0.3s ease;
 }
 
+button{
+  text-decoration: none;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+button:active {
+  transform: scale(0.98); 
+  box-shadow: 0 0 15px rgba(0, 255, 133, 0.9); 
+}
 button:hover {
-  background-color: #00cc66;
+    transform: translate(-2px, -2px);
+    background-color: #00cc66; 
 }
 
-button:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-}
+
 
 /* Estilo da tabela */
 table {
@@ -126,12 +139,12 @@ th, td {
 }
 
 th {
-  background-color: #4e3737;
+  background-color: #0e0e1a;
   cursor: pointer;
 }
 
 td button {
-  background-color: #4CAF50;
+  background-color: #ec2f2f;
   color: white;
   border: none;
   padding: 6px 12px;
@@ -142,7 +155,7 @@ td button {
 }
 
 td button:hover {
-  background-color: #45a049;
+  background-color: #c22222;
 }
 
 td button.disabled {
@@ -151,17 +164,20 @@ td button.disabled {
 }
 
 tr {
+  background-color: #1d1d35;
   transition: background-color 0.3s ease;
 }
 
 tr:hover {
-  background-color: #f0f0f0;
+  background-color: #10101d;
 }
 
 /* Paginação */
 .pagination {
+  font-family: "Press Start 2P", serif;
   text-align: center;
   margin-top: 20px;
+  position: sticky;
 }
 
 .pagination button {
@@ -178,35 +194,40 @@ tr:hover {
 
 /* Modal */
 .modal {
-  display: none; /* Escondido por padrão */
+  display: none;
   position: fixed;
-  z-index: 1;
-  left: 0;
   top: 0;
-  width: 100%;
-  height: 100%;
-  overflow: auto;
-  background-color: rgba(0, 0, 0, 0.4);
-  
-  /* Flexbox para centralização */
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0,0,0,0.8);
+  z-index: 1000;
+  /* Novo: contêiner flexível */
   display: flex;
-  justify-content: center; /* Alinha horizontalmente no centro */
-  align-items: center; /* Alinha verticalmente no centro */
+  justify-content: center;
+  align-items: center;
+  padding: 20px; /* Espaço para mobile */
 }
 
-/* Conteúdo do Modal */
 .modal-content {
   background-color: #2e3c5c;
-  padding: 20px;
-  border-radius: 10px;
-  width: 35%;
+  border-radius: 5px;
+  width: 100%;
   max-width: 500px;
-  min-width: 300px;
-  
-  /* Garantir que o modal tenha um bom espaçamento */
-  box-sizing: border-box;
+  padding: 25px;
+  position: relative;
+  border: 2px solid #00ff85;
+  box-shadow: 0 0 20px rgba(0, 255, 133, 0.3);
+  /* Centralização interna */
+  margin: auto;
+  animation: modalFadeIn 0.3s;
 }
-
+.modal-content button {
+  adding: 10px 20px;
+  font-size: 1.1em;
+  border-radius: 5px;
+  cursor: pointer;
+}
 /* Fechar o modal */
 .close {
   color: #aaa;
@@ -245,4 +266,18 @@ tr:hover {
 /* Animação de clique no botão */
 button:active {
   transform: scale(0.98);
+}
+
+.logo-bg img {
+  width: 50px;
+  height: 50px;
+  margin-bottom: -20px;
+  animation: arcade-vibration-horizontal 8s ease-in-out infinite;
+}
+@keyframes arcade-vibration-horizontal {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-350px); }
+  50% { transform: translateX(350px); }
+  75% { transform: translateX(-350px); }
+  100% { transform: translateX(0); }
 }

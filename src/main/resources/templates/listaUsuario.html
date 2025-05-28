@@ -11,11 +11,14 @@
   <link href="https://cdn.jsdelivr.net/npm/font-awesome/css/font-awesome.min.css" rel="stylesheet">
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>Lista de Usuários</h1>
-    </header>
 
+  <div class="logo-bg">
+    <div class="logo-content">
+        <img th:src="@{images/spaceinvader2.png}" alt="Invader Pixel">
+    </div>
+</div>
+  <div class="container">
+    
     <!-- Formulário de Cadastro de Usuário (Modal) -->
     <div id="registerModal" class="modal">
       <div class="modal-content">
@@ -83,7 +86,9 @@
 
     <!-- Filtros e Tabela -->
     <section>
+      <h2>Lista de Usuários</h2>
       <div class="filters">
+        
         <input type="text" id="search" placeholder="Pesquisar por nome...">
         <button onclick="applyFilters()">Pesquisar</button>
         <button onclick="openRegisterModal()">+</button>
@@ -108,11 +113,13 @@
         <button id="prevPage" onclick="changePage('prev')" disabled>Anterior</button>
         <span id="pageInfo"></span>
         <button id="nextPage" onclick="changePage('next')">Próximo</button>
+        <a th:href="@{/dashboard-admin}" class="back">Voltar</a>
       </div>
+      
     </section>
   </div>
 
-  <a th:href="@{/dashboard-admin}" class="back">Voltar</a>
+  
 
   <!-- Modal de Confirmação para Inativar/Ativar Usuário -->
   <div id="confirmationModal" class="modal">

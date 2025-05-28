@@ -1,9 +1,7 @@
-/* dashboard.css - Atualizado para o tema Xaropada Games */
-
 body {
     font-family: 'Press Start 2P', cursive;
-    background-color: #1a1a2e;
-    color: #00ff85;
+    background-color: #0e0e1a;
+    color: white;
     margin: 0;
     padding: 0;
     display: flex;
@@ -11,77 +9,148 @@ body {
     align-items: center;
     min-height: 100vh;
     overflow-x: hidden;
-}
-
-.logo {
+    justify-content: center;
     text-align: center;
-    margin: 20px 0;
-    animation: pulse 2s infinite;
 }
 
-.logo img {
-    width: 80px;
-    image-rendering: pixelated;
+.container {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    z-index: -1; /* Coloca atrás de outros elementos */
+    opacity: 0.3; /* Ajuste este valor entre 0 e 1 para a opacidade desejada */
+    pointer-events: none; /* Permite interação com elementos por trás */
 }
 
-.logo h2, .logo h1 {
-    margin: 10px 0;
-    text-shadow: 3px 3px 0 #000;
-}
-
-.dashboard-container {
-    width: 90%;
-    max-width: 800px;
+/* Logo de fundo */
+.logo-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    opacity: 0.5;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     text-align: center;
-    margin-bottom: 30px;
 }
 
-.dashboard-container h2 {
-    font-size: 1.5rem;
-    margin-bottom: 30px;
-    text-shadow: 2px 2px 0 #000;
-}
-
-.dashboard-links {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-    margin-bottom: 40px;
-}
-
-.dashboard-link {
+.logo-content {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    padding: 20px;
-    background-color: #2a2a4a;
-    color: #00ff85;
-    text-decoration: none;
-    border-radius: 8px;
-    border: 2px solid #00cc66;
-    transition: all 0.3s ease;
-    height: 120px;
-    box-shadow: 4px 4px 0 #000;
 }
 
+/* Imagem do logo com animação horizontal */
+.logo-bg img {
+    width: 100px;
+    height: 100px;
+    
+    margin-bottom: -100px;
+    animation: arcade-vibration-horizontal 8s ease-in-out infinite;
+}
+
+/* Textos com animação vertical */
+.logo-bg h2, .logo-bg h1 {
+    animation: arcade-vibration 3s ease-in-out infinite;
+}
+
+/* Keyframes ajustados */
+@keyframes arcade-vibration-horizontal {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-350px); }
+    50% { transform: translateX(350px); }
+    75% { transform: translateX(-350px); }
+    100% { transform: translateX(0); }
+}
+
+@keyframes arcade-vibration {
+    0% { transform: translateY(0); }
+    25% { transform: translateY(-5px); }
+    50% { transform: translateY(5px); }
+    75% { transform: translateY(-5px); }
+    100% { transform: translateY(0); }
+}
+
+/* Estilos do texto mantidos conforme seu original */
+.logo-bg h2 {
+    font-size: 120px;
+    margin-bottom: -20px;
+    color: white;
+    text-shadow: 3px 3px 10px rgba(255, 255, 255, 0.5), -2px -2px 5px rgba(0, 0, 0, 0.7);
+}
+
+.logo-bg h1 {
+    font-size: 230px;
+    color: white;
+    margin-top: 20px;
+    text-shadow: 4px 4px 15px rgba(255, 255, 255, 0.5), -3px -3px 5px rgba(0, 0, 0, 0.7);
+}
+
+/* Container principal (dashboard) */
+.dashboard-container {
+    width: 90%;
+    max-width: 800px;
+    margin: 50px auto;
+    text-align: center;
+    position: relative; /* Garante que fique acima do logo */
+    z-index: 1; /* Coloca na frente do logo */
+    background-color: rgba(44, 42, 100, 0.8); /* Fundo semi-transparente */
+    padding: 30px;
+    border-radius: 10px;
+    border: 2px solid #00ff85;
+    box-shadow: 0 0 20px rgba(0, 255, 133, 0.3);
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+/* Links do dashboard */
+.dashboard-links {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin: 30px 0;
+}
+
+.dashboard-link {
+    background-color: #00FF85;
+    font-family: "Press Start 2P", serif;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+    margin-top: 20px;
+    font-size: 24px;
+    padding: 35px;
+    border: none;
+    border-radius: 5px;
+    box-sizing: border-box;
+    box-shadow: 6px 6px 0 #1d1d1dab;
+    transition: transform 0.1s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+}
+a{
+    text-decoration: none;
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+a:active {
+    transform: scale(0.98); 
+    box-shadow: 0 0 15px rgba(0, 255, 133, 0.9); 
+}
 .dashboard-link:hover {
     transform: translate(-2px, -2px);
-    box-shadow: 6px 6px 0 #000;
-    background-color: #3a3a5a;
+    background-color: #00cc66; 
 }
 
-.dashboard-link i {
-    font-size: 2rem;
-    margin-bottom: 15px;
-}
-
-.dashboard-link span {
-    font-size: 0.8rem;
-}
-
+/* Botão de logout */
 .dashboard-logout button {
-    background-color: #ff3333;
+    background-color: #ec2f2f;
     color: white;
     border: none;
     padding: 15px 30px;
@@ -90,23 +159,22 @@ body {
     cursor: pointer;
     border-radius: 5px;
     transition: all 0.3s ease;
-    box-shadow: 4px 4px 0 #000;
+    box-shadow: 6px 6px 0 #1d1d1dab;
+    margin-top: 20px;
+    transition: transform 0.1s ease, box-shadow 0.3s ease, background-color 0.3s ease;
 }
 
-.dashboard-logout button:hover {
-    background-color: #ff5555;
-    transform: translate(-2px, -2px);
-    box-shadow: 6px 6px 0 #000;
+.dashboard-logout button:active {
+    transform: scale(0.98) translate(-2px, -2px); /* Mantém o translate do hover */
+    box-shadow: 0 0 15px #c22222, 3px 3px 0 #1d1d1dc4; /* Sombra combinada */
+    background-color: #c22222;
+}
+button{
+    text-decoration: none;
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); }
-}
-
-/* Efeito de transição para a página */
-body {
-    opacity: 1;
-    transition: opacity 0.5s ease;
+button:active {
+    transform: scale(0.98); 
+    box-shadow: 0 0 15px #c22222; 
 }

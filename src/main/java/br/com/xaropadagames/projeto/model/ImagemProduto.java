@@ -17,7 +17,7 @@ public class ImagemProduto {
     @JoinColumn(name = "id_produto", nullable = false)
     @JsonIgnore
     private Produto produto;
-
+    
     @Lob    
     @Column(name = "imagem", columnDefinition = "LONGBLOB")
     private byte[] imagem;

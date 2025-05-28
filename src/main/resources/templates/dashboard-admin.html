@@ -10,20 +10,25 @@
     <title>DashBoard</title>
 </head>
 <body>
-    <div class="logo">
-        <img th:src="@{/images/spaceinvader2.png}" alt="Invader Pixel">
-        <h2>XAROPADA</h2>
-        <h1>GAMES</h1>
+    <!-- Logo como fundo (fixo e com opacidade) -->
+    <div class="logo-bg">
+        <div class="logo-content">
+            <img th:src="@{images/spaceinvader2.png}" alt="Invader Pixel">
+            <h2>XAROPADA</h2>
+            <h1>GAMES</h1>
+        </div>
     </div>
+
+    <!-- Conteúdo principal (dashboard) -->
     <div class="dashboard-container">
         <h2>Painel de Controle</h2>
         <div class="dashboard-links" id="dashboardLinks">
-            <a th:href="@{/listaUsuario}">Lista de Usuários</a>
-            <a th:href="@{/listaProdutoAdm}">Lista de Produtos</a>
+            <a th:href="@{/listaUsuario}" class="dashboard-link">Lista de Usuários</a>
+            <a th:href="@{/listaProdutoAdm}" class="dashboard-link">Lista de Produtos</a>
         </div>
-        <div class="dashboard-link">
-            <!-- Botão para voltar à página inicial -->
+        <div class="dashboard-logout">
             <button onclick="logout()">Sair</button>
+        </div>
     </div>
     <script th:src="@{/js/dashboard.js}"></script>
 </body>

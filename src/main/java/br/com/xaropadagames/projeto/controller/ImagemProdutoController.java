@@ -24,23 +24,28 @@ import br.com.xaropadagames.projeto.service.ImagemProdutoService;
 @RestController
 @RequestMapping("/imagens")
 public class ImagemProdutoController {
-    
+
     @Autowired
     private ImagemProdutoService imagemService;
 
     @Autowired
     private ImagemProdutoRepository imagemProdutoRepository;
-    
+
     @PostMapping
     public ResponseEntity<List<ImagemProduto>> uploadImagens(
             @PathVariable Integer produtoId,
             @RequestParam("imagens") MultipartFile[] arquivos) {
 
-                System.out.println("Número de arquivos recebidos: " + arquivos.length);
-        
+        System.out.println("Número de arquivos recebidos: " + arquivos.length);
+
         List<ImagemProduto> imagensSalvas = imagemService.uploadImagens(produtoId, arquivos);
         return ResponseEntity.status(HttpStatus.CREATED).body(imagensSalvas);
     }
+    // correção para aparecer imagens
+    @GetMapping("/{id}")
+    public ResponseEntity<byte[]> getImagem(@PathVariable Integer id) {
+        ImagemProduto imagem = imagemProdutoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Imagem não encontrada"));
 
     @GetMapping("/produto/{produtoId}")
     public ResponseEntity<List<ImagemProduto>> getImagensPorProduto(@PathVariable Integer produtoId) {
@@ -59,4 +64,11 @@ public class ImagemProdutoController {
         
         return new ResponseEntity<>(imagem.getImagem(), headers, HttpStatus.OK);
     }
+
+    @GetMapping("/produto/{produtoId}")
+    public ResponseEntity<List<ImagemProduto>> getImagensPorProduto(@PathVariable Integer produtoId) {
+        List<ImagemProduto> imagens = imagemProdutoRepository.findByProdutoId(produtoId);
+        return ResponseEntity.ok(imagens);
+    }
+
 }

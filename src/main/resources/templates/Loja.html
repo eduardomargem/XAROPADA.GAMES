@@ -5,12 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>XaropadaGames - MarketPlace</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <link th:href="@{/styles/carrinho.css}" rel="stylesheet" />
 </head>
 <body>
+    <div class="video-background">
+        <video autoplay loop muted class="video">
+            <source th:src="@{videos/market-video.mp4}" type="video/mp4">
+        </video>
+    </div>
     <header class="header">
         <div class="logo">
-            <h1>Xaropada<span>Games</span></h1>
+            <img th:src="@{images/spaceinvader2.png}" alt="Invader Pixel">
+            <h2>XAROPADA</h2>
+            <h1>GAMES</h1>
         </div>
         <div class="user-section" id="userSection">
             <div class="login-option">
