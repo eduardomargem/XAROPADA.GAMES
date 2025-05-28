@@ -41,17 +41,6 @@ public class ImagemProdutoController {
         List<ImagemProduto> imagensSalvas = imagemService.uploadImagens(produtoId, arquivos);
         return ResponseEntity.status(HttpStatus.CREATED).body(imagensSalvas);
     }
-    // correção para aparecer imagens
-    @GetMapping("/{id}")
-    public ResponseEntity<byte[]> getImagem(@PathVariable Integer id) {
-        ImagemProduto imagem = imagemProdutoRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Imagem não encontrada"));
-
-    @GetMapping("/produto/{produtoId}")
-    public ResponseEntity<List<ImagemProduto>> getImagensPorProduto(@PathVariable Integer produtoId) {
-        List<ImagemProduto> imagens = imagemProdutoRepository.findByProdutoId(produtoId);
-        return ResponseEntity.ok(imagens);
-    }
 
     @GetMapping("/{id}")
     public ResponseEntity<byte[]> getImagem(@PathVariable Integer id) {
