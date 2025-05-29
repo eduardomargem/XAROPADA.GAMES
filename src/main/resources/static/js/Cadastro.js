@@ -164,7 +164,6 @@ function adicionarEnderecoEntrega(dados = null) {
     enderecoDiv.dataset.id = id;
     
     enderecoDiv.innerHTML = `
-        <h3>Endereço de Entrega</h3>
         <div class="form-group">
             <p>CEP*</p>
             <input type="text" class="cep-entrega" placeholder="CEP" required maxlength="9" value="${dados?.cep || ''}">

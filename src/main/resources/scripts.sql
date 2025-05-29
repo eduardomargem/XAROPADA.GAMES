@@ -24,10 +24,10 @@ CREATE TABLE Usuarios (
 );
 
 insert into usuarios (ds_nome, nr_cpf, ds_email, ds_senha, id_grupo, bo_status)
-values ('Eduardo Margem', '14725836912', 'eduardo123@gmail.com', 'xaropada@123', 1, 1)
+values ('Eduardo Margem', '14725836912', 'eduardo123@gmail.com', 'xaropada@123', 1, 1);
 
 insert into usuarios (ds_nome, nr_cpf, ds_email, ds_senha, id_grupo, bo_status)
-values ('Daniel Assunção', '08399546038', 'daniel123@gmail.com', 'xaropada@123', 2, 1)
+values ('Daniel Assunção', '08399546038', 'daniel123@gmail.com', 'xaropada@123', 2, 1);
 
 create table Produtos (
     id              int not null AUTO_INCREMENT PRIMARY KEY,
@@ -37,7 +37,7 @@ create table Produtos (
     ds_descricao    varchar(2000) not null,
     nr_avaliacao    DECIMAL(10, 2) not null,
     bo_status       int not null
-)
+);
 
 CREATE TABLE imagens_produto (
     id              int AUTO_INCREMENT PRIMARY KEY,
@@ -48,7 +48,7 @@ CREATE TABLE imagens_produto (
     FOREIGN KEY (id_produto) REFERENCES produtos(id) ON DELETE CASCADE
 );
 
-select * from usuarios
+select * from usuarios;
 
 CREATE TABLE clientes (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -58,7 +58,7 @@ CREATE TABLE clientes (
     data_nascimento DATE NOT NULL,
     genero VARCHAR(20) NOT NULL,
     senha VARCHAR(100) NOT NULL
-) ENGINE=InnoDB;
+);
 
 CREATE TABLE enderecos (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -72,4 +72,4 @@ CREATE TABLE enderecos (
     uf VARCHAR(2) NOT NULL,
     cliente_id BIGINT NOT NULL,
     FOREIGN KEY (cliente_id) REFERENCES clientes(id)
-) ENGINE=InnoDB;
+);

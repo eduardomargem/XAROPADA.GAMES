@@ -5,8 +5,6 @@ import jakarta.validation.constraints.*;
 import java.time.LocalDate;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 @Entity
 @Table(name = "clientes")
 public class Cliente {
@@ -107,7 +105,5 @@ public class Cliente {
     public void setEnderecos(List<Endereco> enderecos) {
         this.enderecos = enderecos;
     }
-
-    // ... (demais getters e setters)
     
 }
