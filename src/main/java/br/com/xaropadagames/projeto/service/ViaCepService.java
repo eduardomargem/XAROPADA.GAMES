@@ -1,33 +1,57 @@
 package br.com.xaropadagames.projeto.service;
 
+import br.com.xaropadagames.projeto.exception.ValidacaoException;
 import br.com.xaropadagames.projeto.model.Endereco;
+import lombok.Data;
+
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 @Service
 public class ViaCepService {
     
-    private static final String URL_VIA_CEP = "https://viacep.com.br/ws/%s/json/";
-    
+    private final RestTemplate restTemplate;
+
+    public ViaCepService(RestTemplateBuilder restTemplateBuilder) {
+        this.restTemplate = restTemplateBuilder.build();
+    }
+
     public Endereco validarEndereco(Endereco endereco) {
-        RestTemplate restTemplate = new RestTemplate();
-        String url = String.format(URL_VIA_CEP, endereco.getCep().replace("-", ""));
+        String cep = endereco.getCep().replace("-", "");
+        String url = "https://viacep.com.br/ws/" + cep + "/json/";
         
         try {
-            Endereco enderecoViaCep = restTemplate.getForObject(url, Endereco.class);
-            if (enderecoViaCep == null || enderecoViaCep.getCep() == null) {
-                throw new RuntimeException("CEP inválido");
+            ViaCepResponse response = restTemplate.getForObject(url, ViaCepResponse.class);
+            
+            if (response == null || response.getErro()) {
+                throw new ValidacaoException("CEP inválido ou não encontrado");
             }
             
-            // Atualiza os dados do endereço com os dados do ViaCEP
-            enderecoViaCep.setNumero(endereco.getNumero());
-            enderecoViaCep.setComplemento(endereco.getComplemento());
-            enderecoViaCep.setFaturamento(endereco.isFaturamento());
-            enderecoViaCep.setEntrega(endereco.isEntrega());
+            // Atualizar endereço com dados do ViaCEP
+            endereco.setLogradouro(response.getLogradouro());
+            endereco.setBairro(response.getBairro());
+            endereco.setCidade(response.getLocalidade());
+            endereco.setUf(response.getUf());
             
-            return enderecoViaCep;
+            return endereco;
         } catch (Exception e) {
-            throw new RuntimeException("Erro ao validar CEP: " + e.getMessage());
+            throw new ValidacaoException("Erro ao validar CEP: " + e.getMessage());
+        }
+    }
+
+    @Data
+    private static class ViaCepResponse {
+        private String cep;
+        private String logradouro;
+        private String complemento;
+        private String bairro;
+        private String localidade;
+        private String uf;
+        private boolean erro;
+
+        public boolean getErro() {
+            return erro;
         }
     }
 }

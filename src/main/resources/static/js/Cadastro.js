@@ -1,6 +1,11 @@
+const TIPO_ENDERECO = {
+    FATURAMENTO: "FATURAMENTO",
+    ENTREGA: "ENTREGA"
+};
+
 // Função para validar CPF (adaptada de https://www.macoratti.net/alg_cpf.htm)
 function validarCPF(cpf) {
-    cpf = cpf.replace(/\D/g, '');
+    cpf = cpf.replace(/\D/g, ''); // Garante que só tem números
     if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false;
     
     let soma = 0;
@@ -79,13 +84,13 @@ async function validarFormulario(formData) {
     }
 
     // Validar CPF
-    if (!formData.cpf || !validarCPF(formData.cpf) || !/^\d{3}\.\d{3}\.\d{3}-\d{2}$/.test(formData.cpf)) {
-        erros.cpf = 'CPF inválido (formato: 123.456.789-09)';
+    if (!formData.cpf || !validarCPF(formData.cpf) || formData.cpf.length !== 11) {
+        erros.cpf = 'CPF inválido (deve conter 11 dígitos)';
     }
 
-    // Validar data de nascimento
-    if (!validarNascimento(formData.dataNascimento)) {
-        erros.nascimento = 'Data de nascimento inválida ou idade mínima não atingida';
+    // Validação específica para data
+    if (!formData.dataNascimento || !/^\d{4}-\d{2}-\d{2}$/.test(formData.dataNascimento)) {
+        erros.nascimento = 'Data de nascimento inválida';
     }
 
     // Validar gênero
@@ -100,18 +105,15 @@ async function validarFormulario(formData) {
         erros.senha = 'Senha deve ter pelo menos 6 caracteres';
     }
 
-    // Validar endereço de faturamento
-    if (!formData.enderecos || formData.enderecos.length === 0 || 
-        !formData.enderecos[0].cep || !formData.enderecos[0].logradouro || 
-        !formData.enderecos[0].numero || !formData.enderecos[0].bairro || 
-        !formData.enderecos[0].cidade || !formData.enderecos[0].uf) {
-        erros.endereco = 'Endereço de faturamento incompleto';
-    }
-
-    // Validar endereços de entrega
-    if (formData.enderecos.length < 2 || formData.enderecos.some((end, i) => 
-        i > 0 && (!end.cep || !end.logradouro || !end.numero || !end.bairro || !end.cidade || !end.uf))) {
-        erros.enderecosEntrega = 'Pelo menos um endereço de entrega válido é obrigatório';
+    // Validação dos endereços
+    if (!formData.enderecos || formData.enderecos.length < 2) {
+        erros.enderecos = 'Pelo menos um endereço de faturamento e um de entrega são obrigatórios';
+    } else {
+        // Verifica se há exatamente um endereço de faturamento
+        const faturamentoCount = formData.enderecos.filter(e => e.tipo === "FATURAMENTO").length;
+        if (faturamentoCount !== 1) {
+            erros.enderecos = 'Deve haver exatamente um endereço de faturamento';
+        }
     }
 
     return erros;
@@ -232,49 +234,46 @@ function adicionarEnderecoEntrega(dados = null) {
 
 // Função para coletar dados do formulário
 async function coletarDadosFormulario() {
-    let cpf = document.getElementById('cpf').value.replace(/\D/g, '');
-    cpf = cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
-    
-    const cliente = {
+    const dataNascimento = document.getElementById('nascimento').value;
+
+    const formData = {
         nomeCompleto: document.getElementById('nome').value.trim(),
         email: document.getElementById('email').value.trim(),
-        cpf: cpf,
-        dataNascimento: document.getElementById('nascimento').value,
+        cpf: document.getElementById('cpf').value.replace(/\D/g, ''),
+        dataNascimento: dataNascimento,
         genero: document.getElementById('genero').value,
         senha: document.getElementById('senha').value,
+        confirmarSenha: document.getElementById('confirmarSenha').value,
         enderecos: []
     };
 
-    // Encriptar senha
-    cliente.senha = await encriptarSenha(cliente.senha);
-
     // Endereço de faturamento
-    cliente.enderecos.push({
+    formData.enderecos.push({
         tipo: "FATURAMENTO",
         cep: document.getElementById('cep').value.replace(/\D/g, ''),
         logradouro: document.getElementById('logradouro').value.trim(),
         numero: document.getElementById('numero').value.trim(),
-        complemento: document.getElementById('complemento').value.trim(),
+        complemento: document.getElementById('complemento').value.trim() || null,
         bairro: document.getElementById('bairro').value.trim(),
         cidade: document.getElementById('cidade').value.trim(),
-        uf: document.getElementById('uf').value.trim()
+        uf: document.getElementById('uf').value.trim().toUpperCase()
     });
 
     // Endereços de entrega
     document.querySelectorAll('.endereco-entrega').forEach(enderecoEl => {
-        cliente.enderecos.push({
+        formData.enderecos.push({
             tipo: "ENTREGA",
             cep: enderecoEl.querySelector('.cep-entrega').value.replace(/\D/g, ''),
             logradouro: enderecoEl.querySelector('.logradouro-entrega').value.trim(),
             numero: enderecoEl.querySelector('.numero-entrega').value.trim(),
-            complemento: enderecoEl.querySelector('.complemento-entrega').value.trim(),
+            complemento: enderecoEl.querySelector('.complemento-entrega').value.trim() || null,
             bairro: enderecoEl.querySelector('.bairro-entrega').value.trim(),
             cidade: enderecoEl.querySelector('.cidade-entrega').value.trim(),
-            uf: enderecoEl.querySelector('.uf-entrega').value.trim()
+            uf: enderecoEl.querySelector('.uf-entrega').value.trim().toUpperCase()
         });
     });
 
-    return cliente;
+    return formData;
 }
 
 // Função para exibir erros no formulário
@@ -296,31 +295,42 @@ function exibirErros(erros) {
 // Função para salvar cliente
 async function salvarCliente() {
     try {
-        const cliente = await coletarDadosFormulario();
+        const formData = await coletarDadosFormulario();
+        const erros = await validarFormulario(formData);
         
-        // Verificação final antes de enviar
-        if (!cliente.senha || cliente.senha.trim() === '') {
-            throw new Error('Por favor, insira uma senha válida');
+        if (Object.keys(erros).length > 0) {
+            exibirErros(erros);
+            return;
         }
         
-        // Encriptar a senha (se necessário)
-        cliente.senha = await encriptarSenha(cliente.senha);
+        // Remover confirmação de senha antes de enviar
+        const dadosParaEnviar = {
+            ...formData,
+            confirmarSenha: undefined
+        };
+        delete dadosParaEnviar.confirmarSenha;
         
-        const response = await fetch('http://localhost:8080/clientes', {
+        const response = await fetch('/api/clientes', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(cliente)
+            headers: { 
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(dadosParaEnviar)
         });
 
         if (!response.ok) {
             const errorData = await response.json();
-            throw new Error(errorData.message || 'Erro ao cadastrar');
+            throw new Error(errorData.message || 'Erro ao cadastrar cliente');
         }
         
-        window.location.href = '/login';
+        const data = await response.json();
+        
+        // Redirecionar após cadastro bem-sucedido
+        window.location.href = '/';
     } catch (error) {
         console.error('Erro:', error);
-        alert(error.message);
+        alert(error.message || 'Erro ao cadastrar. Verifique os dados e tente novamente.');
     }
 }
 

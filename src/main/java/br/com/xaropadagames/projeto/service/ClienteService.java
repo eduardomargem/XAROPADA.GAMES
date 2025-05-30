@@ -10,13 +10,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Service
 public class ClienteService {
 
     private final ClienteDAO clienteDAO;
-   
     private final ViaCepService viaCepService;
 
     public ClienteService(ClienteDAO clienteDAO, ViaCepService viaCepService) {
@@ -24,13 +23,14 @@ public class ClienteService {
         this.viaCepService = viaCepService;
     }
 
+    public List<Cliente> listarTodos() {
+        return clienteDAO.findAll();
+    }
+
     @Transactional
     public Cliente cadastrar(Cliente cliente) {
         validarCliente(cliente);
-
-        // Verificar duplicidade de email e CPF
-        // No método cadastrar do ClienteService, atualize as verificações de
-        // duplicidade:
+        
         if (clienteDAO.existsByEmail(cliente.getEmail())) {
             throw new DuplicidadeException("cliente com este email", cliente.getEmail());
         }
@@ -39,13 +39,26 @@ public class ClienteService {
             throw new DuplicidadeException("cliente com este CPF", cliente.getCpf());
         }
 
-        // Validar endereços
         validarEnderecos(cliente.getEnderecos());
-
-        // Encriptar senha
-    
-
-        return clienteDAO.save(cliente);
+        
+        // Primeiro salva o cliente para gerar o ID
+        Cliente clienteSalvo = clienteDAO.save(cliente);
+        
+        // Depois associa e salva os endereços
+        List<Endereco> enderecosValidados = cliente.getEnderecos().stream()
+            .map(endereco -> {
+                // Validação via ViaCEP
+                Endereco enderecoValidado = viaCepService.validarEndereco(endereco);
+                enderecoValidado.setCliente(clienteSalvo);
+                return enderecoValidado;
+            })
+            .collect(Collectors.toList());
+        
+        // Atualiza a lista de endereços do cliente
+        clienteSalvo.setEnderecos(enderecosValidados);
+        
+        // Salva novamente para atualizar os endereços
+        return clienteDAO.save(clienteSalvo);
     }
 
     private void validarCliente(Cliente cliente) {
@@ -60,35 +73,19 @@ public class ClienteService {
                 throw new ValidacaoException("Cada parte do nome deve ter pelo menos 3 letras");
             }
         }
-
-        // Outras validações são feitas pelas anotações do modelo
     }
 
     private void validarEnderecos(List<Endereco> enderecos) {
-        if (enderecos == null || enderecos.isEmpty()) {
-            throw new ValidacaoException("Pelo menos um endereço (faturamento) é obrigatório");
+        if (enderecos == null || enderecos.size() < 2) {
+            throw new ValidacaoException("Endereço de faturamento e pelo menos um de entrega são obrigatórios");
         }
-
-        boolean temFaturamento = false;
-        for (Endereco endereco : enderecos) {
-            if (endereco.getLocalidade() == null || endereco.getLocalidade().isBlank()) {
-                throw new ValidacaoException("Localidade é obrigatória para o endereço");
-            }
-
-            // Validar CEP usando ViaCEP
-            Endereco enderecoValidado = viaCepService.validarEndereco(endereco);
-            endereco.setCep(enderecoValidado.getCep());
-            endereco.setLogradouro(enderecoValidado.getLogradouro());
-            endereco.setComplemento(enderecoValidado.getComplemento());
-            endereco.setBairro(enderecoValidado.getBairro());
-            endereco.setLocalidade(enderecoValidado.getLocalidade());
-            endereco.setUf(enderecoValidado.getUf());
-        }
-
-        if (!temFaturamento) {
-            throw new ValidacaoException("Endereço de faturamento é obrigatório");
-        }
-
         
+        long faturamentoCount = enderecos.stream()
+            .filter(e -> "FATURAMENTO".equals(e.getTipo()))
+            .count();
+            
+        if (faturamentoCount != 1) {
+            throw new ValidacaoException("Exatamente um endereço de faturamento é obrigatório");
+        }
     }
 }

@@ -4,11 +4,6 @@ document.addEventListener("DOMContentLoaded", function () {
         return regex.test(email);
     }
 
-    function validarSenha(senha) {
-        const regex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{6,}$/;
-        return regex.test(senha);
-    }
-
     function exibirErro(campo, mensagem) {
         let erroSpan = campo.nextElementSibling;
         if (!erroSpan || !erroSpan.classList.contains("erro")) {
@@ -68,11 +63,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
             if (!validarEmail(valor) && valor.length > 50) {
                 exibirErro(emailOuUsuario, "O nome de usuário pode ter no máximo 50 caracteres.");
-                return;
-            }
-
-            if (!validarSenha(senhaValor)) {
-                exibirErro(senha, "A senha deve ter no mínimo 6 caracteres, incluindo pelo menos 1 número e 1 caractere especial.");
                 return;
             }
 

@@ -1,34 +1,31 @@
-package br.com.xaropadagames.projeto.model;
+package br.com.xaropadagames.projeto.dto;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
-@Entity
-@Table(name = "clientes")
-public class Cliente {
-    
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+
+public class ClienteCadastroDTO {
     @NotBlank
     @Size(min = 6)
     private String nomeCompleto;
     
     @NotBlank
     @Email
-    @Column(unique = true)
     private String email;
     
     @NotBlank
-    @Pattern(regexp = "\\d{11}") // Aceita apenas 11 dígitos
-    @Column(unique = true)
+    @Pattern(regexp = "\\d{11}")
     private String cpf;
     
     @NotNull
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate dataNascimento;
     
     @NotBlank
@@ -36,20 +33,15 @@ public class Cliente {
     
     @NotBlank
     @Size(min = 6)
-    
     private String senha;
     
-    @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL)
-    private List<Endereco> enderecos;
-
-    // Getters e Setters
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
+    @NotBlank
+    @Size(min = 6)
+    private String confirmarSenha;
+    
+    @NotNull
+    @Size(min = 2, message = "Pelo menos um endereço de faturamento e um de entrega são obrigatórios")
+    private List<EnderecoDTO> enderecos;
 
     public String getNomeCompleto() {
         return nomeCompleto;
@@ -99,19 +91,21 @@ public class Cliente {
         this.senha = senha;
     }
 
-    public List<Endereco> getEnderecos() {
+    public String getConfirmarSenha() {
+        return confirmarSenha;
+    }
+
+    public void setConfirmarSenha(String confirmarSenha) {
+        this.confirmarSenha = confirmarSenha;
+    }
+
+    public List<EnderecoDTO> getEnderecos() {
         return enderecos;
     }
 
-    public void setEnderecos(List<Endereco> enderecos) {
+    public void setEnderecos(List<EnderecoDTO> enderecos) {
         this.enderecos = enderecos;
     }
+
     
-    public void adicionarEndereco(Endereco endereco) {
-        if (this.enderecos == null) {
-            this.enderecos = new ArrayList<>();
-        }
-        endereco.setCliente(this);
-        this.enderecos.add(endereco);
-    }
 }
