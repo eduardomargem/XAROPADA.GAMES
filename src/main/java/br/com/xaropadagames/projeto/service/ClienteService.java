@@ -29,6 +29,8 @@ public class ClienteService {
 
     @Transactional
     public Cliente cadastrar(Cliente cliente) {
+        cliente.setCpf(cliente.getCpf());
+        
         validarCliente(cliente);
         
         if (clienteDAO.existsByEmail(cliente.getEmail())) {

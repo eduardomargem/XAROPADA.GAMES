@@ -24,7 +24,7 @@ public class Cliente {
     private String email;
     
     @NotBlank
-    @Pattern(regexp = "\\d{11}") // Aceita apenas 11 dígitos
+    @Pattern(regexp = "\\d{11}") // Armazena apenas dígitos
     @Column(unique = true)
     private String cpf;
     
@@ -72,7 +72,7 @@ public class Cliente {
     }
 
     public void setCpf(String cpf) {
-        this.cpf = cpf;
+        this.cpf = cpf.replaceAll("\\D", "");
     }
 
     public LocalDate getDataNascimento() {
