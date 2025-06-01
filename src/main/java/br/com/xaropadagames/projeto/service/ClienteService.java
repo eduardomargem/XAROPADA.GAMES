@@ -9,6 +9,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,8 +30,11 @@ public class ClienteService {
 
     @Transactional
     public Cliente cadastrar(Cliente cliente) {
-        cliente.setCpf(cliente.getCpf());
+        // Remove os endereços temporariamente para salvar o cliente primeiro
+        List<Endereco> enderecos = cliente.getEnderecos();
+        cliente.setEnderecos(new ArrayList<>());
         
+        // Validações básicas do cliente
         validarCliente(cliente);
         
         if (clienteDAO.existsByEmail(cliente.getEmail())) {
@@ -41,13 +45,11 @@ public class ClienteService {
             throw new DuplicidadeException("cliente com este CPF", cliente.getCpf());
         }
 
-        validarEnderecos(cliente.getEnderecos());
-        
-        // Primeiro salva o cliente para gerar o ID
+        // Primeiro salva o cliente (sem endereços) para gerar o ID
         Cliente clienteSalvo = clienteDAO.save(cliente);
         
-        // Depois associa e salva os endereços
-        List<Endereco> enderecosValidados = cliente.getEnderecos().stream()
+        // Agora associa e salva os endereços
+        List<Endereco> enderecosValidados = enderecos.stream()
             .map(endereco -> {
                 // Validação via ViaCEP
                 Endereco enderecoValidado = viaCepService.validarEndereco(endereco);
@@ -89,5 +91,10 @@ public class ClienteService {
         if (faturamentoCount != 1) {
             throw new ValidacaoException("Exatamente um endereço de faturamento é obrigatório");
         }
+    }
+
+    public Cliente findByEmail(String email) {
+        return clienteDAO.findByEmail(email)
+            .orElseThrow(() -> new ValidacaoException("Cliente não encontrado"));
     }
 }

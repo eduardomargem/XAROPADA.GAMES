@@ -24,7 +24,7 @@ CREATE TABLE Usuarios (
 );
 
 insert into usuarios (ds_nome, nr_cpf, ds_email, ds_senha, id_grupo, bo_status)
-values ('Eduardo Margem', '14725836912', 'eduardo123@gmail.com', 'xaropada@123', 1, 1);
+values ('Eduardo Margem', '66468961009', 'eduardo123@gmail.com', 'xaropada@123', 1, 1);
 
 insert into usuarios (ds_nome, nr_cpf, ds_email, ds_senha, id_grupo, bo_status)
 values ('Daniel Assunção', '08399546038', 'daniel123@gmail.com', 'xaropada@123', 2, 1);
@@ -75,3 +75,5 @@ CREATE TABLE enderecos (
 );
 
 select * from clientes
+
+select * from enderecos

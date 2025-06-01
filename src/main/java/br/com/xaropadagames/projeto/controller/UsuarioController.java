@@ -12,7 +12,9 @@ import br.com.xaropadagames.projeto.model.Usuario;
 import br.com.xaropadagames.projeto.service.UserService;
 import jakarta.validation.Valid;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -103,11 +105,22 @@ public class UsuarioController {
         
         // Verifica a senha
         if (userService.authenticateUser(loginRequest.getUsername(), loginRequest.getPassword())) {
-            usuario.setDsSenha(null); // Remove a senha por segurança
-            return ResponseEntity.ok(usuario);
+            // Cria resposta padronizada
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Login realizado com sucesso");
+            response.put("id", usuario.getId());
+            response.put("dsNome", usuario.getDsNome());
+            response.put("dsEmail", usuario.getDsEmail());
+            response.put("id_grupo", usuario.getIdGrupo());
+            
+            return ResponseEntity.ok(response);
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body("{\"message\": \"Senha incorreta.\"}");
+                    .body(Map.of(
+                        "success", false,
+                        "message", "Senha incorreta"
+                    ));
         }
     }
 

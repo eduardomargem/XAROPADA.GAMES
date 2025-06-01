@@ -273,6 +273,13 @@ async function coletarDadosFormulario() {
         });
     });
 
+    // Formatar CEP para o padrão 12345-678 antes de enviar
+    formData.enderecos.forEach(endereco => {
+        if (endereco.cep && endereco.cep.length === 8) {
+            endereco.cep = endereco.cep.substring(0, 5) + '-' + endereco.cep.substring(5);
+        }
+    });
+
     return formData;
 }
 
@@ -296,41 +303,73 @@ function exibirErros(erros) {
 async function salvarCliente() {
     try {
         const formData = await coletarDadosFormulario();
-        const erros = await validarFormulario(formData);
         
-        if (Object.keys(erros).length > 0) {
-            exibirErros(erros);
+        // Verificar se as senhas coincidem
+        if (formData.senha !== formData.confirmarSenha) {
+            alert('As senhas não coincidem');
             return;
         }
-        
-        // Remover confirmação de senha antes de enviar
-        const dadosParaEnviar = {
-            ...formData,
-            confirmarSenha: undefined
-        };
-        delete dadosParaEnviar.confirmarSenha;
-        
+
         const response = await fetch('/api/clientes', {
             method: 'POST',
             headers: { 
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
             },
-            body: JSON.stringify(dadosParaEnviar)
+            body: JSON.stringify(formData)
         });
 
         if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || 'Erro ao cadastrar cliente');
+            const errorText = await response.text();
+            throw new Error(errorText || 'Erro ao cadastrar');
         }
-        
+
         const data = await response.json();
+        console.log('Cadastro realizado:', data);
         
-        // Redirecionar após cadastro bem-sucedido
-        window.location.href = '/';
+        // Fazer login automático após o cadastro
+        await fazerLoginAutomatico(formData.email, formData.senha);
+        
     } catch (error) {
         console.error('Erro:', error);
-        alert(error.message || 'Erro ao cadastrar. Verifique os dados e tente novamente.');
+        // alert('Erro ao cadastrar: ' + error.message);
+    }
+}
+
+async function fazerLoginAutomatico(email, senha) {
+    try {
+        const response = await fetch('/api/clientes/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email, senha })
+        });
+
+        if (!response.ok) {
+            throw new Error('Falha no login automático');
+        }
+
+        const data = await response.json();
+        
+        // Armazenar informações do cliente no localStorage
+        const usuarioLogado = {
+            tipo: 'cliente',
+            id: data.cliente.id,
+            nome: data.cliente.nomeCompleto,
+            email: data.cliente.email,
+            cidade: data.cliente.cidade || ''
+        };
+        
+        localStorage.setItem('usuarioLogado', JSON.stringify(usuarioLogado));
+        
+        // Redirecionar para a página inicial
+        window.location.href = '/';
+        
+    } catch (error) {
+        console.error('Erro no login automático:', error);
+        // Mesmo com falha no login, redireciona para a página inicial
+        window.location.href = '/';
     }
 }
 

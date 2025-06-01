@@ -2,9 +2,12 @@ package br.com.xaropadagames.projeto.dto;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import br.com.xaropadagames.projeto.model.Cliente;
+import br.com.xaropadagames.projeto.model.Endereco;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -107,5 +110,21 @@ public class ClienteCadastroDTO {
         this.enderecos = enderecos;
     }
 
-    
+    public Cliente toEntity() {
+        Cliente cliente = new Cliente();
+        cliente.setNomeCompleto(this.nomeCompleto);
+        cliente.setEmail(this.email);
+        cliente.setCpf(this.cpf);
+        cliente.setDataNascimento(this.dataNascimento);
+        cliente.setGenero(this.genero);
+        cliente.setSenha(this.senha);
+        
+        // Conversão dos endereços DTO para entidades
+        List<Endereco> enderecos = this.enderecos.stream()
+            .map(EnderecoDTO::toEntity)
+            .collect(Collectors.toList());
+        
+        cliente.setEnderecos(enderecos);
+        return cliente;
+    }
 }
