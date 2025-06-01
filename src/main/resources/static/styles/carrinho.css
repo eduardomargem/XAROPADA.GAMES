@@ -32,6 +32,22 @@ body {
     filter: brightness(15%);
 }
 
+.user-actions {
+                position: absolute;
+                top: 100%;
+                right: 0;
+                background: #2c2a64;
+                padding: 10px;
+                border-radius: 5px;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+                display: none;
+                z-index: 100;
+            }
+
+            .user-info:hover .user-actions {
+                display: block;
+            }
+
 .header {
     background-color: rgb(44, 42, 100);
     border-bottom: 2px solid #00FF85;

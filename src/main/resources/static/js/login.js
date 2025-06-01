@@ -12,10 +12,8 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     function exibirErro(elemento, mensagem) {
-        // Encontra ou cria o elemento de erro
         let erroSpan = elemento.nextElementSibling;
         
-        // Verifica se o próximo elemento é um span de erro
         if (!erroSpan || !erroSpan.classList.contains('error-message')) {
             erroSpan = document.createElement('span');
             erroSpan.className = 'error-message';
@@ -59,7 +57,7 @@ document.addEventListener("DOMContentLoaded", function() {
             if (!email) {
                 exibirErro(emailInput, "E-mail é obrigatório");
                 valido = false;
-            } else if (!validarEmail(email)) {
+            } else if (tipoUsuario === 'cliente' && !validarEmail(email)) {
                 exibirErro(emailInput, "E-mail inválido");
                 valido = false;
             }
@@ -96,14 +94,25 @@ document.addEventListener("DOMContentLoaded", function() {
 
                 const data = await response.json();
 
-                // Padroniza objeto do usuário logado
-                const usuarioLogado = {
-                    tipo: tipoUsuario,
-                    id: data.id,
-                    nome: tipoUsuario === 'cliente' ? data.cliente?.nomeCompleto : data.dsNome,
-                    email: tipoUsuario === 'cliente' ? data.cliente?.email : data.dsEmail,
-                    id_grupo: tipoUsuario === 'cliente' ? null : (data.grupo?.id || data.id_grupo)
-                };
+                // Padroniza objeto do usuário logado de acordo com o tipo
+                let usuarioLogado;
+                
+                if (tipoUsuario === 'cliente') {
+                    usuarioLogado = {
+                        tipo: 'cliente',
+                        id: data.cliente.id,
+                        nome: data.cliente.nomeCompleto,
+                        email: data.cliente.email
+                    };
+                } else {
+                    usuarioLogado = {
+                        tipo: 'funcionario',
+                        id: data.id,
+                        nome: data.dsNome,
+                        email: data.dsEmail,
+                        id_grupo: data.id_grupo
+                    };
+                }
 
                 // Armazena no localStorage
                 localStorage.setItem('usuarioLogado', JSON.stringify(usuarioLogado));

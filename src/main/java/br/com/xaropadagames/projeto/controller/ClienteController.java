@@ -90,27 +90,77 @@ public class ClienteController {
         Cliente cliente = clienteDAO.findByEmail(loginDTO.getEmail())
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Cliente não encontrado"));
         
-        // Verifica a senha (simplificado - em produção, use PasswordEncoder)
         if (!cliente.getSenha().equals(loginDTO.getSenha())) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Senha incorreta");
         }
         
-        // Cria um objeto de resposta com os dados necessários para o frontend
-        ClienteListagemDTO clienteResponse = new ClienteListagemDTO();
-        clienteResponse.setId(cliente.getId());
-        clienteResponse.setNomeCompleto(cliente.getNomeCompleto());
-        clienteResponse.setEmail(cliente.getEmail());
-        
-        // Se tiver endereço de faturamento, inclui a cidade
-        Optional<Endereco> enderecoFaturamento = cliente.getEnderecos().stream()
-            .filter(e -> "FATURAMENTO".equals(e.getTipo()))
-            .findFirst();
-        enderecoFaturamento.ifPresent(endereco -> clienteResponse.setCidade(endereco.getCidade()));
-        
+        // Cria um objeto de resposta com todos os dados necessários
         return ResponseEntity.ok(Map.of(
             "success", true,
             "message", "Login realizado com sucesso",
-            "cliente", clienteResponse
+            "cliente", Map.of(
+                "id", cliente.getId(),
+                "nomeCompleto", cliente.getNomeCompleto(),
+                "email", cliente.getEmail(),
+                "tipo", "cliente"
+            )
         ));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Cliente> buscarPorId(@PathVariable Long id) {
+        if (id == null || id <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ID do cliente inválido");
+        }
+        
+        Cliente cliente = clienteService.buscarPorId(id)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cliente não encontrado"));
+        return ResponseEntity.ok(cliente);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Cliente> atualizarCliente(
+        @PathVariable Long id, 
+        @RequestBody Map<String, Object> updates) {
+        
+        Cliente clienteAtualizado = clienteService.atualizarCliente(id, updates);
+        return ResponseEntity.ok(clienteAtualizado);
+    }
+
+    @PutMapping("/{id}/senha")
+    public ResponseEntity<Void> alterarSenha(
+        @PathVariable Long id, 
+        @RequestBody Map<String, String> request) {
+        
+        String novaSenha = request.get("senha");
+        clienteService.alterarSenha(id, novaSenha);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{clienteId}/enderecos")
+    public ResponseEntity<List<Endereco>> listarEnderecosCliente(
+        @PathVariable Long clienteId,
+        @RequestParam(required = false) String tipo) {
+        
+        List<Endereco> enderecos = clienteService.listarEnderecosCliente(clienteId, tipo);
+        return ResponseEntity.ok(enderecos);
+    }
+
+    @PostMapping("/{clienteId}/enderecos")
+    public ResponseEntity<Endereco> adicionarEndereco(
+        @PathVariable Long clienteId,
+        @RequestBody EnderecoDTO enderecoDTO) {
+        
+        Endereco novoEndereco = clienteService.adicionarEndereco(clienteId, enderecoDTO.toEntity());
+        return ResponseEntity.status(HttpStatus.CREATED).body(novoEndereco);
+    }
+
+    @DeleteMapping("/{clienteId}/enderecos/{enderecoId}")
+    public ResponseEntity<Void> removerEndereco(
+        @PathVariable Long clienteId,
+        @PathVariable Long enderecoId) {
+        
+        clienteService.removerEndereco(clienteId, enderecoId);
+        return ResponseEntity.noContent().build();
     }
 }

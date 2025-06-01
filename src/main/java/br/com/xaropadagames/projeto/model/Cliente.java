@@ -6,6 +6,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name = "clientes")
 public class Cliente {
@@ -40,6 +42,7 @@ public class Cliente {
     private String senha;
     
     @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Endereco> enderecos;
 
     // Getters e Setters

@@ -1,5 +1,7 @@
 package br.com.xaropadagames.projeto.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.Data;
@@ -40,6 +42,7 @@ public class Endereco {
     
     @ManyToOne
     @JoinColumn(name = "cliente_id", nullable = false)
+    @JsonIgnore
     private Cliente cliente;
 
     public Long getId() {

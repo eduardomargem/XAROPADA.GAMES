@@ -120,14 +120,16 @@
             <div class="user-info">
                 <i class="fas fa-user"></i>
                 <span>Olá, ${primeiroNome}!</span>
-                <button id="logoutBtn" class="logout-btn">Sair</button>
+                <div class="user-actions">
+                    <a href="/Perfil" class="account-link">Minha Conta</a>
+                </div>
             </div>
         `;
         
-        document.getElementById('logoutBtn').addEventListener('click', function() {
-            localStorage.removeItem('usuarioLogado');
-            window.location.href = '/';
-        });
+        // document.getElementById('logoutBtn').addEventListener('click', function() {
+        //     localStorage.removeItem('usuarioLogado');
+        //     window.location.href = '/';
+        // });
     } else {
         userSection.innerHTML = `
             <div class="login-option" id="loginOption">

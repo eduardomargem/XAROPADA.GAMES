@@ -46,4 +46,9 @@ public class WebController {
     public String Cadastro() {
         return "Cadastro";
     }
+
+    @GetMapping("/Perfil")
+    public String Perfil() {
+        return "Perfil";
+    }
 }

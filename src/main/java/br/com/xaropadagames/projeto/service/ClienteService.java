@@ -5,12 +5,18 @@ import br.com.xaropadagames.projeto.exception.DuplicidadeException;
 import br.com.xaropadagames.projeto.exception.ValidacaoException;
 import br.com.xaropadagames.projeto.model.Cliente;
 import br.com.xaropadagames.projeto.model.Endereco;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -96,5 +102,75 @@ public class ClienteService {
     public Cliente findByEmail(String email) {
         return clienteDAO.findByEmail(email)
             .orElseThrow(() -> new ValidacaoException("Cliente não encontrado"));
+    }
+
+    public Optional<Cliente> buscarPorId(Long id) {
+        if (id == null || id <= 0) {
+            return Optional.empty();
+        }
+        return clienteDAO.findById(id);
+    }
+
+    public Cliente atualizarCliente(Long id, Map<String, Object> updates) {
+        Cliente cliente = clienteDAO.findById(id)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cliente não encontrado"));
+        
+        if (updates.containsKey("nomeCompleto")) {
+            cliente.setNomeCompleto((String) updates.get("nomeCompleto"));
+        }
+        
+        if (updates.containsKey("dataNascimento")) {
+            cliente.setDataNascimento(LocalDate.parse((String) updates.get("dataNascimento")));
+        }
+        
+        if (updates.containsKey("genero")) {
+            cliente.setGenero((String) updates.get("genero"));
+        }
+        
+        return clienteDAO.save(cliente);
+    }
+
+    public void alterarSenha(Long id, String novaSenha) {
+        Cliente cliente = clienteDAO.findById(id)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cliente não encontrado"));
+        
+        cliente.setSenha(novaSenha);
+        clienteDAO.save(cliente);
+    }
+
+    public List<Endereco> listarEnderecosCliente(Long clienteId, String tipo) {
+        Cliente cliente = clienteDAO.findById(clienteId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cliente não encontrado"));
+        
+        if (tipo != null) {
+            return cliente.getEnderecos().stream()
+                .filter(e -> e.getTipo().equalsIgnoreCase(tipo))
+                .collect(Collectors.toList());
+        }
+        
+        return cliente.getEnderecos();
+    }
+
+    public Endereco adicionarEndereco(Long clienteId, Endereco endereco) {
+        Cliente cliente = clienteDAO.findById(clienteId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cliente não encontrado"));
+        
+        endereco.setCliente(cliente);
+        cliente.adicionarEndereco(endereco);
+        clienteDAO.save(cliente);
+        return endereco;
+    }
+
+    public void removerEndereco(Long clienteId, Long enderecoId) {
+        Cliente cliente = clienteDAO.findById(clienteId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cliente não encontrado"));
+        
+        Endereco endereco = cliente.getEnderecos().stream()
+            .filter(e -> e.getId().equals(enderecoId))
+            .findFirst()
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Endereço não encontrado"));
+        
+        cliente.getEnderecos().remove(endereco);
+        clienteDAO.save(cliente);
     }
 }

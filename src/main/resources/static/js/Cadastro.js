@@ -352,23 +352,20 @@ async function fazerLoginAutomatico(email, senha) {
 
         const data = await response.json();
         
-        // Armazenar informações do cliente no localStorage
+        // Armazena todas as informações necessárias no localStorage
         const usuarioLogado = {
             tipo: 'cliente',
             id: data.cliente.id,
             nome: data.cliente.nomeCompleto,
-            email: data.cliente.email,
-            cidade: data.cliente.cidade || ''
+            email: data.cliente.email
         };
         
         localStorage.setItem('usuarioLogado', JSON.stringify(usuarioLogado));
         
-        // Redirecionar para a página inicial
         window.location.href = '/';
         
     } catch (error) {
         console.error('Erro no login automático:', error);
-        // Mesmo com falha no login, redireciona para a página inicial
         window.location.href = '/';
     }
 }
