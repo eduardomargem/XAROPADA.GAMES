@@ -51,4 +51,19 @@ public class WebController {
     public String Perfil() {
         return "Perfil";
     }
+
+    @GetMapping("/Pagamento")
+    public String Pagamento() {
+        return "Pagamento";
+    }
+
+    @GetMapping("/Resumo")
+    public String Resumo() {
+        return "Resumo";
+    }
+
+    @GetMapping("/Dados-Entrega")
+    public String DadosEntrega() {
+        return "Dados-Entrega";
+    }
 }

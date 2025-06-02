@@ -656,7 +656,34 @@ document.addEventListener('DOMContentLoaded', () => {
     elements.continueBtn.addEventListener('click', fecharModal);
     elements.closeProductModal.addEventListener('click', fecharModalProduto);
     elements.calcFreteBtn.addEventListener('click', calcularFrete);
-    elements.checkoutBtn.addEventListener('click', finalizarCompra);
+
+    elements.checkoutBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        
+        const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
+        const carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
+        
+        if (!usuarioLogado) {
+            mostrarNotificacao('Por favor, faça login para finalizar sua compra!', 'erro');
+            window.location.href = '/index';
+            return;
+        }
+        
+        if (carrinho.length === 0) {
+            mostrarNotificacao('Seu carrinho está vazio!', 'erro');
+            return;
+        }
+        
+        // Verifica se o frete foi selecionado
+        const freteSelecionado = document.querySelector('.frete-option.selected');
+        if (!freteSelecionado) {
+            mostrarNotificacao('Por favor, selecione uma opção de frete!', 'erro');
+            return;
+        }
+        
+        // Redireciona para a página de dados de entrega
+        window.location.href = '/Dados-Entrega';
+    });
     
     // Evento para fechar modais ao clicar fora
     elements.cartModal.addEventListener('click', (e) => {

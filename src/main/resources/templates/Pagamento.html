@@ -1,0 +1,108 @@
+    <!DOCTYPE html>
+    <html lang="pt-BR">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Xaropada Games - Pagamento</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+        <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+        <link th:href="@{/styles/Pagamento.css}" rel="stylesheet" />
+    </head>
+    <body>
+        <header>
+            <div class="container">
+                <div class="logo">XAROPADA<span>GAMES</span></div>
+            </div>
+        </header>
+        
+        <main class="container">
+            <div class="payment-card">
+                <h2>ESCOLHA COMO PAGAR</h2>
+                
+                <label class="payment-option selected">
+                    <input type="radio" name="payment" id="boleto" checked>
+                    <div class="payment-info">
+                        <h3><span class="payment-icon">B</span> BOLETO BANCÁRIO</h3>
+                        <p>APROVAÇÃO EM 1 A 2 DIAS ÚTEIS</p>
+                    </div>
+                </label>
+                
+                <label class="payment-option">
+                    <input type="radio" name="payment" id="newCard">
+                    <div class="payment-info">
+                        <h3><span class="payment-icon">C</span> CARTÃO DE CRÉDITO</h3>
+                        <p>PAGAMENTO PARCELADO EM ATÉ 12X</p>
+                    </div>
+                </label>
+                
+                <!-- Seção para exibir cartões salvos -->
+                <div id="listaPagamentos" style="margin-top: 20px;"></div>
+                
+                <div class="navigation-buttons">
+                    <button class="btn-back" onclick="window.location.href='/Dados-Entrega'">
+                        <i class="fas fa-arrow-left"></i> VOLTAR
+                    </button>
+                    <button id="confirmPayment" class="btn">CONFIRMAR PAGAMENTO</button>
+                    <button id="nextButton" class="btn-next">
+                        AVANÇAR <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </main>
+        
+        <!-- Modal para adicionar cartão -->
+        <div class="modal" id="cardModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>ADICIONAR CARTÃO</h3>
+                    <button class="close-modal">&times;</button>
+                </div>
+                
+                <form id="cardForm">
+                    <div class="form-group">
+                        <label for="modalNumeroCartao">NÚMERO DO CARTÃO</label>
+                        <input type="text" id="modalNumeroCartao" placeholder="0000 0000 0000 0000" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="modalNomeCartao">NOME NO CARTÃO</label>
+                        <input type="text" id="modalNomeCartao" required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="modalValidadeCartao">VALIDADE</label>
+                            <input type="text" id="modalValidadeCartao" placeholder="MM/AAAA" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="modalCvvCartao">CVV</label>
+                            <input type="text" id="modalCvvCartao" placeholder="000" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="modalParcelas">PARCELAMENTO</label>
+                        <select id="modalParcelas" required>
+                            <option value="">SELECIONE...</option>
+                            <option value="1">1x SEM JUROS</option>
+                            <option value="2">2x SEM JUROS</option>
+                            <option value="3">3x SEM JUROS</option>
+                            <option value="4">4x SEM JUROS</option>
+                            <option value="5">5x SEM JUROS</option>
+                            <option value="6">6x SEM JUROS</option>
+                            <option value="10">10x COM JUROS</option>
+                            <option value="12">12x COM JUROS</option>
+                        </select>
+                    </div>
+                    
+                    <div class="modal-footer">
+                        <button type="button" class="btn close-modal">CANCELAR</button>
+                        <button type="submit" class="btn btn-accent">SALVAR CARTÃO</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    <script th:src="@{/js/Pagamento.js}"></script>
+    </body>
+    </html> 
