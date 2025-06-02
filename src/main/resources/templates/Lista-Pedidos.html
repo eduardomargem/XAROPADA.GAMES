@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciar Pedidos - XaropadaGames</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link th:href="@{/styles/Lista-Pedidos.css}" rel="stylesheet" />
+</head>
+<body> 
+    <div class="container">
+        <div class="back-to-store">
+            <a th:href="@{/dashboard-estoquista}" class="btn-voltar"><i class="fas fa-arrow-left"></i> Voltar</a>
+        </div>      
+        <div class="profile-box">
+            <h2>Gerenciar Pedidos</h2>
+            
+            <!-- Filtros de Pedidos -->
+            <div class="filters-section">
+                <div class="filter-row">
+                    <button class="filter-btn active" data-filter="all">Todos</button>
+                    <button class="filter-btn" data-filter="aguardando">Aguardando Pagamento</button>
+                    <button class="filter-btn" data-filter="rejeitado">Cancelado</button>
+                    <button class="filter-btn" data-filter="aprovado">enviado</button>
+                     <button class="filter-btn" data-filter="aprovado">entregue</button>
+                </div>
+                <div class="search-box">
+                    <input type="text" id="searchOrder" placeholder="Buscar pedido...">
+                    <button class="search-btn"><i class="fas fa-search"></i></button>
+                </div>
+            </div>
+            
+            <!-- Lista de Pedidos -->
+            <div class="orders-section">
+                <div id="ordersList" class="orders-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Detalhes do Pedido -->
+    <div id="orderDetailsModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h3><i class="fas fa-receipt"></i> DETALHES DO PEDIDO</h3>
+            <div id="orderDetailsContent"></div>
+        </div>
+    </div>
+
+    <!-- Modal de Edição de Status -->
+    <div id="editStatusModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeEditModal()">&times;</span>
+            <h3><i class="fas fa-edit"></i> ALTERAR STATUS</h3>
+            <div class="form-group">
+                <label for="statusSelect">Novo Status:</label>
+                <select id="statusSelect" class="status-select">
+                    <option value="aguardando">Aguardando Pagamento</option>
+                    <option value="rejeitado">Pagamento Rejeitado</option>
+                    <option value="aprovado">Pagamento Aprovado</option>
+                    <option value="transito">Estornado</option>
+                    <option value="entregue">Entregue</option>
+                </select>
+            </div>
+            <button id="saveStatusBtn" class="save-btn">Salvar Alteração</button>
+        </div>
+    </div>
+
+    <script th:src="@{/js/Lista-Pedidos.js}"></script>
+</body>
+</html>

@@ -66,4 +66,9 @@ public class WebController {
     public String DadosEntrega() {
         return "Dados-Entrega";
     }
+
+    @GetMapping("/Lista-Pedidos")
+    public String ListaPedidos() {
+        return "Lista-Pedidos";
+    }
 }
