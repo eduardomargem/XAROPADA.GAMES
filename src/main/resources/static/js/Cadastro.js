@@ -58,129 +58,121 @@ function validarNascimento(data) {
     return nascimento <= idadeMinima;
 }
 
-// Função para encriptar senha (simulação usando SHA-256)
-async function encriptarSenha(senha) {
-    if (!senha) return '';
-    const encoder = new TextEncoder();
-    const data = encoder.encode(senha);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-    return hashHex;
-}
-
 // Função para validar todos os campos do formulário
 async function validarFormulario(formData) {
     const erros = {};
 
-    // Validar nome
     if (!formData.nomeCompleto || !validarNome(formData.nomeCompleto)) {
         erros.nome = 'Nome completo deve ter pelo menos 2 palavras com 3+ letras cada';
     }
-
-    // Validar e-mail
     if (!formData.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
         erros.email = 'E-mail inválido';
     }
-
-    // Validar CPF
-    if (!formData.cpf || !validarCPF(formData.cpf) || formData.cpf.length !== 11) {
-        erros.cpf = 'CPF inválido (deve conter 11 dígitos)';
+    if (!formData.cpf || !validarCPF(formData.cpf)) { // CPF já é enviado sem máscara
+        erros.cpf = 'CPF inválido';
     }
-
-    // Validação específica para data
-    if (!formData.dataNascimento || !/^\d{4}-\d{2}-\d{2}$/.test(formData.dataNascimento)) {
-        erros.nascimento = 'Data de nascimento inválida';
+    if (!formData.dataNascimento || !validarNascimento(formData.dataNascimento)) {
+        erros.nascimento = 'Data de nascimento inválida ou idade menor que 12 anos.';
     }
-
-    // Validar gênero
     if (!formData.genero) {
         erros.genero = 'Selecione um gênero';
     }
-
-    // Validar senha
-    if (!formData.senha || formData.senha.trim() === '') {
-        erros.senha = 'A senha é obrigatória';
-    } else if (formData.senha.length < 6) {
+    if (!formData.senha || formData.senha.length < 6) {
         erros.senha = 'Senha deve ter pelo menos 6 caracteres';
+    }
+    if (formData.senha !== formData.confirmarSenha) {
+        erros.confirmarSenha = 'As senhas não coincidem';
     }
 
     // Validação dos endereços
-    if (!formData.enderecos || formData.enderecos.length < 2) {
-        erros.enderecos = 'Pelo menos um endereço de faturamento e um de entrega são obrigatórios';
+    if (!formData.enderecos || formData.enderecos.length === 0) {
+        erros.enderecosGeral = 'Pelo menos um endereço de faturamento é obrigatório.';
     } else {
-        // Verifica se há exatamente um endereço de faturamento
-        const faturamentoCount = formData.enderecos.filter(e => e.tipo === "FATURAMENTO").length;
+        const faturamentoCount = formData.enderecos.filter(e => e.tipo === TIPO_ENDERECO.FATURAMENTO).length;
         if (faturamentoCount !== 1) {
-            erros.enderecos = 'Deve haver exatamente um endereço de faturamento';
+            erros.faturamento = 'Deve haver exatamente um endereço de faturamento.';
+        }
+        const entregaCount = formData.enderecos.filter(e => e.tipo === TIPO_ENDERECO.ENTREGA).length;
+        if (entregaCount === 0) {
+             erros.entrega = 'Pelo menos um endereço de entrega é obrigatório (pode ser o mesmo do faturamento).';
+        }
+
+        for (let i = 0; i < formData.enderecos.length; i++) {
+            const end = formData.enderecos[i];
+            const prefixoErro = `${end.tipo.toLowerCase()}${i}-`; // Ex: faturamento0- ou entrega0-
+            if (!end.cep || end.cep.length !== 8) erros[`${prefixoErro}cep`] = 'CEP inválido.';
+            if (!end.logradouro) erros[`${prefixoErro}logradouro`] = 'Logradouro obrigatório.';
+            if (!end.numero) erros[`${prefixoErro}numero`] = 'Número obrigatório.';
+            if (!end.bairro) erros[`${prefixoErro}bairro`] = 'Bairro obrigatório.';
+            if (!end.cidade) erros[`${prefixoErro}cidade`] = 'Cidade obrigatória.';
+            if (!end.uf || end.uf.length !== 2) erros[`${prefixoErro}uf`] = 'UF inválida.';
         }
     }
-
     return erros;
 }
 
-// Função para adicionar máscara ao CPF
 function aplicarMascaraCPF(input) {
     input.addEventListener('input', function(e) {
         let value = e.target.value.replace(/\D/g, '');
-        
         if (value.length > 3) value = value.replace(/^(\d{3})/, '$1.');
         if (value.length > 7) value = value.replace(/^(\d{3})\.(\d{3})/, '$1.$2.');
         if (value.length > 11) value = value.replace(/^(\d{3})\.(\d{3})\.(\d{3})/, '$1.$2.$3-');
-        
         e.target.value = value.substring(0, 14);
     });
 }
 
-// Função para adicionar máscara ao CEP
 function aplicarMascaraCEP(input) {
     input.addEventListener('input', function(e) {
         let value = e.target.value.replace(/\D/g, '');
-        
         if (value.length > 5) value = value.replace(/^(\d{5})/, '$1-');
-        
         e.target.value = value.substring(0, 9);
     });
 }
 
-// Função para preencher endereço a partir do CEP
-function configurarAutoPreenchimentoCEP(input, callback) {
-    input.addEventListener('blur', async function() {
+function configurarAutoPreenchimentoCEP(inputElement, parentDiv) {
+    inputElement.addEventListener('blur', async function() {
         const cep = this.value.replace(/\D/g, '');
         if (cep.length !== 8) return;
         
-        const endereco = await validarCEP(cep);
-        if (endereco && callback) {
-            callback(endereco);
+        const enderecoData = await validarCEP(cep); // validarCEP já existe
+        if (enderecoData) {
+            parentDiv.querySelector('.logradouro-entrega, #logradouro').value = enderecoData.logradouro || '';
+            parentDiv.querySelector('.bairro-entrega, #bairro').value = enderecoData.bairro || '';
+            parentDiv.querySelector('.cidade-entrega, #cidade').value = enderecoData.localidade || '';
+            parentDiv.querySelector('.uf-entrega, #uf').value = enderecoData.uf || '';
+            const numeroInput = parentDiv.querySelector('.numero-entrega, #numero');
+            if(numeroInput) numeroInput.focus();
+        } else {
+            mostrarNotificacaoGlobal('CEP não encontrado ou inválido.', 'erro');
         }
     });
 }
 
-// Função para adicionar um novo endereço de entrega
 function adicionarEnderecoEntrega(dados = null) {
     const container = document.getElementById('enderecos-entrega');
     const id = Date.now();
     
     const enderecoDiv = document.createElement('div');
     enderecoDiv.className = 'endereco-entrega';
-    enderecoDiv.dataset.id = id;
+    enderecoDiv.dataset.id = id; // Para facilitar a remoção
     
     enderecoDiv.innerHTML = `
+        <h4>Endereço de Entrega Adicional</h4>
         <div class="form-group">
             <p>CEP*</p>
             <input type="text" class="cep-entrega" placeholder="CEP" required maxlength="9" value="${dados?.cep || ''}">
-            <span class="erro erro-cep-entrega"></span>
+            <span class="erro erro-cep-entrega-${id}"></span>
         </div>
         <div class="form-group">
             <p>Logradouro*</p>
             <input type="text" class="logradouro-entrega" placeholder="Rua/Avenida" required value="${dados?.logradouro || ''}">
-            <span class="erro erro-logradouro-entrega"></span>
+            <span class="erro erro-logradouro-entrega-${id}"></span>
         </div>
         <div class="form-row">
             <div class="form-group half-width">
                 <p>Número*</p>
                 <input type="text" class="numero-entrega" placeholder="Número" required value="${dados?.numero || ''}">
-                <span class="erro erro-numero-entrega"></span>
+                <span class="erro erro-numero-entrega-${id}"></span>
             </div>
             <div class="form-group half-width">
                 <p>Complemento</p>
@@ -190,49 +182,41 @@ function adicionarEnderecoEntrega(dados = null) {
         <div class="form-group">
             <p>Bairro*</p>
             <input type="text" class="bairro-entrega" placeholder="Bairro" required value="${dados?.bairro || ''}">
-            <span class="erro erro-bairro-entrega"></span>
+            <span class="erro erro-bairro-entrega-${id}"></span>
         </div>
         <div class="form-row">
             <div class="form-group half-width">
                 <p>Cidade*</p>
                 <input type="text" class="cidade-entrega" placeholder="Cidade" required value="${dados?.cidade || ''}">
-                <span class="erro erro-cidade-entrega"></span>
+                <span class="erro erro-cidade-entrega-${id}"></span>
             </div>
             <div class="form-group half-width">
                 <p>UF*</p>
                 <input type="text" class="uf-entrega" placeholder="UF" required maxlength="2" value="${dados?.uf || ''}">
-                <span class="erro erro-uf-entrega"></span>
+                <span class="erro erro-uf-entrega-${id}"></span>
             </div>
         </div>
-        <button type="button" class="btn-remover-endereco">Remover Endereço</button>
+        <button type="button" class="btn-remover-endereco" style="background-color: #ff6b6b; color:white; font-size:10px; padding:8px;">Remover Endereço</button>
+        <hr style="border:1px dashed #00FF85; margin-top:15px;">
     `;
     
-    container.insertBefore(enderecoDiv, document.getElementById('adicionar-endereco'));
+    const addButton = document.getElementById('adicionar-endereco');
+    container.insertBefore(enderecoDiv, addButton);
     
-    // Configurar máscara e auto-preenchimento para o novo CEP
     const novoCepInput = enderecoDiv.querySelector('.cep-entrega');
     aplicarMascaraCEP(novoCepInput);
+    configurarAutoPreenchimentoCEP(novoCepInput, enderecoDiv);
     
-    configurarAutoPreenchimentoCEP(novoCepInput, (endereco) => {
-        enderecoDiv.querySelector('.logradouro-entrega').value = endereco.logradouro || '';
-        enderecoDiv.querySelector('.bairro-entrega').value = endereco.bairro || '';
-        enderecoDiv.querySelector('.cidade-entrega').value = endereco.localidade || '';
-        enderecoDiv.querySelector('.uf-entrega').value = endereco.uf || '';
-        enderecoDiv.querySelector('.numero-entrega').focus();
-    });
-    
-    // Configurar botão de remover
     enderecoDiv.querySelector('.btn-remover-endereco').addEventListener('click', function() {
-        const enderecos = document.querySelectorAll('.endereco-entrega');
-        if (enderecos.length > 1) {
+        const enderecosEntregaAtuais = document.querySelectorAll('.endereco-entrega');
+        if (document.getElementById('mesmo-endereco').checked || enderecosEntregaAtuais.length > 1) {
             enderecoDiv.remove();
         } else {
-            alert('Pelo menos um endereço de entrega é obrigatório.');
+            mostrarNotificacaoGlobal('Pelo menos um endereço de entrega é obrigatório se não for o mesmo do faturamento.', 'erro');
         }
     });
 }
 
-// Função para coletar dados do formulário
 async function coletarDadosFormulario() {
     const dataNascimento = document.getElementById('nascimento').value;
 
@@ -240,17 +224,16 @@ async function coletarDadosFormulario() {
         nomeCompleto: document.getElementById('nome').value.trim(),
         email: document.getElementById('email').value.trim(),
         cpf: document.getElementById('cpf').value.replace(/\D/g, ''),
-        dataNascimento: dataNascimento,
+        dataNascimento: dataNascimento, // Formato YYYY-MM-DD
         genero: document.getElementById('genero').value,
         senha: document.getElementById('senha').value,
         confirmarSenha: document.getElementById('confirmarSenha').value,
         enderecos: []
     };
 
-    // Endereço de faturamento
     formData.enderecos.push({
-        tipo: "FATURAMENTO",
-        cep: document.getElementById('cep').value.replace(/\D/g, ''),
+        tipo: TIPO_ENDERECO.FATURAMENTO,
+        cep: document.getElementById('cep').value, // Mantém máscara para enviar ao backend
         logradouro: document.getElementById('logradouro').value.trim(),
         numero: document.getElementById('numero').value.trim(),
         complemento: document.getElementById('complemento').value.trim() || null,
@@ -259,11 +242,10 @@ async function coletarDadosFormulario() {
         uf: document.getElementById('uf').value.trim().toUpperCase()
     });
 
-    // Endereços de entrega
     document.querySelectorAll('.endereco-entrega').forEach(enderecoEl => {
         formData.enderecos.push({
-            tipo: "ENTREGA",
-            cep: enderecoEl.querySelector('.cep-entrega').value.replace(/\D/g, ''),
+            tipo: TIPO_ENDERECO.ENTREGA,
+            cep: enderecoEl.querySelector('.cep-entrega').value, // Mantém máscara
             logradouro: enderecoEl.querySelector('.logradouro-entrega').value.trim(),
             numero: enderecoEl.querySelector('.numero-entrega').value.trim(),
             complemento: enderecoEl.querySelector('.complemento-entrega').value.trim() || null,
@@ -272,67 +254,82 @@ async function coletarDadosFormulario() {
             uf: enderecoEl.querySelector('.uf-entrega').value.trim().toUpperCase()
         });
     });
-
-    // Formatar CEP para o padrão 12345-678 antes de enviar
-    formData.enderecos.forEach(endereco => {
-        if (endereco.cep && endereco.cep.length === 8) {
-            endereco.cep = endereco.cep.substring(0, 5) + '-' + endereco.cep.substring(5);
-        }
-    });
-
     return formData;
 }
 
-// Função para exibir erros no formulário
 function exibirErros(erros) {
-    // Limpar todos os erros primeiro
     document.querySelectorAll('.erro').forEach(el => el.textContent = '');
     
-    // Exibir erros individuais
     if (erros.nome) document.getElementById('erro-nome').textContent = erros.nome;
     if (erros.email) document.getElementById('erro-email').textContent = erros.email;
     if (erros.cpf) document.getElementById('erro-cpf').textContent = erros.cpf;
     if (erros.nascimento) document.getElementById('erro-nascimento').textContent = erros.nascimento;
     if (erros.genero) document.getElementById('erro-genero').textContent = erros.genero;
     if (erros.senha) document.getElementById('erro-senha').textContent = erros.senha;
-    if (erros.endereco) document.getElementById('erro-cep').textContent = erros.endereco;
-    if (erros.enderecosEntrega) alert(erros.enderecosEntrega);
+    if (erros.confirmarSenha) document.getElementById('erro-confirmarSenha').textContent = erros.confirmarSenha;
+
+    // Erros de endereço podem ser mais complexos de mapear para o ID dinâmico.
+    // Simplificando para mensagens gerais se houver erro em endereços:
+    if (erros.faturamento) mostrarNotificacaoGlobal(erros.faturamento, 'erro');
+    if (erros.entrega) mostrarNotificacaoGlobal(erros.entrega, 'erro');
+    if (erros.enderecosGeral) mostrarNotificacaoGlobal(erros.enderecosGeral, 'erro');
+    
+    // Para erros específicos de campos de endereço, você precisaria iterar e encontrar os spans de erro corretos
+    // Exemplo para CEP do primeiro endereço de entrega (se houver):
+    document.querySelectorAll('.endereco-entrega').forEach((div, index) => {
+        const id = div.dataset.id;
+        if(erros[`entrega${index}-cep`]) div.querySelector(`.erro-cep-entrega-${id}`).textContent = erros[`entrega${index}-cep`];
+        // ... e assim por diante para outros campos de endereço de entrega
+    });
+     if (erros.faturamento0 && erros.faturamento0.cep) { // Assumindo que faturamento é sempre o primeiro
+        document.getElementById('erro-cep').textContent = erros.faturamento0.cep;
+    }
 }
 
-// Função para salvar cliente
 async function salvarCliente() {
+    const btnSalvar = document.querySelector('#registerForm button[type="submit"]');
+    btnSalvar.disabled = true;
+    btnSalvar.textContent = 'CADASTRANDO...';
+
     try {
         const formData = await coletarDadosFormulario();
-        
-        // Verificar se as senhas coincidem
-        if (formData.senha !== formData.confirmarSenha) {
-            alert('As senhas não coincidem');
+        const erros = await validarFormulario(formData);
+
+        if (Object.keys(erros).length > 0) {
+            exibirErros(erros);
+            mostrarNotificacaoGlobal('Corrija os erros no formulário.', 'erro');
+            btnSalvar.disabled = false;
+            btnSalvar.textContent = 'CADASTRAR';
             return;
         }
+        
+        // Remove confirmarSenha antes de enviar para o backend
+        const { confirmarSenha, ...payload } = formData;
 
         const response = await fetch('/api/clientes', {
             method: 'POST',
             headers: { 
                 'Content-Type': 'application/json',
-                'Accept': 'application/json'
+                'Accept': 'application/json' // Garante que o servidor saiba que esperamos JSON
             },
-            body: JSON.stringify(formData)
+            body: JSON.stringify(payload) 
         });
 
         if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(errorText || 'Erro ao cadastrar');
+            const errorData = await response.json().catch(() => ({ message: response.statusText }));
+            throw new Error(errorData.message || 'Erro ao cadastrar cliente.');
         }
 
         const data = await response.json();
         console.log('Cadastro realizado:', data);
-        
-        // Fazer login automático após o cadastro
+        mostrarNotificacaoGlobal('Cadastro realizado com sucesso! Fazendo login...', 'sucesso');
         await fazerLoginAutomatico(formData.email, formData.senha);
         
     } catch (error) {
-        console.error('Erro:', error);
-        // alert('Erro ao cadastrar: ' + error.message);
+        console.error('Erro ao salvar cliente:', error);
+        mostrarNotificacaoGlobal(`Erro ao cadastrar: ${error.message}`, 'erro');
+        btnSalvar.disabled = false;
+        btnSalvar.textContent = 'CADASTRAR';
     }
 }
 
@@ -340,19 +337,17 @@ async function fazerLoginAutomatico(email, senha) {
     try {
         const response = await fetch('/api/clientes/login', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, senha })
         });
 
         if (!response.ok) {
-            throw new Error('Falha no login automático');
+            const errorData = await response.json().catch(() => ({ message: 'Falha no login automático após cadastro.' }));
+            throw new Error(errorData.message);
         }
 
         const data = await response.json();
         
-        // Armazena todas as informações necessárias no localStorage
         const usuarioLogado = {
             tipo: 'cliente',
             id: data.cliente.id,
@@ -362,34 +357,35 @@ async function fazerLoginAutomatico(email, senha) {
         
         localStorage.setItem('usuarioLogado', JSON.stringify(usuarioLogado));
         
-        window.location.href = '/';
+        const carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
+        if (carrinho.length > 0) {
+            mostrarNotificacaoGlobal('Login realizado! Continue sua compra.', 'sucesso');
+            setTimeout(() => { window.location.href = '/Dados-Entrega'; }, 1500);
+        } else {
+            mostrarNotificacaoGlobal('Login realizado com sucesso!', 'sucesso');
+            setTimeout(() => { window.location.href = '/'; }, 1500);
+        }
         
     } catch (error) {
         console.error('Erro no login automático:', error);
-        window.location.href = '/';
+        mostrarNotificacaoGlobal(`Erro no login: ${error.message}`, 'erro');
+         setTimeout(() => { window.location.href = '/'; }, 2000);
     }
 }
 
-// Função principal para inicializar o formulário
 function inicializarFormulario() {
-    // Aplicar máscaras
     aplicarMascaraCPF(document.getElementById('cpf'));
     aplicarMascaraCEP(document.getElementById('cep'));
+    configurarAutoPreenchimentoCEP(document.getElementById('cep'), document.querySelector('.login-box')); // Passa o form como parent
     
-    // Configurar auto-preenchimento de CEP para faturamento
-    configurarAutoPreenchimentoCEP(document.getElementById('cep'), (endereco) => {
-        document.getElementById('logradouro').value = endereco.logradouro || '';
-        document.getElementById('bairro').value = endereco.bairro || '';
-        document.getElementById('cidade').value = endereco.localidade || '';
-        document.getElementById('uf').value = endereco.uf || '';
-        document.getElementById('numero').focus();
-    });
-    
-    // Configurar checkbox para copiar endereço de faturamento
     document.getElementById('mesmo-endereco').addEventListener('change', function() {
+        const enderecosEntregaContainer = document.getElementById('enderecos-entrega');
+        const btnAdicionarEndereco = document.getElementById('adicionar-endereco');
+
+        // Limpa endereços de entrega existentes antes de adicionar/copiar
+        document.querySelectorAll('.endereco-entrega').forEach(el => el.remove());
+
         if (this.checked) {
-            document.querySelectorAll('.endereco-entrega').forEach(el => el.remove());
-            
             const dadosFaturamento = {
                 cep: document.getElementById('cep').value,
                 logradouro: document.getElementById('logradouro').value,
@@ -399,40 +395,91 @@ function inicializarFormulario() {
                 cidade: document.getElementById('cidade').value,
                 uf: document.getElementById('uf').value
             };
-            
-            adicionarEnderecoEntrega(dadosFaturamento);
+            adicionarEnderecoEntrega(dadosFaturamento); // Adiciona o endereço copiado
+            btnAdicionarEndereco.style.display = 'none'; // Esconde o botão de adicionar mais
+        } else {
+            adicionarEnderecoEntrega(); // Adiciona um campo de endereço de entrega vazio
+            btnAdicionarEndereco.style.display = 'block'; // Mostra o botão de adicionar mais
         }
     });
     
-    // Configurar botão para adicionar novo endereço de entrega
     document.getElementById('adicionar-endereco').addEventListener('click', function() {
         adicionarEnderecoEntrega();
     });
     
-    // Adicionar um endereço de entrega inicial
-    adicionarEnderecoEntrega();
+    // Adiciona um endereço de entrega inicial apenas se "mesmo endereço" não estiver marcado
+    if (!document.getElementById('mesmo-endereco').checked) {
+        adicionarEnderecoEntrega();
+    } else {
+         // Se "mesmo endereço" estiver marcado por padrão (se você decidir isso no HTML),
+         // copie o endereço de faturamento aqui.
+         // Mas a lógica atual dispara a cópia no 'change', então um campo vazio é ok se não marcado.
+         document.getElementById('adicionar-endereco').style.display = 'none';
+    }
     
-    // Configurar envio do formulário
     document.getElementById('registerForm').addEventListener('submit', function(e) {
         e.preventDefault();
         salvarCliente();
     });
 }
 
-// Inicializar quando o DOM estiver carregado
 document.addEventListener('DOMContentLoaded', function() {
     const loginBox = document.getElementById('loginBox');
     const pressKeyMessage = document.getElementById('press-key-message');
-    
-    document.addEventListener('keydown', function() {
+    let formInitialized = false;
+
+    function showForm() {
+        if (formInitialized) return;
         loginBox.style.display = 'block';
         pressKeyMessage.style.display = 'none';
         inicializarFormulario();
-    }, { once: true });
+        formInitialized = true; 
+    }
     
-    document.addEventListener('click', function() {
-        loginBox.style.display = 'block';
-        pressKeyMessage.style.display = 'none';
-        inicializarFormulario();
-    }, { once: true });
+    document.addEventListener('keydown', showForm, { once: true });
+    document.addEventListener('click', showForm, { once: true });
 });
+
+// Função de notificação global (reutilizável)
+function mostrarNotificacaoGlobal(mensagem, tipo = 'sucesso') {
+    const containerId = 'notification-container-global';
+    let notificationContainer = document.getElementById(containerId);
+    if (!notificationContainer) {
+        notificationContainer = document.createElement('div');
+        notificationContainer.id = containerId;
+        Object.assign(notificationContainer.style, {
+            position: 'fixed', top: '20px', right: '20px', zIndex: '20000', // Z-index alto
+            display: 'flex', flexDirection: 'column', gap: '10px'
+        });
+        document.body.appendChild(notificationContainer);
+    }
+
+    const notification = document.createElement('div');
+    notification.className = `notification ${tipo}`;
+    notification.innerHTML = `<i class="fas fa-${tipo === 'erro' ? 'exclamation-circle' : tipo === 'info' ? 'info-circle' : 'check-circle'}"></i> ${mensagem}`;
+    
+    Object.assign(notification.style, {
+        padding: '12px 18px', marginBottom: '10px', color: 'white', borderRadius: '4px', 
+        boxShadow: '0 2px 8px rgba(0,0,0,0.25)', fontFamily: "'Press Start 2P', cursive",
+        fontSize: '10px', opacity: '0', transition: 'opacity 0.3s ease, transform 0.3s ease',
+        transform: 'translateX(100%)', minWidth: '280px', maxWidth: '380px',
+        borderLeft: `5px solid ${tipo === 'sucesso' ? '#00cc66' : tipo === 'erro' ? '#ff5252' : '#3498db'}`
+    });
+    if (tipo === 'sucesso') notification.style.backgroundColor = 'rgba(0, 204, 102, 0.9)';
+    else if (tipo === 'erro') notification.style.backgroundColor = 'rgba(255, 82, 82, 0.9)';
+    else if (tipo === 'info') notification.style.backgroundColor = 'rgba(52, 152, 219, 0.9)';
+    
+    notificationContainer.appendChild(notification);
+
+    // Animação de entrada
+    setTimeout(() => {
+        notification.style.opacity = '1';
+        notification.style.transform = 'translateX(0)';
+    }, 50); 
+    
+    setTimeout(() => {
+        notification.style.opacity = '0';
+        notification.style.transform = 'translateX(110%)'; // Para sair da tela
+        setTimeout(() => notification.remove(), 300); // Tempo para animação de saída
+    }, 4000); // Tempo que a notificação fica visível
+}

@@ -1,30 +1,27 @@
 document.addEventListener("DOMContentLoaded", function() {
-    // Elementos do DOM
     const formEndereco = document.getElementById('addressForm');
-    const cepInput = document.getElementById('cep');
+    const cepInput = document.getElementById('cep'); // CEP do modal de novo endereço
     const btnSalvarEndereco = document.getElementById('btnSalvarEndereco');
-    const listaEnderecos = document.getElementById('listaEnderecos');
+    const listaEnderecosContainer = document.getElementById('listaEnderecos');
     const btnContinuar = document.getElementById('btnContinuar');
     const btnNovoEndereco = document.getElementById('btnNovoEndereco');
     const modal = document.getElementById('addressModal');
     const closeModalBtns = document.querySelectorAll('.close-modal');
 
-    // Máscara de CEP
-    cepInput.addEventListener('input', function(e) {
-        let value = e.target.value.replace(/\D/g, '');
-        if (value.length > 5) {
-            value = value.substring(0, 5) + '-' + value.substring(5, 8);
-        }
-        e.target.value = value;
-        
-        // Busca automática do CEP quando completo
-        if (value.length === 9) {
-            buscarEnderecoPorCEP(value);
-        }
-    });
+    // Função para aplicar máscara de CEP (reutilizada de Cadastro.js ou definida aqui)
+    function aplicarMascaraCEPLocal(input) {
+        input.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 5) {
+                value = value.substring(0, 5) + '-' + value.substring(5, 8);
+            }
+            e.target.value = value.substring(0, 9);
+        });
+    }
+    if(cepInput) aplicarMascaraCEPLocal(cepInput);
 
-    // Busca CEP via API ViaCEP
-    async function buscarEnderecoPorCEP(cep) {
+
+    async function buscarEnderecoPorCEPLocal(cep, formElement) {
         const cepNumerico = cep.replace(/\D/g, '');
         if (cepNumerico.length !== 8) return;
 
@@ -33,180 +30,159 @@ document.addEventListener("DOMContentLoaded", function() {
             const data = await response.json();
             
             if (data.erro) {
-                alert('CEP não encontrado. Verifique o número digitado.');
+                mostrarNotificacaoGlobal('CEP não encontrado.', 'erro');
                 return;
             }
             
-            // Preenche os campos automaticamente
-            document.getElementById('logradouro').value = data.logradouro || '';
-            document.getElementById('bairro').value = data.bairro || '';
-            document.getElementById('cidade').value = data.localidade || '';
-            document.getElementById('uf').value = data.uf || '';
-            document.getElementById('numero').focus();
+            formElement.querySelector('#logradouro').value = data.logradouro || '';
+            formElement.querySelector('#bairro').value = data.bairro || '';
+            formElement.querySelector('#cidade').value = data.localidade || '';
+            formElement.querySelector('#uf').value = data.uf || ''; // O select será preenchido
+            formElement.querySelector('#numero').focus();
             
         } catch (error) {
             console.error('Erro ao buscar CEP:', error);
-            alert('Erro ao consultar CEP. Tente novamente.');
+            mostrarNotificacaoGlobal('Erro ao consultar CEP.', 'erro');
         }
     }
+    
+    if(cepInput && formEndereco) {
+        cepInput.addEventListener('blur', function() {
+            buscarEnderecoPorCEPLocal(this.value, formEndereco);
+        });
+    }
 
-    // Salvar endereço no localStorage
-    function salvarEndereco(event) {
-        event.preventDefault();
-        
+
+    async function carregarEnderecosCliente() {
         const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
-        if (!usuarioLogado) {
-            alert('Faça login para cadastrar endereços!');
-            window.location.href = '/index';
+        if (!usuarioLogado || !usuarioLogado.id) {
+            mostrarNotificacaoGlobal('Usuário não logado.', 'erro');
+            window.location.href = "/index";
             return;
         }
 
-        const endereco = {
-            cep: cepInput.value.replace(/\D/g, ''),
+        try {
+            const response = await fetch(`/api/clientes/${usuarioLogado.id}/enderecos?tipo=ENTREGA`);
+            if (!response.ok) {
+                if (response.status === 404) { // Cliente não encontrado
+                     listaEnderecosContainer.innerHTML = '<p class="no-address">Cliente não encontrado. Faça login novamente.</p>';
+                     return;
+                }
+                throw new Error('Falha ao carregar endereços.');
+            }
+            const enderecos = await response.json();
+            exibirEnderecos(enderecos);
+        } catch (error) {
+            console.error('Erro ao carregar endereços:', error);
+            mostrarNotificacaoGlobal(error.message, 'erro');
+            listaEnderecosContainer.innerHTML = '<p class="no-address">Erro ao carregar endereços.</p>';
+        }
+    }
+    
+    function exibirEnderecos(enderecos) {
+        listaEnderecosContainer.innerHTML = '';
+        
+        if (!enderecos || enderecos.length === 0) {
+            listaEnderecosContainer.innerHTML = '<p class="no-address">Nenhum endereço de entrega cadastrado.</p>';
+            return;
+        }
+
+        // Verificar se existe um endereço padrão já salvo no localStorage para esta sessão de checkout
+        const enderecoSelecionadoStorage = JSON.parse(localStorage.getItem('enderecoEntregaSelecionado'));
+
+        enderecos.forEach((endereco) => {
+            // Um endereço é "padrão para o checkout" se seu ID corresponder ao que está no localStorage
+            const isPadraoCheckout = enderecoSelecionadoStorage && enderecoSelecionadoStorage.id === endereco.id;
+
+            const enderecoHTML = `
+                <div class="endereco-item ${isPadraoCheckout ? 'padrao' : ''}" data-endereco-id="${endereco.id}">
+                    <input type="radio" name="enderecoSelecionado" value="${endereco.id}" id="endereco-${endereco.id}" ${isPadraoCheckout ? 'checked' : ''}>
+                    <label for="endereco-${endereco.id}" class="address-info">
+                        <p><strong>${endereco.logradouro}, ${endereco.numero}</strong>${endereco.complemento ? ' - ' + endereco.complemento : ''}</p>
+                        <p>${endereco.bairro}, ${endereco.cidade} - ${endereco.uf}</p>
+                        <p>CEP: ${endereco.cep}</p> </label>
+                    </div>
+            `;
+            listaEnderecosContainer.insertAdjacentHTML('beforeend', enderecoHTML);
+        });
+
+         // Adicionar event listener para salvar a seleção no localStorage
+        document.querySelectorAll('input[name="enderecoSelecionado"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const selecionadoId = parseInt(this.value);
+                const enderecoEscolhido = enderecos.find(e => e.id === selecionadoId);
+                if (enderecoEscolhido) {
+                    localStorage.setItem('enderecoEntregaSelecionado', JSON.stringify(enderecoEscolhido));
+                    // Atualizar a classe 'padrao' visualmente
+                    document.querySelectorAll('.endereco-item').forEach(item => item.classList.remove('padrao'));
+                    this.closest('.endereco-item').classList.add('padrao');
+                }
+            });
+        });
+    }
+
+    async function salvarNovoEndereco(event) {
+        event.preventDefault();
+        const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
+        if (!usuarioLogado || !usuarioLogado.id) {
+            mostrarNotificacaoGlobal('Usuário não logado.', 'erro');
+            return;
+        }
+
+        const enderecoData = {
+            cep: document.getElementById('cep').value, // O backend espera com máscara
             logradouro: document.getElementById('logradouro').value.trim(),
             numero: document.getElementById('numero').value.trim(),
-            complemento: document.getElementById('complemento').value.trim(),
+            complemento: document.getElementById('complemento').value.trim() || null,
             bairro: document.getElementById('bairro').value.trim(),
             cidade: document.getElementById('cidade').value.trim(),
             uf: document.getElementById('uf').value.trim().toUpperCase(),
-            padrao: false
+            tipo: "ENTREGA" // Ou baseado na seleção do form
         };
-
-        // Validação dos campos obrigatórios
-        if (!endereco.cep || endereco.cep.length !== 8) {
-            alert('CEP inválido!');
-            return;
-        }
-        if (!endereco.logradouro) {
-            alert('Logradouro é obrigatório!');
-            return;
-        }
-        if (!endereco.numero) {
-            alert('Número é obrigatório!');
-            return;
-        }
-        if (!endereco.bairro) {
-            alert('Bairro é obrigatório!');
-            return;
-        }
-        if (!endereco.cidade) {
-            alert('Cidade é obrigatória!');
-            return;
-        }
-        if (!endereco.uf || endereco.uf.length !== 2) {
-            alert('UF inválida!');
-            return;
-        }
-
-        // Recupera ou inicializa a lista de endereços
-        const usuariosCadastrados = JSON.parse(localStorage.getItem('usuariosCadastrados')) || [];
-        const usuarioIndex = usuariosCadastrados.findIndex(u => u.email === usuarioLogado.email);
         
-        if (usuarioIndex === -1) {
-            alert('Usuário não encontrado!');
+        // Validação básica no frontend (idealmente mais robusta)
+        if (!enderecoData.cep || !enderecoData.logradouro || !enderecoData.numero || !enderecoData.bairro || !enderecoData.cidade || !enderecoData.uf) {
+            mostrarNotificacaoGlobal('Preencha todos os campos obrigatórios do endereço.', 'erro');
             return;
         }
 
-        // Inicializa o array de endereços se não existir
-        if (!usuariosCadastrados[usuarioIndex].dadosCompletos.enderecosEntrega) {
-            usuariosCadastrados[usuarioIndex].dadosCompletos.enderecosEntrega = [];
-            endereco.padrao = true;
-        } else if (usuariosCadastrados[usuarioIndex].dadosCompletos.enderecosEntrega.length === 0) {
-            endereco.padrao = true;
-        }
+        try {
+            const response = await fetch(`/api/clientes/${usuarioLogado.id}/enderecos`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(enderecoData)
+            });
+            if (!response.ok) {
+                const error = await response.json().catch(()=> ({message: response.statusText}));
+                throw new Error(error.message || 'Falha ao salvar endereço.');
+            }
+            const novoEnderecoSalvo = await response.json();
+            
+            // Marcar o novo endereço como selecionado e salvar no localStorage
+            localStorage.setItem('enderecoEntregaSelecionado', JSON.stringify(novoEnderecoSalvo));
+            
+            await carregarEnderecosCliente(); // Recarrega a lista e aplica a classe 'padrao'
+            formEndereco.reset();
+            modal.style.display = 'none';
+            mostrarNotificacaoGlobal('Endereço cadastrado com sucesso e selecionado para entrega!', 'sucesso');
 
-        // Adiciona o novo endereço
-        usuariosCadastrados[usuarioIndex].dadosCompletos.enderecosEntrega.push(endereco);
-        localStorage.setItem('usuariosCadastrados', JSON.stringify(usuariosCadastrados));
-        
-        // Atualiza a exibição
-        exibirEnderecos(usuariosCadastrados[usuarioIndex].dadosCompletos.enderecosEntrega);
-        formEndereco.reset();
-        modal.style.display = 'none';
-        alert('Endereço cadastrado com sucesso!');
+        } catch (error) {
+            console.error('Erro ao salvar endereço:', error);
+            mostrarNotificacaoGlobal(error.message, 'erro');
+        }
     }
 
-    // Exibe os endereços cadastrados
-    function exibirEnderecos(enderecos) {
-        listaEnderecos.innerHTML = '';
-        
-        if (!enderecos || enderecos.length === 0) {
-            listaEnderecos.innerHTML = '<p class="no-address">Nenhum endereço cadastrado.</p>';
-            return;
-        }
 
-        enderecos.forEach((endereco, index) => {
-            const enderecoHTML = `
-                <div class="endereco-item ${endereco.padrao ? 'padrao' : ''}">
-                    <div class="address-info">
-                        <p><strong>${endereco.logradouro}, ${endereco.numero}</strong>${endereco.complemento ? ' - ' + endereco.complemento : ''}</p>
-                        <p>${endereco.bairro}, ${endereco.cidade} - ${endereco.uf}</p>
-                        <p>CEP: ${endereco.cep.replace(/^(\d{5})(\d{3})$/, '$1-$2')}</p>
-                    </div>
-                    <div class="action-buttons">
-                        <button class="btn-default" onclick="definirComoPadrao(${index})">
-                            ${endereco.padrao ? '✅ PADRÃO' : 'DEFINIR PADRÃO'}
-                        </button>
-                        <button class="btn-danger" onclick="removerEndereco(${index})">
-                            REMOVER
-                        </button>
-                    </div>
-                </div>
-            `;
-            listaEnderecos.insertAdjacentHTML('beforeend', enderecoHTML);
-        });
+    if(btnSalvarEndereco) {
+        btnSalvarEndereco.addEventListener('click', salvarNovoEndereco);
     }
 
-    // Define um endereço como padrão
-    window.definirComoPadrao = function(index) {
-        const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
-        const usuariosCadastrados = JSON.parse(localStorage.getItem('usuariosCadastrados'));
-        const usuarioIndex = usuariosCadastrados.findIndex(u => u.email === usuarioLogado.email);
-        
-        // Marca apenas o endereço selecionado como padrão
-        usuariosCadastrados[usuarioIndex].dadosCompletos.enderecosEntrega.forEach((endereco, i) => {
-            endereco.padrao = (i === index);
+    if(btnNovoEndereco) {
+        btnNovoEndereco.addEventListener('click', () => {
+            if(formEndereco) formEndereco.reset();
+            modal.style.display = 'flex';
         });
-
-        localStorage.setItem('usuariosCadastrados', JSON.stringify(usuariosCadastrados));
-        exibirEnderecos(usuariosCadastrados[usuarioIndex].dadosCompletos.enderecosEntrega);
-        alert('Endereço padrão atualizado com sucesso!');
-    };
-
-    // Remove um endereço
-    window.removerEndereco = function(index) {
-        if (!confirm('Tem certeza que deseja remover este endereço?')) return;
-        
-        const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
-        const usuariosCadastrados = JSON.parse(localStorage.getItem('usuariosCadastrados'));
-        const usuarioIndex = usuariosCadastrados.findIndex(u => u.email === usuarioLogado.email);
-        
-        // Verifica se é o último endereço
-        if (usuariosCadastrados[usuarioIndex].dadosCompletos.enderecosEntrega.length <= 1) {
-            alert('Você deve ter pelo menos um endereço cadastrado!');
-            return;
-        }
-        
-        // Remove o endereço
-        usuariosCadastrados[usuarioIndex].dadosCompletos.enderecosEntrega.splice(index, 1);
-        
-        // Se o endereço removido era o padrão, define o primeiro como padrão
-        const temPadrao = usuariosCadastrados[usuarioIndex].dadosCompletos.enderecosEntrega.some(e => e.padrao);
-        if (!temPadrao && usuariosCadastrados[usuarioIndex].dadosCompletos.enderecosEntrega.length > 0) {
-            usuariosCadastrados[usuarioIndex].dadosCompletos.enderecosEntrega[0].padrao = true;
-        }
-
-        localStorage.setItem('usuariosCadastrados', JSON.stringify(usuariosCadastrados));
-        exibirEnderecos(usuariosCadastrados[usuarioIndex].dadosCompletos.enderecosEntrega);
-        alert('Endereço removido com sucesso!');
-    };
-
-    // Event Listeners
-    btnSalvarEndereco.addEventListener('click', salvarEndereco);
-    btnNovoEndereco.addEventListener('click', () => {
-        formEndereco.reset();
-        modal.style.display = 'flex';
-    });
+    }
     
     closeModalBtns.forEach(btn => {
         btn.addEventListener('click', () => {
@@ -221,33 +197,73 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     btnContinuar.addEventListener('click', () => {
-        const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
-        const usuariosCadastrados = JSON.parse(localStorage.getItem('usuariosCadastrados')) || [];
-        const usuario = usuariosCadastrados.find(u => u.email === usuarioLogado.email);
+        const enderecoSelecionado = JSON.parse(localStorage.getItem('enderecoEntregaSelecionado'));
         
-        if (!usuario.dadosCompletos.enderecosEntrega || usuario.dadosCompletos.enderecosEntrega.length === 0) {
-            alert('Selecione ou cadastre um endereço para continuar!');
+        if (!enderecoSelecionado) {
+            mostrarNotificacaoGlobal('Por favor, selecione ou cadastre um endereço de entrega para continuar!', 'erro');
             return;
         }
 
-        // Verifica se há um endereço padrão selecionado
-        const enderecoPadrao = usuario.dadosCompletos.enderecosEntrega.find(e => e.padrao);
-        if (!enderecoPadrao) {
-            alert('Selecione um endereço padrão para entrega!');
-            return;
+        // Assume que frete já foi calculado/selecionado na tela do carrinho e está no localStorage
+        let freteInfo = JSON.parse(localStorage.getItem('freteInfo'));
+        const carrinhoAtual = JSON.parse(localStorage.getItem('carrinho')) || [];
+
+        if (!freteInfo && carrinhoAtual.length > 0) {
+            mostrarNotificacaoGlobal('Cálculo de frete pendente. Volte ao carrinho para calcular.', 'info');
+            // Poderia redirecionar para o carrinho: window.location.href = '/'; (ou onde o carrinho é acessado)
+            // Por enquanto, permite prosseguir, mas o ideal é ter o frete definido.
+            // Vamos definir um frete padrão para demonstração se não houver, mas isso é problemático.
+             console.warn("Frete não definido, usando padrão 0. Idealmente, impedir ou calcular aqui.");
+             freteInfo = { valor: 0.00, tipo: "Não Calculado" };
+             localStorage.setItem('freteInfo', JSON.stringify(freteInfo));
+        } else if (!freteInfo && carrinhoAtual.length === 0) {
+             freteInfo = { valor: 0.00, tipo: "N/A" }; // Sem itens, sem frete.
+             localStorage.setItem('freteInfo', JSON.stringify(freteInfo));
         }
 
-        // Redireciona para a página de pagamento
+
         window.location.href = '/Pagamento';
     });
 
-    // Carrega os endereços ao iniciar
-    const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
-    if (usuarioLogado) {
-        const usuariosCadastrados = JSON.parse(localStorage.getItem('usuariosCadastrados')) || [];
-        const usuario = usuariosCadastrados.find(u => u.email === usuarioLogado.email);
-        if (usuario && usuario.dadosCompletos && usuario.dadosCompletos.enderecosEntrega) {
-            exibirEnderecos(usuario.dadosCompletos.enderecosEntrega);
-        }
-    }
+    carregarEnderecosCliente(); // Carrega os endereços ao iniciar
 });
+
+// Função de notificação global (coloque em um script utils.js ou defina aqui)
+function mostrarNotificacaoGlobal(mensagem, tipo = 'sucesso') {
+    const containerId = 'notification-container-global';
+    let notificationContainer = document.getElementById(containerId);
+    if (!notificationContainer) {
+        notificationContainer = document.createElement('div');
+        notificationContainer.id = containerId;
+        Object.assign(notificationContainer.style, {
+            position: 'fixed', top: '20px', right: '20px', zIndex: '20000',
+            display: 'flex', flexDirection: 'column', gap: '10px'
+        });
+        document.body.appendChild(notificationContainer);
+    }
+
+    const notification = document.createElement('div');
+    notification.className = `notification ${tipo}`;
+    notification.innerHTML = `<i class="fas fa-${tipo === 'erro' ? 'exclamation-circle' : tipo === 'info' ? 'info-circle' : 'check-circle'}"></i> ${mensagem}`;
+    Object.assign(notification.style, {
+        padding: '12px 18px', marginBottom: '10px', color: 'white', borderRadius: '4px', 
+        boxShadow: '0 2px 8px rgba(0,0,0,0.25)', fontFamily: "'Press Start 2P', cursive",
+        fontSize: '10px', opacity: '0', transition: 'opacity 0.3s ease, transform 0.3s ease',
+        transform: 'translateX(100%)', minWidth: '280px', maxWidth: '380px',
+        borderLeft: `5px solid ${tipo === 'sucesso' ? '#00cc66' : tipo === 'erro' ? '#ff5252' : '#3498db'}`
+    });
+    if (tipo === 'sucesso') notification.style.backgroundColor = 'rgba(0, 204, 102, 0.9)';
+    else if (tipo === 'erro') notification.style.backgroundColor = 'rgba(255, 82, 82, 0.9)';
+    else if (tipo === 'info') notification.style.backgroundColor = 'rgba(52, 152, 219, 0.9)';
+    
+    notificationContainer.appendChild(notification);
+    setTimeout(() => {
+        notification.style.opacity = '1';
+        notification.style.transform = 'translateX(0)';
+    }, 50); 
+    setTimeout(() => {
+        notification.style.opacity = '0';
+        notification.style.transform = 'translateX(110%)';
+        setTimeout(() => notification.remove(), 300);
+    }, 4000);
+}

@@ -1,119 +1,65 @@
+// Em XAROPADA.GAMES-master/src/main/resources/static/js/Lista-Pedidos.js
+
 document.addEventListener('DOMContentLoaded', function() {
-    // Verifica se o usuário é estoquista
     const usuario = JSON.parse(localStorage.getItem('usuarioLogado'));
-    if (!usuario || usuario.tipo !== 'Estoquista') {
-        window.location.href = '/index';
+    const isEstoquistaOuAdmin = usuario && (usuario.tipo === 'Estoquista' || (usuario.tipo === 'funcionario' && (usuario.id_grupo === 2 || usuario.id_grupo === 1) ));
+
+    if (!isEstoquistaOuAdmin) {
+        mostrarNotificacaoGlobal('Acesso restrito a funcionários autorizados.', 'erro');
+        setTimeout(() => { window.location.href = '/index'; }, 2000);
         return;
     }
 
-    // Carrega os pedidos
-    loadOrders();
-
-    // Configura os filtros
+    loadOrdersFromBackend(); 
     setupFilters();
-
-    // Configura a busca
     setupSearch();
 });
 
-function loadOrders(filter = 'all') {
+async function loadOrdersFromBackend(filterStatus = 'all') {
     const ordersList = document.getElementById('ordersList');
-    ordersList.innerHTML = '';
+    ordersList.innerHTML = '<p class="loading-message" style="text-align:center; padding:20px;">Carregando pedidos...</p>';
 
-    const historicoCompras = JSON.parse(localStorage.getItem('historicoCompras')) || [];
-    
-    // Ordena por data (mais recente primeiro)
-    const pedidosOrdenados = historicoCompras.sort((a, b) => new Date(b.data) - new Date(a.data));
+    try {
+        const response = await fetch('/api/pedidos/todos');
+        if (!response.ok) {
+            if(response.status === 204) {
+                ordersList.innerHTML = '<p class="no-orders">Nenhum pedido encontrado.</p>';
+                return;
+            }
+            throw new Error('Falha ao buscar pedidos do backend.');
+        }
+        let pedidos = await response.json(); 
 
-    if (pedidosOrdenados.length === 0) {
-        ordersList.innerHTML = '<p class="no-orders">Nenhum pedido encontrado</p>';
-        return;
-    }
+        if (filterStatus && filterStatus !== 'all') {
+            let backendStatusEquivalent = filterStatus.toUpperCase();
+            // Mapeamento de status do filtro para status do backend
+            if (filterStatus === 'aprovado') backendStatusEquivalent = 'PAGO';
+            else if (filterStatus === 'aguardando') backendStatusEquivalent = 'AGUARDANDO_PAGAMENTO';
+            else if (filterStatus === 'rejeitado') backendStatusEquivalent = 'PAGAMENTO_REJEITADO';
+            else if (filterStatus === 'enviado') backendStatusEquivalent = 'ENVIADO';
+            else if (filterStatus === 'entregue') backendStatusEquivalent = 'ENTREGUE';
+            else if (filterStatus === 'cancelado') backendStatusEquivalent = 'CANCELADO';
+            else if (filterStatus === 'estornado') backendStatusEquivalent = 'ESTORNADO';
 
-    // Filtra os pedidos se necessário
-    const pedidosFiltrados = filter === 'all' ? pedidosOrdenados : pedidosOrdenados.filter(pedido => pedido.status === filter);
 
-    if (pedidosFiltrados.length === 0) {
-        ordersList.innerHTML = `<p class="no-orders">Nenhum pedido com status "${getStatusText(filter)}"</p>`;
-        return;
-    }
-
-    // Renderiza os pedidos
-    pedidosFiltrados.forEach(pedido => {
-        const orderItem = document.createElement('div');
-        orderItem.className = 'order-item';
+            pedidos = pedidos.filter(pedido => pedido.statusPedido === backendStatusEquivalent);
+        }
         
-        const statusClass = `status-${pedido.status}`;
-        const statusText = getStatusText(pedido.status);
-        
-        // Formata a data
-        const dataPedido = new Date(pedido.data);
-        const dataFormatada = dataPedido.toLocaleDateString('pt-BR', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
+        renderizarPedidosParaAdmin(pedidos);
 
-        orderItem.innerHTML = `
-            <div class="order-header">
-                <div>
-                    <span class="order-id">Pedido #${pedido.id}</span>
-                    <span class="order-date">${dataFormatada}</span>
-                </div>
-                <span class="order-status ${statusClass}">${statusText}</span>
-            </div>
-            <div class="order-summary">
-                <div class="order-products">
-                    ${pedido.produtos.slice(0, 3).map(produto => `
-                        <img src="${produto.imagem || 'https://via.placeholder.com/50x50?text=Produto'}" 
-                             alt="${produto.nome}" 
-                             class="product-thumb" 
-                             title="${produto.nome}">
-                    `).join('')}
-                    ${pedido.produtos.length > 3 ? `<span>+${pedido.produtos.length - 3}</span>` : ''}
-                </div>
-                <div class="order-total">Total: R$ ${pedido.total.toFixed(2)}</div>
-            </div>
-            <div class="order-actions">
-                <button class="details-btn" data-order="${pedido.id}">
-                    <i class="fas fa-eye"></i> Detalhes
-                </button>
-                <button class="edit-btn" data-order="${pedido.id}">
-                    <i class="fas fa-edit"></i> Editar
-                </button>
-            </div>
-        `;
-
-        ordersList.appendChild(orderItem);
-    });
-
-    // Adiciona eventos aos botões
-    document.querySelectorAll('.details-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            showOrderDetails(this.getAttribute('data-order'));
-        });
-    });
-
-    document.querySelectorAll('.edit-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            showEditStatusModal(this.getAttribute('data-order'));
-        });
-    });
+    } catch (error) {
+        console.error("Erro ao carregar pedidos do backend:", error);
+        ordersList.innerHTML = `<p class="no-orders" style="color:red;">Erro ao carregar pedidos: ${error.message}</p>`;
+    }
 }
 
 function setupFilters() {
     document.querySelectorAll('.filter-btn').forEach(btn => {
         btn.addEventListener('click', function() {
-            // Remove a classe active de todos os botões
             document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-            
-            // Adiciona a classe active ao botão clicado
             this.classList.add('active');
-            
-            // Carrega os pedidos com o filtro selecionado
-            loadOrders(this.getAttribute('data-filter'));
+            const filterValue = this.getAttribute('data-filter');
+            loadOrdersFromBackend(filterValue);
         });
     });
 }
@@ -122,52 +68,70 @@ function setupSearch() {
     const searchInput = document.getElementById('searchOrder');
     const searchBtn = document.querySelector('.search-btn');
 
-    searchBtn.addEventListener('click', searchOrders);
-    searchInput.addEventListener('keyup', function(e) {
-        if (e.key === 'Enter') {
-            searchOrders();
+    const performSearch = async () => {
+        const searchTerm = searchInput.value.toLowerCase().trim();
+        
+        // Recarrega todos os pedidos do backend para ter a lista completa para filtrar
+        const ordersList = document.getElementById('ordersList');
+        ordersList.innerHTML = '<p class="loading-message" style="text-align:center; padding:20px;">Buscando...</p>';
+
+        try {
+            const response = await fetch('/api/pedidos/todos');
+            if (!response.ok) {
+                if(response.status === 204) {
+                     ordersList.innerHTML = '<p class="no-orders">Nenhum pedido para buscar.</p>'; return;
+                }
+                throw new Error('Falha ao buscar dados para pesquisa.');
+            }
+            const todosPedidos = await response.json();
+            
+            if (!searchTerm) { // Se a busca está vazia, mostra todos
+                renderizarPedidosParaAdmin(todosPedidos);
+                return;
+            }
+
+            const pedidosFiltrados = todosPedidos.filter(pedido => 
+                pedido.id.toString().includes(searchTerm) || 
+                (pedido.nomeCliente && pedido.nomeCliente.toLowerCase().includes(searchTerm)) ||
+                (pedido.clienteId && pedido.clienteId.toString().includes(searchTerm)) 
+            );
+            renderizarPedidosParaAdmin(pedidosFiltrados);
+
+        } catch (error) {
+             console.error("Erro ao buscar para pesquisar:", error);
+             ordersList.innerHTML = `<p class="no-orders" style="color:red;">Erro ao realizar busca: ${error.message}</p>`;
         }
-    });
+    };
+
+    if(searchBtn) searchBtn.addEventListener('click', performSearch);
+    if(searchInput) {
+        searchInput.addEventListener('keyup', function(e) {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
+    }
 }
 
-function searchOrders() {
-    const searchTerm = document.getElementById('searchOrder').value.toLowerCase();
-    if (!searchTerm) {
-        const activeFilter = document.querySelector('.filter-btn.active').getAttribute('data-filter');
-        loadOrders(activeFilter);
-        return;
-    }
 
+function renderizarPedidosParaAdmin(pedidos) { 
     const ordersList = document.getElementById('ordersList');
     ordersList.innerHTML = '';
 
-    const historicoCompras = JSON.parse(localStorage.getItem('historicoCompras')) || [];
-    const pedidosFiltrados = historicoCompras.filter(pedido => 
-        pedido.id.toLowerCase().includes(searchTerm) || 
-        pedido.usuarioEmail.toLowerCase().includes(searchTerm)
-    );
-
-    if (pedidosFiltrados.length === 0) {
-        ordersList.innerHTML = '<p class="no-orders">Nenhum pedido encontrado</p>';
+    if (!pedidos || pedidos.length === 0) {
+        ordersList.innerHTML = '<p class="no-orders">Nenhum pedido encontrado com os filtros atuais.</p>';
         return;
     }
 
-    // Renderiza os pedidos encontrados
-    pedidosFiltrados.forEach(pedido => {
+    pedidos.forEach(pedido => {
         const orderItem = document.createElement('div');
         orderItem.className = 'order-item';
         
-        const statusClass = `status-${pedido.status}`;
-        const statusText = getStatusText(pedido.status);
+        const statusDoPedido = pedido.statusPedido;
+        const statusClass = `status-${statusDoPedido.toLowerCase().replace(/_/g, '-')}`; 
+        const statusText = getStatusTextGlobal(statusDoPedido); 
         
-        const dataPedido = new Date(pedido.data);
-        const dataFormatada = dataPedido.toLocaleDateString('pt-BR', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
+        const dataFormatada = pedido.dataPedido; // Já formatada pelo DTO
 
         orderItem.innerHTML = `
             <div class="order-header">
@@ -179,240 +143,191 @@ function searchOrders() {
             </div>
             <div class="order-summary">
                 <div class="order-products">
-                    ${pedido.produtos.slice(0, 3).map(produto => `
-                        <img src="${produto.imagem || 'https://via.placeholder.com/50x50?text=Produto'}" 
-                             alt="${produto.nome}" 
+                    ${pedido.itens.slice(0, 3).map(item => `
+                        <img src="${item.imagemUrl || 'https://via.placeholder.com/50x50?text=Produto'}" 
+                             alt="${item.nomeProduto}" 
                              class="product-thumb" 
-                             title="${produto.nome}">
+                             title="${item.nomeProduto}"
+                             onerror="this.onerror=null;this.src='https://via.placeholder.com/50x50?text=Img'">
                     `).join('')}
-                    ${pedido.produtos.length > 3 ? `<span>+${pedido.produtos.length - 3}</span>` : ''}
+                    ${pedido.itens.length > 3 ? `<span>+${pedido.itens.length - 3}</span>` : ''}
                 </div>
-                <div class="order-total">Total: R$ ${pedido.total.toFixed(2)}</div>
+                <div class="order-total">Total: R$ ${pedido.valorTotal.toFixed(2)}</div>
+            </div>
+            <div class="order-customer-info" style="font-size:10px; margin-top:5px; color:#ccc;">
+                Cliente: ${pedido.nomeCliente || 'N/A'} (ID: ${pedido.clienteId})
             </div>
             <div class="order-actions">
-                <button class="details-btn" data-order="${pedido.id}">
+                <button class="details-btn" data-order-id="${pedido.id}">
                     <i class="fas fa-eye"></i> Detalhes
                 </button>
-                <button class="edit-btn" data-order="${pedido.id}">
-                    <i class="fas fa-edit"></i> Editar
+                <button class="edit-btn" data-order-id="${pedido.id}" data-current-status="${statusDoPedido}">
+                    <i class="fas fa-edit"></i> Editar Status
                 </button>
             </div>
         `;
-
         ordersList.appendChild(orderItem);
     });
 
-    // Adiciona eventos aos botões
     document.querySelectorAll('.details-btn').forEach(btn => {
         btn.addEventListener('click', function() {
-            showOrderDetails(this.getAttribute('data-order'));
+            if (typeof mostrarDetalhesPedidoBackend === "function") { // Verifica se a função existe
+                mostrarDetalhesPedidoBackend(this.getAttribute('data-order-id'));
+            } else {
+                console.error("Função mostrarDetalhesPedidoBackend não encontrada. Certifique-se de que Resumo.js está carregado ou a função está disponível.");
+                alert("Não foi possível carregar os detalhes do pedido. Função de visualização não encontrada.");
+            }
         });
     });
 
     document.querySelectorAll('.edit-btn').forEach(btn => {
         btn.addEventListener('click', function() {
-            showEditStatusModal(this.getAttribute('data-order'));
+            showEditStatusModal(this.getAttribute('data-order-id'), this.getAttribute('data-current-status'));
         });
     });
 }
 
-function showOrderDetails(orderId) {
-    const historicoCompras = JSON.parse(localStorage.getItem('historicoCompras')) || [];
-    const pedido = historicoCompras.find(p => p.id === orderId);
-    
-    if (!pedido) {
-        alert('Pedido não encontrado!');
+function showEditStatusModal(orderId, currentStatus) {
+    const modal = document.getElementById('editStatusModal');
+    if (!modal) {
+        console.error("Modal de edição de status não encontrado no DOM.");
         return;
     }
-    
-    const modalContent = document.getElementById('orderDetailsContent');
-    
-    // Formata a data
-    const dataPedido = new Date(pedido.data);
-    const dataFormatada = dataPedido.toLocaleDateString('pt-BR', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-    });
-    
-    // Determina o status
-    const statusClass = `status-${pedido.status}`;
-    const statusText = getStatusText(pedido.status);
-    
-    // HTML dos produtos
-    const produtosHTML = pedido.produtos.map(produto => `
-        <div class="order-product-item">
-            <img src="${produto.imagem || 'https://via.placeholder.com/60x60?text=Produto'}" 
-                class="order-product-img">
-            <div class="order-product-info">
-                <div class="order-product-name">${produto.nome}</div>
-                <div class="order-product-price">Preço unitário: R$ ${produto.preco.toFixed(2)}</div>
-                <div class="order-product-qty">Quantidade: ${produto.quantidade}</div>
-            </div>
-            <div class="order-product-total">R$ ${(produto.preco * produto.quantidade).toFixed(2)}</div>
-        </div>
-    `).join('');
-    
-    // HTML do endereço de entrega
-    const enderecoHTML = `
-        <p>${pedido.endereco.logradouro}, ${pedido.endereco.numero}${pedido.endereco.complemento ? ' - ' + pedido.endereco.complemento : ''}</p>
-        <p>${pedido.endereco.bairro}, ${pedido.endereco.cidade} - ${pedido.endereco.uf}</p>
-        <p>CEP: ${pedido.endereco.cep}</p>
-    `;
-    
-    // HTML da forma de pagamento
-    let pagamentoHTML = '';
-    if (pedido.pagamento.tipo === 'boleto') {
-        pagamentoHTML = '<p>Boleto Bancário</p>';
-    } else if (pedido.pagamento.tipo === 'credito') {
-        pagamentoHTML = `
-            <p>Cartão de Crédito</p>
-            <p>${pedido.pagamento.nomeCartao}</p>
-            <p>Terminado em ${pedido.pagamento.ultimosDigitos}</p>
-            <p>Validade: ${pedido.pagamento.validadeCartao}</p>
-            <p>Parcelas: ${pedido.pagamento.parcelas}x de R$ ${(pedido.total / pedido.pagamento.parcelas).toFixed(2)}</p>
-        `;
-    } else if (pedido.pagamento.tipo === 'pix') {
-        pagamentoHTML = '<p>Pagamento via PIX</p>';
-    }
-    
-    // Monta o conteúdo completo do modal
-    modalContent.innerHTML = `
-        <div class="order-details">
-            <div class="order-info">
-                <h4><i class="fas fa-info-circle"></i> INFORMAÇÕES DO PEDIDO</h4>
-                <p><strong>Número do Pedido:</strong> ${pedido.id}</p>
-                <p><strong>Data:</strong> ${dataFormatada}</p>
-                <p><strong>Status:</strong> <span class="order-status ${statusClass}">${statusText}</span></p>
-                <p><strong>Cliente:</strong> ${pedido.usuarioEmail}</p>
-            </div>
-            
-            <div class="order-info">
-                <h4><i class="fas fa-box-open"></i> PRODUTOS</h4>
-                <div class="order-products-list">
-                    ${produtosHTML}
-                </div>
-            </div>
-            
-            <div class="order-info">
-                <h4><i class="fas fa-map-marker-alt"></i> ENDEREÇO DE ENTREGA</h4>
-                ${enderecoHTML}
-            </div>
-            
-            <div class="order-info">
-                <h4><i class="fas fa-credit-card"></i> FORMA DE PAGAMENTO</h4>
-                ${pagamentoHTML}
-            </div>
-            
-            <div class="order-summary-total">
-                <h4><i class="fas fa-receipt"></i> RESUMO DO PEDIDO</h4>
-                <div class="order-summary-row">
-                    <span>Subtotal:</span>
-                    <span>R$ ${pedido.subtotal?.toFixed(2) || pedido.total.toFixed(2)}</span>
-                </div>
-                <div class="order-summary-row">
-                    <span>Frete:</span>
-                    <span>R$ ${pedido.frete?.toFixed(2) || '0.00'}</span>
-                </div>
-                <div class="order-summary-row">
-                    <span>Desconto:</span>
-                    <span>- R$ ${pedido.desconto?.toFixed(2) || '0.00'}</span>
-                </div>
-                <div class="order-summary-row">
-                    <span>TOTAL:</span>
-                    <span>R$ ${pedido.total.toFixed(2)}</span>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    // Mostra o modal
-    document.getElementById('orderDetailsModal').style.display = 'block';
-    document.body.style.overflow = 'hidden';
-}
-
-function showEditStatusModal(orderId) {
-    const historicoCompras = JSON.parse(localStorage.getItem('historicoCompras')) || [];
-    const pedido = historicoCompras.find(p => p.id === orderId);
-    
-    if (!pedido) {
-        alert('Pedido não encontrado!');
-        return;
-    }
-    
-    // Armazena o ID do pedido que está sendo editado no modal
-    document.getElementById('editStatusModal').setAttribute('data-order', orderId);
-    
-    // Seleciona o status atual no dropdown
+    modal.setAttribute('data-order-id', orderId);
     const statusSelect = document.getElementById('statusSelect');
-    statusSelect.value = pedido.status;
-    
-    // Mostra o modal
-    document.getElementById('editStatusModal').style.display = 'block';
-    document.body.style.overflow = 'hidden';
-    
-    // Configura o botão de salvar
-    document.getElementById('saveStatusBtn').onclick = function() {
-        updateOrderStatus(orderId, statusSelect.value);
-    };
-}
-
-function updateOrderStatus(orderId, newStatus) {
-    const historicoCompras = JSON.parse(localStorage.getItem('historicoCompras')) || [];
-    const pedidoIndex = historicoCompras.findIndex(p => p.id === orderId);
-    
-    if (pedidoIndex === -1) {
-        alert('Pedido não encontrado!');
+    if (!statusSelect) {
+        console.error("Select de status não encontrado no modal.");
         return;
     }
     
-    // Atualiza o status
-    historicoCompras[pedidoIndex].status = newStatus;
+    statusSelect.value = currentStatus; 
     
-    // Salva no localStorage
-    localStorage.setItem('historicoCompras', JSON.stringify(historicoCompras));
+    modal.style.display = 'block';
+    document.body.style.overflow = 'hidden';
     
-    // Fecha o modal
-    closeEditModal();
-    
-    // Recarrega os pedidos
-    const activeFilter = document.querySelector('.filter-btn.active').getAttribute('data-filter');
-    loadOrders(activeFilter);
-    
-    // Mostra mensagem de sucesso
-    alert(`Status do pedido ${orderId} atualizado para "${getStatusText(newStatus)}"`);
-}
-
-function closeModal() {
-    document.getElementById('orderDetailsModal').style.display = 'none';
-    document.body.style.overflow = 'auto';
-}
-
-function closeEditModal() {
-    document.getElementById('editStatusModal').style.display = 'none';
-    document.body.style.overflow = 'auto';
-}
-
-function getStatusText(status) {
-    switch(status) {
-        case 'aguardando': return 'AGUARDANDO PAGAMENTO';
-        case 'rejeitado': return 'PAGAMENTO REJEITADO';
-        case 'aprovado': return 'PAGAMENTO APROVADO';
-        case 'retirada': return 'AGUARDANDO RETIRADA';
-        case 'transito': return 'Estornado';
-        case 'entregue': return 'ENTREGUE';
-        default: return status.toUpperCase();
+    const saveBtn = document.getElementById('saveStatusBtn');
+    if (saveBtn) {
+        saveBtn.onclick = function() { // Remove event listeners anteriores implicitamente
+            updateOrderStatusBackend(orderId, statusSelect.value);
+        };
+    } else {
+        console.error("Botão de salvar status não encontrado no modal.");
     }
 }
 
-// Fecha o modal ao clicar fora do conteúdo
+async function updateOrderStatusBackend(orderId, newStatus) {
+    const btnSalvar = document.getElementById('saveStatusBtn');
+    const originalText = btnSalvar.innerHTML;
+    btnSalvar.disabled = true;
+    btnSalvar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
+
+    try {
+        const response = await fetch(`/api/pedidos/${orderId}/status`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ statusPedido: newStatus })
+        });
+
+        const responseData = await response.json();
+
+        if (!response.ok) {
+            throw new Error(responseData.message || `Erro HTTP ${response.status}`);
+        }
+        
+        mostrarNotificacaoGlobal(`Status do pedido #${orderId} atualizado para "${getStatusTextGlobal(responseData.statusPedido)}"`, 'sucesso');
+        closeEditModal();
+        const activeFilter = document.querySelector('.filter-btn.active');
+        loadOrdersFromBackend(activeFilter ? activeFilter.getAttribute('data-filter') : 'all'); 
+    } catch (error) {
+        console.error('Erro ao atualizar status:', error);
+        mostrarNotificacaoGlobal(error.message || 'Falha ao atualizar status.', 'erro');
+    } finally {
+        if (btnSalvar) {
+            btnSalvar.disabled = false;
+            btnSalvar.innerHTML = originalText;
+        }
+    }
+}
+
+function getStatusTextGlobal(status) { // Renomeada para evitar conflito se Resumo.js for carregado
+    switch(status) {
+        case 'AGUARDANDO_PAGAMENTO': return 'AGUARDANDO PAGAMENTO';
+        case 'PAGAMENTO_REJEITADO': return 'PAGAMENTO REJEITADO';
+        case 'PAGO': return 'PAGO (Aprovado)';
+        case 'ENVIADO': return 'ENVIADO';
+        case 'ENTREGUE': return 'ENTREGUE';
+        case 'CANCELADO': return 'CANCELADO';
+        case 'ESTORNADO': return 'ESTORNADO';
+        default: return status ? status.replace(/_/g, ' ').toUpperCase() : 'DESCONHECIDO';
+    }
+}
+
+function closeModal() { 
+    const detalhesModal = document.getElementById('orderDetailsModal');
+    if (detalhesModal) detalhesModal.style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
+
+function closeEditModal() { 
+    const editModal = document.getElementById('editStatusModal');
+    if (editModal) editModal.style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
+
+function mostrarNotificacaoGlobal(mensagem, tipo = 'sucesso') {
+    const containerId = 'notification-container-global';
+    let notificationContainer = document.getElementById(containerId);
+    if (!notificationContainer) {
+        notificationContainer = document.createElement('div');
+        notificationContainer.id = containerId;
+        Object.assign(notificationContainer.style, {
+            position: 'fixed', top: '20px', right: '20px', zIndex: '20000',
+            display: 'flex', flexDirection: 'column', gap: '10px'
+        });
+        document.body.appendChild(notificationContainer);
+    }
+
+    const notification = document.createElement('div');
+    notification.className = `notification ${tipo}`;
+    notification.innerHTML = `<i class="fas fa-${tipo === 'erro' ? 'exclamation-circle' : tipo === 'info' ? 'info-circle' : 'check-circle'}"></i> ${mensagem}`;
+    Object.assign(notification.style, {
+        padding: '12px 18px', marginBottom: '10px', color: 'white', borderRadius: '4px', 
+        boxShadow: '0 2px 8px rgba(0,0,0,0.25)', fontFamily: "'Press Start 2P', cursive",
+        fontSize: '10px', opacity: '0', transition: 'opacity 0.3s ease, transform 0.3s ease',
+        transform: 'translateX(100%)', minWidth: '280px', maxWidth: '380px',
+        borderLeft: `5px solid ${tipo === 'sucesso' ? '#00cc66' : tipo === 'erro' ? '#ff5252' : '#3498db'}`
+    });
+    if (tipo === 'sucesso') notification.style.backgroundColor = 'rgba(0, 204, 102, 0.9)';
+    else if (tipo === 'erro') notification.style.backgroundColor = 'rgba(255, 82, 82, 0.9)';
+    else if (tipo === 'info') notification.style.backgroundColor = 'rgba(52, 152, 219, 0.9)';
+    
+    notificationContainer.appendChild(notification);
+    setTimeout(() => {
+        notification.style.opacity = '1';
+        notification.style.transform = 'translateX(0)';
+    }, 50); 
+    setTimeout(() => {
+        notification.style.opacity = '0';
+        notification.style.transform = 'translateX(110%)';
+        setTimeout(() => notification.remove(), 300);
+    }, 4000);
+}
+
 window.onclick = function(event) {
-    if (event.target === document.getElementById('orderDetailsModal')) {
+    const orderDetailsModal = document.getElementById('orderDetailsModal');
+    const editStatusModal = document.getElementById('editStatusModal');
+
+    if (event.target === orderDetailsModal) {
         closeModal();
     }
-    if (event.target === document.getElementById('editStatusModal')) {
+    if (event.target === editStatusModal) {
         closeEditModal();
     }
 };
+
+// A função mostrarDetalhesPedidoBackend é usada por esta tela,
+// mas está definida em Resumo.js. Se Resumo.js não for carregado
+// nesta página, você precisará copiar a função mostrarDetalhesPedidoBackend
+// para Lista-Pedidos.js ou para um arquivo de utilidades global.
+// Para este exemplo, assumimos que ela estará acessível (por exemplo, se Resumo.js for carregado antes ou
+// a função for movida para um escopo global/compartilhado).

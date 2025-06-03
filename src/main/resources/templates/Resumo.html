@@ -3,43 +3,119 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meus Pedidos - XaropadaGames</title>
+    <title>Resumo do Pedido - XaropadaGames</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link th:href="@{/styles/Resumo.css}" rel="stylesheet" />
+    <style>
+        .pedido-item-atual {
+            border: 2px solid #ff00ff; 
+            padding: 20px;
+            margin-bottom: 20px;
+            background-color: rgba(0,0,0,0.6);
+        }
+        .pedido-item-atual h3 {
+            color: #ff00ff; 
+            border-bottom: 1px dashed #ff00ff;
+            padding-bottom: 8px;
+            margin-top: 15px;
+            font-size: 12px; /* Ajustado */
+        }
+        .checkout-actions {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px dashed #00cc66;
+        }
+        .checkout-actions button {
+            padding: 10px 20px; /* Reduzido */
+            font-size: 10px; /* Reduzido */
+            margin: 0 5px; /* Reduzido */
+        }
+        .btn-concluir-compra {
+            background-color: #00cc66;
+            color: #000;
+        }
+        .btn-concluir-compra:hover {
+            background-color: #00ff85;
+        }
+        .btn-voltar-resumo { 
+            background-color: #ff5252; 
+            color: white;
+            border-color: #d32f2f;
+        }
+        .btn-voltar-resumo:hover {
+            background-color: #d32f2f;
+        }
+        .info-entrega p, .info-pagamento p, .valor-item span {
+            font-size: 10px; /* Ajustado */
+        }
+        .produtos-lista .produto-item .produto-nome {
+             font-size: 10px; /* Ajustado */
+        }
+        .produtos-lista .produto-item .produto-qtd {
+             font-size: 9px; /* Ajustado */
+        }
+        .pedidos-container .pedido-item .btn-detalhes {
+            font-size: 9px;
+            padding: 8px 10px;
+        }
+        .profile-box > h2 { /* Título principal da página */
+            font-size: 16px;
+        }
+        .history-section > h3 { /* Título da seção de histórico */
+            font-size: 12px;
+        }
+
+    </style>
 </head>
 <body> 
     <div class="container">
         <div class="back-to-store">
-            <a th:href="@{/Pagamento}" class="btn-voltar"><i class="fas fa-arrow-left"></i> Voltar</a>
             <a th:href="@{/}" class="btn-marketplace"><i class="fas fa-store"></i> Marketplace</a>
         </div>      
         <div class="profile-box">
-            <h2>Resumo de Pedidos</h2>
+            <h2>Resumo do Pedido Atual</h2>
             
-            <!-- Seção de Histórico de Compras -->
-            <div class="history-section">
-                <h3><i class="fas fa-history"></i> MEUS PEDIDOS RECENTES</h3>
-                <div id="historicoComprasResumo" class="pedidos-container"></div>
-                <button onclick="abrirModalHistorico()" class="action-btn">
-                    <i class="fas fa-receipt"></i> VER TODOS OS PEDIDOS
-                </button>
+            <div id="resumoPedidoAtualContainer" class="history-section" style="border-style: solid; border-color: #ff00ff;">
+                <p class="no-history" style="text-align:center; padding: 20px;">Carregando resumo do seu pedido...</p>
             </div>
 
-    <!-- Modal de Histórico de Compras -->
+            <div class="checkout-actions">
+                <button onclick="window.location.href='/Pagamento'" class="btn-voltar-resumo">
+                    <i class="fas fa-arrow-left"></i> VOLTAR (Pagamento)
+                </button>
+                <button id="btnConcluirCompra" class="btn-concluir-compra">
+                    <i class="fas fa-check-circle"></i> CONCLUIR COMPRA
+                </button>
+            </div>
+            
+            <hr style="border: 1px dashed #00cc66; margin: 30px 0;">
+
+            <div class="history-section">
+                <h3><i class="fas fa-history"></i> MEUS PEDIDOS ANTERIORES</h3>
+                <div id="historicoComprasResumo" class="pedidos-container">
+                     <p class="no-history" style="text-align:center; padding: 10px;">Carregando histórico...</p>
+                </div>
+                <button onclick="abrirModalHistorico()" class="action-btn" style="font-size: 10px; padding: 10px 15px;">
+                    <i class="fas fa-receipt"></i> VER TODO O HISTÓRICO
+                </button>
+            </div>
+        </div>
+    </div>
+
     <div id="historicoModal" class="modal">
-        <div class="modal-content">
+        <div class="modal-content" style="max-height: 80vh; overflow-y: auto;">
             <span class="close" onclick="fecharModalHistorico()">&times;</span>
-            <h3><i class="fas fa-history"></i> HISTÓRICO DE COMPRAS</h3>
+            <h3><i class="fas fa-history"></i> HISTÓRICO DE COMPRAS COMPLETO</h3>
             <div id="historicoCompras" class="pedidos-container"></div>
         </div>
     </div>
 
-    <!-- Modal de Detalhes do Pedido -->
     <div id="detalhesModal" class="detalhes-modal">
-        <div class="detalhes-content">
+        <div class="detalhes-content" style="max-height: 80vh; overflow-y: auto;">
             <span class="close" onclick="fecharModalDetalhes()">&times;</span>
             <div id="detalhesPedidoConteudo"></div>
         </div>
@@ -47,4 +123,4 @@
 
     <script th:src="@{/js/Resumo.js}"></script>
 </body>
-</html> 
+</html>

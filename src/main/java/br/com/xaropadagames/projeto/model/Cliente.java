@@ -3,7 +3,7 @@ package br.com.xaropadagames.projeto.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import java.time.LocalDate;
-import java.util.ArrayList;
+import java.util.ArrayList; // Adicionado
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -38,14 +38,19 @@ public class Cliente {
     
     @NotBlank
     @Size(min = 6)
-    
     private String senha;
     
-    @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL)
-    @JsonIgnore
-    private List<Endereco> enderecos;
+    @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, fetch = FetchType.LAZY) // Alterado para LAZY
+    @JsonIgnore 
+    private List<Endereco> enderecos = new ArrayList<>(); // Inicializado
 
-    // Getters e Setters
+    // NOVO RELACIONAMENTO COM PEDIDO
+    @JsonIgnore 
+    @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Pedido> pedidos = new ArrayList<>(); // Inicializado
+
+
+    // Getters e Setters existentes...
     public Long getId() {
         return id;
     }
@@ -114,7 +119,16 @@ public class Cliente {
         if (this.enderecos == null) {
             this.enderecos = new ArrayList<>();
         }
-        endereco.setCliente(this);
+        endereco.setCliente(this); // Garante a associação bidirecional
         this.enderecos.add(endereco);
+    }
+
+    // Getters e Setters para Pedidos
+    public List<Pedido> getPedidos() {
+        return pedidos;
+    }
+
+    public void setPedidos(List<Pedido> pedidos) {
+        this.pedidos = pedidos;
     }
 }
