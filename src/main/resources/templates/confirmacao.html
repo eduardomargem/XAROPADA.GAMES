@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <!-- metadados e includes -->
+</head>
+<body>
+    <div class="confirmation-container">
+        <div class="confirmation-card">
+            <div class="confirmation-icon success">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h1>PEDIDO CONFIRMADO!</h1>
+            <div class="order-info">
+                <p>Número do pedido: <strong id="numeroPedido"></strong></p>
+                <p>Valor total: <strong id="valorTotal"></strong></p>
+                <p>Status: <span class="status-badge">AGUARDANDO PAGAMENTO</span></p>
+            </div>
+            <p>Enviamos os detalhes para seu e-mail.</p>
+            <div class="confirmation-actions">
+                <a href="/Resumo" class="btn">VER MEUS PEDIDOS</a>
+                <a href="/" class="btn btn-outline">VOLTAR À LOJA</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const numeroPedido = urlParams.get('pedido');
+            const valorTotal = parseFloat(urlParams.get('total'));
+            
+            document.getElementById('numeroPedido').textContent = numeroPedido;
+            document.getElementById('valorTotal').textContent = `R$ ${valorTotal.toFixed(2)}`;
+            
+            // Mostra notificação
+            setTimeout(() => {
+                alert(`Pedido #${numeroPedido} criado com sucesso! Valor: R$ ${valorTotal.toFixed(2)}`);
+            }, 500);
+        });
+    </script>
+</body>
+</html>

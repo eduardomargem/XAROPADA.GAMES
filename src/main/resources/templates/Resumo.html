@@ -1,50 +1,88 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meus Pedidos - XaropadaGames</title>
+    <title>Resumo do Pedido - XaropadaGames</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link th:href="@{/styles/Resumo.css}" rel="stylesheet" />
 </head>
-<body> 
+<body>
     <div class="container">
         <div class="back-to-store">
             <a th:href="@{/Pagamento}" class="btn-voltar"><i class="fas fa-arrow-left"></i> Voltar</a>
             <a th:href="@{/}" class="btn-marketplace"><i class="fas fa-store"></i> Marketplace</a>
-        </div>      
-        <div class="profile-box">
-            <h2>Resumo de Pedidos</h2>
+        </div>
+        
+        <div class="order-summary-box">
+            <h2><i class="fas fa-receipt"></i> RESUMO DO PEDIDO</h2>
             
-            <!-- Seção de Histórico de Compras -->
-            <div class="history-section">
-                <h3><i class="fas fa-history"></i> MEUS PEDIDOS RECENTES</h3>
-                <div id="historicoComprasResumo" class="pedidos-container"></div>
-                <button onclick="abrirModalHistorico()" class="action-btn">
-                    <i class="fas fa-receipt"></i> VER TODOS OS PEDIDOS
+            <!-- Seção de Produtos -->
+            <div class="products-section">
+                <h3><i class="fas fa-gamepad"></i> PRODUTOS</h3>
+                <div id="produtosLista" class="products-list">
+                    <!-- Produtos serão preenchidos via JavaScript -->
+                </div>
+            </div>
+            
+            <!-- Seção de Endereço -->
+            <div class="address-section">
+                <h3><i class="fas fa-map-marker-alt"></i> ENDEREÇO DE ENTREGA</h3>
+                <div id="enderecoEntrega" class="address-info">
+                    <!-- Endereço será preenchido via JavaScript -->
+                </div>
+            </div>
+            
+            <!-- Seção de Pagamento -->
+            <div class="payment-section">
+                <h3><i class="fas fa-credit-card"></i> FORMA DE PAGAMENTO</h3>
+                <div id="formaPagamento" class="payment-info">
+                    <!-- Forma de pagamento será preenchida via JavaScript -->
+                </div>
+            </div>
+            
+            <!-- Seção de Resumo Financeiro -->
+            <div class="summary-section">
+                <h3><i class="fas fa-calculator"></i> RESUMO FINANCEIRO</h3>
+                <div class="summary-values">
+                    <div class="summary-row">
+                        <span>Subtotal:</span>
+                        <span id="subtotal">R$ 0,00</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Frete:</span>
+                        <span id="frete">R$ 0,00</span>
+                    </div>
+                    <div class="summary-row total">
+                        <span>Total:</span>
+                        <span id="total">R$ 0,00</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Botões de Ação -->
+            <div class="action-buttons">
+                <button id="btnConcluirCompra" class="btn-concluir">
+                    <i class="fas fa-check-circle"></i> CONCLUIR COMPRA
+                </button>
+                <button onclick="window.location.href='/Pagamento'" class="btn-voltar">
+                    <i class="fas fa-arrow-left"></i> VOLTAR
                 </button>
             </div>
-
-    <!-- Modal de Histórico de Compras -->
-    <div id="historicoModal" class="modal">
+        </div>
+    </div>
+    
+    <!-- Modal de Confirmação -->
+    <div id="confirmModal" class="modal">
         <div class="modal-content">
-            <span class="close" onclick="fecharModalHistorico()">&times;</span>
-            <h3><i class="fas fa-history"></i> HISTÓRICO DE COMPRAS</h3>
-            <div id="historicoCompras" class="pedidos-container"></div>
+            <div id="confirmContent"></div>
+            <button id="btnCloseModal" class="btn-ok">OK</button>
         </div>
     </div>
-
-    <!-- Modal de Detalhes do Pedido -->
-    <div id="detalhesModal" class="detalhes-modal">
-        <div class="detalhes-content">
-            <span class="close" onclick="fecharModalDetalhes()">&times;</span>
-            <div id="detalhesPedidoConteudo"></div>
-        </div>
-    </div>
-
+    
     <script th:src="@{/js/Resumo.js}"></script>
 </body>
-</html> 
+</html>

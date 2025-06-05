@@ -616,37 +616,37 @@ function removerItem(id) {
     atualizarContadorCarrinho();
 }
 
-// Função para finalizar compra
-function finalizarCompra() {
-    const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
+// // Função para finalizar compra
+// function finalizarCompra() {
+//     const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
     
-    if (!usuarioLogado) {
-        mostrarNotificacao('Por favor, faça login para finalizar sua compra!', 'erro');
-        window.location.href = '/index';
-        return;
-    }
+//     if (!usuarioLogado) {
+//         mostrarNotificacao('Por favor, faça login para finalizar sua compra!', 'erro');
+//         window.location.href = '/index';
+//         return;
+//     }
     
-    const carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
-    if (carrinho.length === 0) {
-        mostrarNotificacao('Seu carrinho está vazio!', 'erro');
-        return;
-    }
+//     const carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
+//     if (carrinho.length === 0) {
+//         mostrarNotificacao('Seu carrinho está vazio!', 'erro');
+//         return;
+//     }
     
-    // Verifica se o frete foi selecionado
-    const freteSelecionado = document.querySelector('.frete-option.selected');
-    if (!freteSelecionado) {
-        mostrarNotificacao('Por favor, selecione uma opção de frete!', 'erro');
-        return;
-    }
+//     // Verifica se o frete foi selecionado
+//     const freteSelecionado = document.querySelector('.frete-option.selected');
+//     if (!freteSelecionado) {
+//         mostrarNotificacao('Por favor, selecione uma opção de frete!', 'erro');
+//         return;
+//     }
     
-    // Simula finalização da compra
-    mostrarNotificacao('Compra finalizada com sucesso! Obrigado por comprar conosco.');
+//     // Simula finalização da compra
+//     mostrarNotificacao('Compra finalizada com sucesso! Obrigado por comprar conosco.');
     
-    // Limpa o carrinho
-    localStorage.removeItem('carrinho');
-    fecharModal();
-    atualizarContadorCarrinho();
-}
+//     // Limpa o carrinho
+//     localStorage.removeItem('carrinho');
+//     fecharModal();
+//     atualizarContadorCarrinho();
+// }
 
 // Inicialização
 document.addEventListener('DOMContentLoaded', () => {
@@ -680,6 +680,10 @@ document.addEventListener('DOMContentLoaded', () => {
             mostrarNotificacao('Por favor, selecione uma opção de frete!', 'erro');
             return;
         }
+        
+        // Salva o valor do frete no localStorage para usar nas próximas páginas
+        const freteValor = parseFloat(freteSelecionado.getAttribute('data-value'));
+        localStorage.setItem('freteSelecionado', freteValor.toString());
         
         // Redireciona para a página de dados de entrega
         window.location.href = '/Dados-Entrega';

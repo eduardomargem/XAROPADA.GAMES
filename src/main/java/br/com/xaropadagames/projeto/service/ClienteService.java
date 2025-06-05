@@ -173,4 +173,11 @@ public class ClienteService {
         cliente.getEnderecos().remove(endereco);
         clienteDAO.save(cliente);
     }
+
+    public Optional<Endereco> buscarEnderecoPorId(Long clienteId, Long enderecoId) {
+        return clienteDAO.findById(clienteId)
+            .flatMap(cliente -> cliente.getEnderecos().stream()
+                .filter(e -> e.getId().equals(enderecoId))
+                .findFirst());
+    }
 }

@@ -163,4 +163,14 @@ public class ClienteController {
         clienteService.removerEndereco(clienteId, enderecoId);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/{clienteId}/enderecos/{enderecoId}")
+    public ResponseEntity<Endereco> buscarEnderecoPorId(
+        @PathVariable Long clienteId,
+        @PathVariable Long enderecoId) {
+        
+        Endereco endereco = clienteService.buscarEnderecoPorId(clienteId, enderecoId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Endereço não encontrado"));
+        return ResponseEntity.ok(endereco);
+    }
 }
