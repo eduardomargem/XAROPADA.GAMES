@@ -300,6 +300,14 @@ function updateImageCounter() {
     }
 }
 
+// Função para logout
+function logout() {
+    if (confirm("Tem certeza que deseja sair?")) {
+        localStorage.removeItem('usuarioLogado');
+        window.location.href = "/";
+    }
+}
+
 // Função para gerar estrelas de avaliação
 function gerarEstrelas(avaliacao) {
     const avaliacaoNum = parseFloat(avaliacao) || 0;

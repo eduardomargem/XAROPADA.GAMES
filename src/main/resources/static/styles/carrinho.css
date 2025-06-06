@@ -1094,6 +1094,18 @@ button:hover {
     color: #fff;
 }
 
+/* LOGOUT */
+.logout-section {
+    text-align: center;
+    margin-top: 30px;
+}
+
+.logout-section button {
+    background: #ff0000;
+    border-color: #ff0000;
+    animation: blink-red 1s infinite;
+}
+
 
 /* Modal de produto */
 .product-modal-container {
