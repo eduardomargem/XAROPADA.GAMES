@@ -1,8 +1,12 @@
 package br.com.xaropadagames.projeto.controller;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+import org.hibernate.query.Page;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import br.com.xaropadagames.projeto.dto.PedidoRequest;
+import br.com.xaropadagames.projeto.dto.PedidoResponse;
 import br.com.xaropadagames.projeto.model.Pedido;
 import br.com.xaropadagames.projeto.service.PedidoService;
 
@@ -69,5 +74,16 @@ public class PedidoController {
             @RequestParam String novoStatus) {
         Pedido pedidoAtualizado = pedidoService.atualizarStatus(id, novoStatus);
         return ResponseEntity.ok(pedidoAtualizado);
+    }
+
+    @GetMapping("/cliente/{clienteId}")
+    public ResponseEntity<List<PedidoResponse>> buscarPedidosPorCliente(@PathVariable Long clienteId) {
+        List<Pedido> pedidos = pedidoService.buscarPorClienteId(clienteId);
+        
+        List<PedidoResponse> response = pedidos.stream()
+            .map(PedidoResponse::fromEntity)
+            .collect(Collectors.toList());
+        
+        return ResponseEntity.ok(response);
     }
 }

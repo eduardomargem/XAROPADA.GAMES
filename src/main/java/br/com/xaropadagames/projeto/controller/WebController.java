@@ -71,4 +71,9 @@ public class WebController {
     public String ListaPedidos() {
         return "Lista-Pedidos";
     }
+
+    @GetMapping("/Meus-Pedidos")
+    public String MeusPedidos() {
+        return "Meus-Pedidos";
+    }
 }

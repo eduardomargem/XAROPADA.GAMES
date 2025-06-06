@@ -104,4 +104,23 @@ public class Produto {
     public void setImagens(List<ImagemProduto> imagens) {
         this.imagens = imagens;
     }
+
+    public String getImagemUrl() {
+        if (this.imagens != null && !this.imagens.isEmpty()) {
+            ImagemProduto primeiraImagem = this.imagens.get(0);
+            
+            // 1. Prioriza o caminho direto se existir
+            if (primeiraImagem.getCaminho() != null && !primeiraImagem.getCaminho().isBlank()) {
+                return primeiraImagem.getCaminho();
+            }
+            
+            // 2. Fallback para o endpoint de API se tiver ID
+            if (primeiraImagem.getId() != null) {
+                return "/imagens/" + primeiraImagem.getId();
+            }
+        }
+        
+        // 3. Fallback final para imagem padrão
+        return "/images/placeholder-produto.png";
+    }
 }

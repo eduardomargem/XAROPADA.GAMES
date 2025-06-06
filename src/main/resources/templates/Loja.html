@@ -22,7 +22,7 @@
         </div>
 
         <div class="header-links">
-                <a th:href="@{/Resumo}" class="header-link">
+                <a th:href="@{/Meus-Pedidos}" class="header-link">
                     <i class="fas fa-clipboard-list"></i> Meus Pedidos
                 </a>
             </div>
@@ -103,12 +103,14 @@
     </div>
 
     <!-- Modal de Detalhes do Produto -->
-    <div class="product-modal" id="productModal">
-        <div class="modal-product-content">
-            <span class="close-product-modal" id="closeProductModal">&times;</span>
-            <div class="product-modal-body" id="productModalBody"></div>
+<div class="product-modal" id="productModal">
+    <div class="modal-product-content">
+        <span class="close-product-modal" id="closeProductModal">&times;</span>
+        <div class="product-modal-body" id="productModalBody">
+            <!-- Conteúdo será preenchido dinamicamente -->
         </div>
     </div>
+</div>
 
     <script th:src="@{/js/Carrinho.js}"></script>
     <script>

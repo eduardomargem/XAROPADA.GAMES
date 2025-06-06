@@ -122,6 +122,34 @@
       </div>
     </div>
 
+    <!-- Modal de Visualização de Produto -->
+<div id="viewProductModal" class="modal" style="display: none;">
+  <div class="modal-content">
+    <span class="close" onclick="closeViewProductModal()">&times;</span>
+    <h2>Visualizar Produto</h2>
+    <div id="productViewContent">
+      <div class="product-info">
+        <h3 id="viewProductName"></h3>
+        <p><strong>Código:</strong> <span id="viewProductCode"></span></p>
+        <p><strong>Preço:</strong> R$ <span id="viewProductPrice"></span></p>
+        <p><strong>Quantidade:</strong> <span id="viewProductQuantity"></span></p>
+        <p><strong>Descrição:</strong> <span id="viewProductDescription"></span></p>
+        <p><strong>Avaliação:</strong> <span id="viewProductRating"></span></p>
+      </div>
+      
+      <!-- Carrossel de Imagens -->
+      <div class="image-carousel">
+        <div id="productImagesCarousel" class="carousel-container"></div>
+        <div class="carousel-controls">
+          <button onclick="prevImage()">❮</button>
+          <span id="imageCounter">1/1</span>
+          <button onclick="nextImage()">❯</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
     <!-- Filtros e Tabela -->
     <section>
       <h2>Lista de Produtos - Administrador</h2>

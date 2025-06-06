@@ -184,9 +184,7 @@ async function abrirModalProduto(produtoId) {
     try {
         const produto = await buscarDetalhesProduto(produtoId);
         if (!produto) return;
-        
-        clearInterval(carrosselInterval);
-        
+
         // Organiza as imagens
         let imagensProduto = produto.imagens || [];
         if (imagensProduto.length === 0) {
@@ -196,39 +194,29 @@ async function abrirModalProduto(produtoId) {
         // Formata a avaliação
         const avaliacao = produto.avaliacao ? parseFloat(produto.avaliacao) : 0;
         
-        // Cria o HTML do modal
+        // Cria o HTML do modal com o novo carrossel
         elements.productModalBody.innerHTML = `
-            <div class="product-modal-container">
+            <div class="product-info-container">
                 <!-- Carrossel de Imagens -->
-                <div class="product-gallery">
-                    <div class="carrossel-container">
-                        <div class="carrossel">
-                            ${imagensProduto.map((img, index) => `
-                                <div class="carrossel-slide ${index === 0 ? 'active' : ''}" data-index="${index}">
-                                    <img src="${apiUrl}/imagens/${img.id}" 
-                                         class="carrossel-img"
-                                         alt="${produto.nome} - Imagem ${index + 1}"
-                                         draggable="false"
-                                         onerror="this.onerror=null;this.src='https://static.thenounproject.com/png/1554489-200.png'">
-                                </div>
-                            `).join('')}
-                        </div>
-                        ${imagensProduto.length > 1 ? `
-                        <button class="carrossel-prev" aria-label="Imagem anterior">&lt;</button>
-                        <button class="carrossel-next" aria-label="Próxima imagem">&gt;</button>
-                        <div class="carrossel-nav">
-                            ${imagensProduto.map((_, index) => `
-                                <div class="carrossel-indicator ${index === 0 ? 'active' : ''}" 
-                                     data-index="${index}"></div>
-                            `).join('')}
-                        </div>
-                        ` : ''}
+                <div class="image-carousel">
+                    <div id="productImagesCarousel" class="carousel-container">
+                        ${imagensProduto.map((img, index) => `
+                            <img src="${apiUrl}/imagens/${img.id}" 
+                                 class="${index === 0 ? 'active' : ''}"
+                                 alt="${produto.nome} - Imagem ${index + 1}"
+                                 onerror="this.onerror=null;this.src='https://static.thenounproject.com/png/1554489-200.png'">
+                        `).join('')}
+                    </div>
+                    <div class="carousel-controls">
+                        <button onclick="prevImage()">❮</button>
+                        <span id="imageCounter">1/${imagensProduto.length}</span>
+                        <button onclick="nextImage()">❯</button>
                     </div>
                 </div>
                 
                 <!-- Informações do Produto -->
-                <div class="product-details">
-                    <h1 class="product-title">${produto.nome}</h1>
+                <div class="product-info">
+                    <h1>${produto.nome}</h1>
                     
                     <div class="product-meta">
                         <div class="product-rating">
@@ -263,114 +251,11 @@ async function abrirModalProduto(produtoId) {
             </div>
         `;
 
-        // Configuração do carrossel (apenas se houver mais de uma imagem)
-        if (imagensProduto.length > 0) {
-            const carrossel = elements.productModalBody.querySelector('.carrossel');
-            const slides = elements.productModalBody.querySelectorAll('.carrossel-slide');
-            const indicators = elements.productModalBody.querySelectorAll('.carrossel-indicator');
-            const prevBtn = elements.productModalBody.querySelector('.carrossel-prev');
-            const nextBtn = elements.productModalBody.querySelector('.carrossel-next');
-        
-            let currentImageIndex = 0;
-            const totalImages = imagensProduto.length;
-            
-
-            // Configura o carrossel
-            carrossel.style.width = `${totalImages * 100}%`;
-
-            slides.forEach(slide => {
-                slide.style.width = `${100 / totalImages}%`;
-            });
-
-
-            // Função para atualizar a exibição
-            const updateCarrossel = () => {
-                // Esconde todos os slides
-                slides.forEach(slide => {
-                    slide.classList.remove('active');
-                });
-                
-                // Mostra apenas o slide atual
-                slides[currentImageIndex].classList.add('active');
-                
-                // Atualiza a posição do carrossel
-                carrossel.style.transform = `translateX(-${currentImageIndex * (100 / totalImages)}%)`;
-
-                
-                // Atualiza indicadores
-                indicators.forEach((indicator, i) => {
-                    indicator.classList.toggle('active', i === currentImageIndex);
-                });
-            };
-
-            // Função para ir para o próximo slide
-            const nextSlide = () => {
-                currentImageIndex = (currentImageIndex + 1) % totalImages;
-                updateCarrossel();
-            };
-
-            // Função para ir para o slide anterior
-            const prevSlide = () => {
-                currentImageIndex = (currentImageIndex - 1 + totalImages) % totalImages;
-                updateCarrossel();
-            };
-
-            // Event listeners para navegação
-            nextBtn?.addEventListener('click', () => {
-                clearInterval(carrosselInterval);
-                nextSlide();
-                startCarrossel();
-            });
-        
-            prevBtn?.addEventListener('click', () => {
-                clearInterval(carrosselInterval);
-                prevSlide();
-                startCarrossel();
-            });
-        
-            // Event listeners para indicadores
-            indicators.forEach(indicator => {
-                indicator.addEventListener('click', () => {
-                    clearInterval(carrosselInterval);
-                    currentImageIndex = parseInt(indicator.getAttribute('data-index'));
-                    updateCarrossel();
-                    startCarrossel();
-                });
-            });
-        
-            // Inicia com o primeiro slide ativo
-            if (indicators.length > 0) {
-                indicators[0].classList.add('active');
-            }
-        
-            // Inicia o carrossel automático (se houver mais de uma imagem)
-            const startCarrossel = () => {
-
-                carrosselInterval = setInterval(nextSlide, 5000);
-            };
-
-            // Inicializa o carrossel
-          
-            updateCarrossel();
-            startCarrossel();
-
-            // Pausa o carrossel quando o mouse está sobre ele
-            carrossel.addEventListener('mouseenter', () => {
-                clearInterval(carrosselInterval);
-            });
-
-            // Retoma o carrossel quando o mouse sai
-            carrossel.addEventListener('mouseleave', () => {
-                startCarrossel();
-            });
-        }
-
         // Evento para adicionar ao carrinho
         const addButton = elements.productModalBody.querySelector('.add-to-cart-btn');
         addButton.addEventListener('click', (e) => {
             e.stopPropagation();
             adicionarAoCarrinho(produto);
-            
         });
 
     } catch (error) {
@@ -379,6 +264,39 @@ async function abrirModalProduto(produtoId) {
     } finally {
         elements.productModal.style.display = 'block';
         document.body.style.overflow = 'hidden';
+    }
+}
+
+// Funções para navegação do carrossel
+let currentImageIndex = 0;
+
+function prevImage() {
+    const images = document.querySelectorAll('#productImagesCarousel img');
+    if (images.length === 0) return;
+    
+    images[currentImageIndex].classList.remove('active');
+    currentImageIndex = (currentImageIndex - 1 + images.length) % images.length;
+    images[currentImageIndex].classList.add('active');
+    updateImageCounter();
+}
+
+function nextImage() {
+    const images = document.querySelectorAll('#productImagesCarousel img');
+    if (images.length === 0) return;
+    
+    images[currentImageIndex].classList.remove('active');
+    currentImageIndex = (currentImageIndex + 1) % images.length;
+    images[currentImageIndex].classList.add('active');
+    updateImageCounter();
+}
+
+function updateImageCounter() {
+    const images = document.querySelectorAll('#productImagesCarousel img');
+    if (images.length === 0) return;
+    
+    const counter = document.getElementById('imageCounter');
+    if (counter) {
+        counter.textContent = `${currentImageIndex + 1}/${images.length}`;
     }
 }
 
@@ -616,6 +534,128 @@ function removerItem(id) {
     atualizarContadorCarrinho();
 }
 
+function initCarrossel(imagensProduto) {
+    clearInterval(carrosselInterval);
+    
+    const carrossel = document.querySelector('.carrossel');
+    const slides = document.querySelectorAll('.carrossel-slide');
+    const indicators = document.querySelectorAll('.carrossel-indicator');
+    const prevBtn = document.querySelector('.carrossel-prev');
+    const nextBtn = document.querySelector('.carrossel-next');
+    
+    let currentImageIndex = 0;
+    const totalImages = imagensProduto.length;
+    
+    // Configura o carrossel
+    carrossel.style.width = `${totalImages * 100}%`;
+    
+    slides.forEach(slide => {
+        slide.style.width = `${100 / totalImages}%`;
+    });
+    
+    // Função para atualizar a exibição
+    const updateCarrossel = () => {
+        // Atualiza a posição do carrossel
+        carrossel.style.transform = `translateX(-${currentImageIndex * (100 / totalImages)}%)`;
+        
+        // Atualiza indicadores
+        indicators.forEach((indicator, i) => {
+            indicator.classList.toggle('active', i === currentImageIndex);
+        });
+    };
+    
+    // Função para ir para o próximo slide
+    const nextSlide = () => {
+        currentImageIndex = (currentImageIndex + 1) % totalImages;
+        updateCarrossel();
+    };
+    
+    // Função para ir para o slide anterior
+    const prevSlide = () => {
+        currentImageIndex = (currentImageIndex - 1 + totalImages) % totalImages;
+        updateCarrossel();
+    };
+    
+    // Event listeners para navegação
+    if (nextBtn) {
+        nextBtn.addEventListener('click', () => {
+            clearInterval(carrosselInterval);
+            nextSlide();
+            startCarrossel();
+        });
+    }
+    
+    if (prevBtn) {
+        prevBtn.addEventListener('click', () => {
+            clearInterval(carrosselInterval);
+            prevSlide();
+            startCarrossel();
+        });
+    }
+    
+    // Event listeners para indicadores
+    indicators.forEach(indicator => {
+        indicator.addEventListener('click', () => {
+            clearInterval(carrosselInterval);
+            currentImageIndex = parseInt(indicator.getAttribute('data-index'));
+            updateCarrossel();
+            startCarrossel();
+        });
+    });
+    
+    // Inicia o carrossel automático (se houver mais de uma imagem)
+    const startCarrossel = () => {
+        if (totalImages > 1) {
+            carrosselInterval = setInterval(nextSlide, 5000);
+        }
+    };
+    
+    // Inicializa o carrossel
+    updateCarrossel();
+    startCarrossel();
+    
+    // Pausa o carrossel quando o mouse está sobre ele
+    carrossel.addEventListener('mouseenter', () => {
+        clearInterval(carrosselInterval);
+    });
+    
+    // Retoma o carrossel quando o mouse sai
+    carrossel.addEventListener('mouseleave', () => {
+        startCarrossel();
+    });
+}
+
+function generateCarrosselHTML(imagensProduto, produtoNome) {
+    return `
+        <div class="carrossel-container">
+            <div class="carrossel">
+                ${imagensProduto.map((img, index) => `
+                    <div class="carrossel-slide" data-index="${index}">
+                        <div class="slide-image-container">
+                            <img src="${apiUrl}/imagens/${img.id}" 
+                                 class="carrossel-img"
+                                 alt="${produtoNome} - Imagem ${index + 1}"
+                                 onerror="this.onerror=null;this.src='https://static.thenounproject.com/png/1554489-200.png'">
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+            ${imagensProduto.length > 1 ? `
+            <button class="carrossel-prev" aria-label="Imagem anterior">&lt;</button>
+            <button class="carrossel-next" aria-label="Próxima imagem">&gt;</button>
+            <div class="carrossel-nav">
+                ${imagensProduto.map((_, index) => `
+                    <div class="carrossel-indicator ${index === 0 ? 'active' : ''}" 
+                         data-index="${index}"></div>
+                `).join('')}
+            </div>
+            ` : ''}
+        </div>
+    `;
+}
+
+
+
 // // Função para finalizar compra
 // function finalizarCompra() {
 //     const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
@@ -683,7 +723,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Salva o valor do frete no localStorage para usar nas próximas páginas
         const freteValor = parseFloat(freteSelecionado.getAttribute('data-value'));
-        localStorage.setItem('freteSelecionado', freteValor.toString());
+        localStorage.setItem('frete', freteValor.toString());
         
         // Redireciona para a página de dados de entrega
         window.location.href = '/Dados-Entrega';
@@ -695,8 +735,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     
     elements.productModal.addEventListener('click', (e) => {
-        if (e.target === elements.productModal) fecharModalProduto();
-    });
+    if (e.target === elements.productModal) {
+        fecharModalProduto();
+    }
+});
     
     // Evento para selecionar frete
     document.querySelectorAll('.frete-option').forEach(option => {

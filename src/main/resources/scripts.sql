@@ -120,3 +120,5 @@ select * from pedidos
 select * from itens_pedido
 
 select * from pagamentos
+
+select * from imagens_produto

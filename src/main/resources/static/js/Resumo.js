@@ -112,7 +112,7 @@ async function concluirPedido() {
     const carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
     const enderecoEntrega = JSON.parse(localStorage.getItem('enderecoSelecionado'));
     const formaPagamento = JSON.parse(localStorage.getItem('formaPagamento'));
-    const frete = parseFloat(localStorage.getItem('frete')) || 0;
+
 
     if (!enderecoEntrega) {
         alert('Por favor, selecione um endereço de entrega');
@@ -124,8 +124,24 @@ async function concluirPedido() {
         return;
     }
 
-    const subtotal = carrinho.reduce((total, item) => total + (item.preco * item.quantidade), 0);
-    const total = subtotal + frete;
+    const subtotal = carrinho.reduce((total, item) => {
+    const preco = parseFloat(item.preco) || 0;
+    const quantidade = parseInt(item.quantidade) || 0;
+    return total + (preco * quantidade);
+}, 0);
+    let frete = 0;
+try {
+    const freteStorage = localStorage.getItem('frete');
+    if (freteStorage) {
+        frete = parseFloat(freteStorage);
+        if (isNaN(frete)) frete = 0;
+    }
+} catch (e) {
+    console.error("Erro ao obter frete:", e);
+    frete = 0;
+}
+
+const total = subtotal + frete;
 
     // Prepara os itens do pedido
     const itensPedido = carrinho.map(item => ({

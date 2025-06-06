@@ -328,3 +328,79 @@ button:active {
   75% { transform: translateX(-350px); }
   100% { transform: translateX(0); }
 }
+
+/* Estilos para o modal de visualização */
+#productViewContent {
+  display: flex;
+  gap: 30px;
+}
+
+.product-info {
+  flex: 1;
+  text-align: left;
+}
+
+.product-info p {
+  margin: 15px 0;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* Estilos para o carrossel */
+.image-carousel {
+  flex: 1;
+  max-width: 500px;
+}
+
+.carousel-container {
+  position: relative;
+  width: 100%;
+  height: 400px;
+  overflow: hidden;
+  border: 2px solid #00ff85;
+  border-radius: 5px;
+}
+
+.carousel-container img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.carousel-container img.active {
+  opacity: 1;
+  z-index: 1;
+}
+
+.carousel-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 15px;
+  gap: 20px;
+}
+
+.carousel-controls button {
+  background-color: #00FF85;
+  border: none;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.carousel-controls button:hover {
+  background-color: #00cc66;
+}
+
+#imageCounter {
+  font-size: 14px;
+  min-width: 50px;
+  text-align: center;
+}

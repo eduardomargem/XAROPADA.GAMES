@@ -75,6 +75,7 @@ function renderProducts() {
       <td>${product.bo_status === 1 ? 'Ativo' : 'Inativo'}</td>
       <td>
         <button onclick="openEditProductModal(${product.id})">Alterar</button>
+        <button onclick="openViewProductModal(${product.id})">Visualizar</button>
         <button onclick="openProductConfirmationModal(${product.id})">
           ${product.bo_status === 1 ? 'Desativar' : 'Ativar'}
         </button>
@@ -377,6 +378,94 @@ async function toggleProductStatus(id) {
       closeProductModal();
   }
 }
+
+// Variáveis para controle do carrossel
+let currentProductImages = [];
+let currentImageIndex = 0;
+
+// Funções para abrir/fechar o modal de visualização
+function openViewProductModal(id) {
+  fetch(`http://localhost:8080/produtos/${id}`)
+    .then(response => response.json())
+    .then(product => {
+      // Preenche as informações do produto
+      document.getElementById('viewProductName').textContent = product.nome;
+      document.getElementById('viewProductCode').textContent = product.id;
+      document.getElementById('viewProductPrice').textContent = product.preco.toFixed(2);
+      document.getElementById('viewProductQuantity').textContent = product.quantidade;
+      document.getElementById('viewProductDescription').textContent = product.descricao;
+      document.getElementById('viewProductRating').textContent = product.avaliacao;
+      
+      // Limpa o carrossel
+      const carousel = document.getElementById('productImagesCarousel');
+      carousel.innerHTML = '';
+      currentProductImages = product.imagens || [];
+      currentImageIndex = 0;
+      
+      // Adiciona as imagens ao carrossel
+      if (currentProductImages.length > 0) {
+        currentProductImages.forEach((imagem, index) => {
+          const imgElement = document.createElement('img');
+          imgElement.src = `http://localhost:8080/imagens/${imagem.id}`;
+          imgElement.alt = `Imagem ${index + 1} do produto ${product.nome}`;
+          imgElement.classList.toggle('active', index === 0);
+          carousel.appendChild(imgElement);
+        });
+      } else {
+        // Caso não haja imagens
+        const noImageMsg = document.createElement('p');
+        noImageMsg.textContent = 'Nenhuma imagem disponível';
+        carousel.appendChild(noImageMsg);
+      }
+      
+      // Atualiza o contador
+      updateImageCounter();
+      document.getElementById('viewProductModal').style.display = "block";
+    })
+    .catch(error => console.error('Erro ao carregar produto:', error));
+}
+
+
+function closeViewProductModal() {
+  document.getElementById('viewProductModal').style.display = "none";
+}
+
+// Funções para navegar no carrossel
+function nextImage() {
+  if (currentProductImages.length <= 1) return;
+  
+  const images = document.querySelectorAll('#productImagesCarousel img');
+  images[currentImageIndex].classList.remove('active');
+  
+  currentImageIndex = (currentImageIndex + 1) % currentProductImages.length;
+  images[currentImageIndex].classList.add('active');
+  
+  updateImageCounter();
+}
+
+
+function prevImage() {
+  if (currentProductImages.length <= 1) return;
+  
+  const images = document.querySelectorAll('#productImagesCarousel img');
+  images[currentImageIndex].classList.remove('active');
+  
+  currentImageIndex = (currentImageIndex - 1 + currentProductImages.length) % currentProductImages.length;
+  images[currentImageIndex].classList.add('active');
+  
+  updateImageCounter();
+}
+
+
+function updateImageCounter() {
+  const counter = document.getElementById('imageCounter');
+  if (currentProductImages.length > 0) {
+    counter.textContent = `${currentImageIndex + 1}/${currentProductImages.length}`;
+  } else {
+    counter.textContent = '0/0';
+  }
+}
+
 
 // Fecha o modal se clicar fora da área do conteúdo do modal
 window.onclick = function(event) {

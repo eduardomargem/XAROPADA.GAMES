@@ -1,6 +1,7 @@
 package br.com.xaropadagames.projeto.service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
@@ -113,26 +114,30 @@ public class PedidoService {
     return pedidoRepository.findById(id);
 }
 
-@Transactional
-public Pedido atualizarStatus(Long id, String novoStatus) {
-    Pedido pedido = pedidoRepository.findById(id)
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pedido não encontrado"));
-    
-    try {
-        Pedido.StatusPedido status = Pedido.StatusPedido.valueOf(novoStatus);
-        pedido.setStatus(status);
+    @Transactional
+    public Pedido atualizarStatus(Long id, String novoStatus) {
+        Pedido pedido = pedidoRepository.findById(id)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pedido não encontrado"));
         
-        // Atualizar status do pagamento se necessário
-        if (status == Pedido.StatusPedido.PAGAMENTO_SUCESSO) {
-            pedido.getPagamento().setStatus(Pagamento.StatusPagamento.APROVADO);
-            pedido.getPagamento().setDataPagamento(LocalDateTime.now());
-        } else if (status == Pedido.StatusPedido.PAGAMENTO_REJEITADO) {
-            pedido.getPagamento().setStatus(Pagamento.StatusPagamento.REJEITADO);
+        try {
+            Pedido.StatusPedido status = Pedido.StatusPedido.valueOf(novoStatus);
+            pedido.setStatus(status);
+            
+            // Atualizar status do pagamento se necessário
+            if (status == Pedido.StatusPedido.PAGAMENTO_SUCESSO) {
+                pedido.getPagamento().setStatus(Pagamento.StatusPagamento.APROVADO);
+                pedido.getPagamento().setDataPagamento(LocalDateTime.now());
+            } else if (status == Pedido.StatusPedido.PAGAMENTO_REJEITADO) {
+                pedido.getPagamento().setStatus(Pagamento.StatusPagamento.REJEITADO);
+            }
+            
+            return pedidoRepository.save(pedido);
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Status inválido: " + novoStatus);
         }
-        
-        return pedidoRepository.save(pedido);
-    } catch (IllegalArgumentException e) {
-        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Status inválido: " + novoStatus);
     }
+
+    public List<Pedido> buscarPorClienteId(Long clienteId) {
+    return pedidoRepository.findByClienteId(clienteId);
 }
 }
